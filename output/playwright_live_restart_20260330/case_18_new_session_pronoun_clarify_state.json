@@ -1,0 +1,298 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 3,
+    "clarify_count": 1,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.\n                  \n                \n              \n            U그거 HOMO 보여줘계산할 분자를 골라 주세요 / Choose a molecule to compute입력 내용만으로는 분자가 특정되지 않아 먼저 후보를 제안합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "U그거 HOMO 보여줘",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--clarify"
+        ],
+        "text": "계산할 분자를 골라 주세요 / Choose a molecule to compute입력 내용만으로는 분자가 특정되지 않아 먼저 후보를 제안합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+        "isUser": false,
+        "isClarify": true,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [
+      {
+        "text": "계산할 분자를 골라 주세요 / Choose a molecule to compute입력 내용만으로는 분자가 특정되지 않아 먼저 후보를 제안합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+        "labels": [
+          "분자를 선택해 주세요 / Choose a molecule",
+          "직접 입력 / Custom molecule name or SMILES"
+        ],
+        "selects": [
+          [
+            "water",
+            "methane",
+            "ethanol",
+            "methanol",
+            "benzene",
+            "custom"
+          ]
+        ],
+        "textInputs": [
+          {
+            "fieldId": "structure_custom",
+            "value": "",
+            "placeholder": "예: acetone, water, CC(=O)C"
+          }
+        ]
+      }
+    ],
+    "confirms": [],
+    "active_result": null,
+    "active_result_sig": "",
+    "active_job_id": "",
+    "jobs_count": 0,
+    "jobs": [],
+    "session_id": "qcviz-mne0futk-r3ydsk",
+    "last_user_input": "그거 HOMO 보여줘",
+    "_timeout_waiting_for_followup": true
+  },
+  "events": [
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 🎛 Form submit event"
+      },
+      "at": 1774924870.2181604
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 sendMessage: 그거 HOMO 보여줘 ..."
+      },
+      "at": 1774924870.2183828
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: user text length: 11 extra: turnId"
+      },
+      "at": 1774924870.2185712
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: chat length: 187"
+      },
+      "at": 1774924870.2187028
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924870.289761
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924870.314743
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 337"
+      },
+      "at": 1774924870.3678784
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,message,payload,turn_id,timestamp"
+      },
+      "at": 1774924870.3680453
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: awaiting_ack → idle"
+      },
+      "at": 1774924870.3681343
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 3333"
+      },
+      "at": 1774924870.36838
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: clarify keys: type,session_id,message,clarification_kind,form,fields,plan,turn_id,timestamp"
+      },
+      "at": 1774924870.3684914
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← clarify, fields: 2"
+      },
+      "at": 1774924870.3685658
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://3dmol.org/build/3Dmol-min.js",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924871.2668073
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ✔ 3Dmol loaded from CDN 0 : https://3Dmol.org/build/3Dmol-min.js"
+      },
+      "at": 1774924871.289464
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] initViewer — $3Dmol: true viewer3d: true"
+      },
+      "at": 1774924871.289627
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ✔ Viewer created, viewerReady=true"
+      },
+      "at": 1774924871.3025656
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: ping length: 15"
+      },
+      "at": 1774924890.1567912
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 116"
+      },
+      "at": 1774924890.1571486
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,status,turn_id,timestamp"
+      },
+      "at": 1774924890.1572995
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: idle → idle"
+      },
+      "at": 1774924890.1573818
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 39"
+      },
+      "at": 1774924896.5994334
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ping keys: type,ts"
+      },
+      "at": 1774924896.599617
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← unknown message type: ping"
+      },
+      "at": 1774924896.5997188
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: ping length: 15"
+      },
+      "at": 1774924910.1735606
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 116"
+      },
+      "at": 1774924910.1737094
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,status,turn_id,timestamp"
+      },
+      "at": 1774924910.1925197
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: idle → idle"
+      },
+      "at": 1774924910.192648
+    }
+  ]
+}

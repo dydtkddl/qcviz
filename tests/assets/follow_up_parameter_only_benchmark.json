@@ -1,0 +1,102 @@
+{
+  "dataset_id": "follow_up_parameter_only_benchmark",
+  "version": 1,
+  "cases": [
+    {
+      "id": "followup_basis_upgrade_short",
+      "input": "basis만 더 키워봐",
+      "variants": ["기저함수만 더 크게", "Increase only the basis set"],
+      "language": "mixed",
+      "category": "follow_up_parameter_only",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "single_point",
+      "prior_context": {"locked_structure": "benzene", "job_type": "single_point"},
+      "must_not_happen": ["semantic_grounding", "structure_reset"],
+      "notes": "A basis-only follow-up should reuse the locked structure."
+    },
+    {
+      "id": "followup_method_change",
+      "input": "method를 B3LYP로 바꿔",
+      "variants": ["B3LYP로 다시 돌려줘", "Switch the method to B3LYP"],
+      "language": "mixed",
+      "category": "follow_up_parameter_only",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "single_point",
+      "prior_context": {"locked_structure": "acetone", "job_type": "single_point"},
+      "must_not_happen": ["semantic_grounding", "structure_reset"],
+      "notes": "Method-only follow-ups should stay in continuation mode."
+    },
+    {
+      "id": "followup_esp_same_structure",
+      "input": "같은 구조로 ESP도 보여줘",
+      "variants": ["ESP도 같은 구조로", "Show ESP for the same structure too"],
+      "language": "mixed",
+      "category": "follow_up_parameter_only",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "esp_map",
+      "prior_context": {"locked_structure": "methylamine", "job_type": "orbital_preview"},
+      "must_not_happen": ["semantic_grounding", "second_clarification"],
+      "notes": "Same-structure analysis additions should not re-trigger grounding."
+    },
+    {
+      "id": "followup_homo_after_summary",
+      "input": "HOMO도 보여줘",
+      "variants": ["HOMO까지 같이", "Show HOMO as well"],
+      "language": "mixed",
+      "category": "follow_up_parameter_only",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "orbital_preview",
+      "prior_context": {"locked_structure": "ethanol", "job_type": "analyze"},
+      "must_not_happen": ["semantic_grounding", "structure_reset"],
+      "notes": "Adding HOMO after a prior structure lock should compute immediately."
+    },
+    {
+      "id": "followup_lumo_after_homo",
+      "input": "이번엔 LUMO",
+      "variants": ["LUMO도", "Now LUMO"],
+      "language": "mixed",
+      "category": "follow_up_parameter_only",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "orbital_preview",
+      "prior_context": {"locked_structure": "benzene", "job_type": "orbital_preview"},
+      "must_not_happen": ["semantic_grounding", "structure_reset"],
+      "notes": "Short follow-ups should remain stable when context is strong."
+    },
+    {
+      "id": "followup_acs_preset",
+      "input": "ACS 프리셋으로 다시",
+      "variants": ["이번엔 ACS preset", "Use ACS preset this time"],
+      "language": "mixed",
+      "category": "follow_up_parameter_only",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "esp_map",
+      "prior_context": {"locked_structure": "acetone", "job_type": "esp_map"},
+      "must_not_happen": ["unknown_acronym_grounding", "structure_reset"],
+      "notes": "Preset-only follow-ups must not leak into acronym grounding."
+    },
+    {
+      "id": "followup_charge_request",
+      "input": "charge도 봐줘",
+      "variants": ["partial charge도", "Show charges too"],
+      "language": "mixed",
+      "category": "follow_up_parameter_only",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "partial_charges",
+      "prior_context": {"locked_structure": "pyridine", "job_type": "single_point"},
+      "must_not_happen": ["semantic_grounding", "structure_reset"],
+      "notes": "Charge follow-ups should reuse the prior structure."
+    },
+    {
+      "id": "followup_optimization_request",
+      "input": "최적화도 해줘",
+      "variants": ["geometry optimization도", "Optimize it too"],
+      "language": "mixed",
+      "category": "follow_up_parameter_only",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "geometry_optimization",
+      "prior_context": {"locked_structure": "glycine", "job_type": "analyze"},
+      "must_not_happen": ["semantic_grounding", "second_clarification"],
+      "notes": "Optimization follow-ups should continue from the prior structure lock."
+    }
+  ]
+}

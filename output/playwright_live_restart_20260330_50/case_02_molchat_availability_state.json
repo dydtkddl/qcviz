@@ -1,0 +1,75 @@
+{
+  "state": {
+    "title": "MolChat — Molecular Structure Explorer",
+    "chat_text": "MolChat\nBeta\nSearch\nAI Chat\nPubChem ↗\nMolecular Structure Explorer\n\nSearch by name, CID, SMILES, InChI, or formula.\n\nSearch\naspirin\ncaffeine\nglucose\nibuprofen\npenicillin\ndopamine\ncholesterol\nATP",
+    "clarify_count": 0,
+    "confirm_count": 0,
+    "messages": [],
+    "active_result": null,
+    "ws_label": ""
+  },
+  "events": [
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[RouteProgress] pathname changed: / calling NProgress.done()"
+      },
+      "at": 1774889558.7246249
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:3000/molchat/chat?_rsc=19zvn",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.7370276
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:3000/molchat/_next/static/chunks/138-061e3a951bce7ac4.js",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.7455263
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:3000/molchat/_next/static/chunks/app/chat/layout-d07fc10197a3063f.js",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.746936
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:3000/molchat/_next/static/chunks/app/chat/page-00d1e77a4bc971d8.js",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.7480268
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:3000/molchat/_next/static/chunks/629-e8f730351c808252.js",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.7529447
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.894663
+    }
+  ]
+}

@@ -1,0 +1,436 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 17,
+    "clarify_count": 1,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.\n                  \n                \n              \n            UMEA 알아?MEA는 보통 Ethanolamine를 의미합니다.분자식: C2H7NOCID: 700근거: resolved from local alias preference for monoethanolamine원하시면 이 분자를 기준으로 HOMO/LUMO, ESP, 구조 최적화 같은 계산을 바로 이어서 진행할 수 있습니다.{\n  \"normalized_text\": \"MEA 알아?\",\n  \"intent\": \"chat\",\n  \"job_type\": \"chat\",\n  \"query_kind\": \"chat_only\",\n  \"planner_lane\": \"chat_only\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"chat_only\",\n  \"semantic_grounding_needed\": true,\n  \"question_like\": true,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": true,\n  \"grounding_intent\": false,\n  \"compute_intent\": false,\n  \"unknown_acronyms\": [\n    \"MEA\"\n  ],\n  \"confidence\": 0.82,\n  \"confidence_band\": \"high\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"Heuristic chat-only routing.\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"question-like input without explicit compute action -> chat_only\",\n    \"descriptor or unresolved acronym requires grounding before compute\",\n    \"unknown uppercase acronym detected\",\n    \"structure analysis candidate\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"MEA 알아?\"\n  ],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"MEA 알아?\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": null,\n  \"charge\": null,\n  \"multiplicity\": null,\n  \"orbital\": null,\n  \"esp_preset\": null,\n  \"advisor_focus_tab\": \"summary\",\n  \"follow_up_mode\": null,\n  \"clarification_kind\": null,\n  \"missing_slots\": [],\n  \"needs_clarification\": false,\n  \"chat_response\": \"`MEA` looks like an abbreviation, and chemistry abbreviations can be ambiguous.\\n\\n- If you want a calculation, tell me the full compound name or a SMILES string.\\n- If you want an explanation, tell me which compound you mean and what you want to know.\\n\\nFor example: `full name + HOMO`, `full name + ESP`, or `SMILES + optimize`.\"\n}U그거 HOMO 보여줘Plan: orbital_preview | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | orbital=HOMO | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"그거 HOMO 보여줘\",\n  \"intent\": \"orbital_preview\",\n  \"job_type\": \"orbital_preview\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": true,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.35,\n  \"confidence_band\": \"low\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"structure_query not confidently extracted\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"그거 HOMO 보여줘\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [\n    \"HOMO\"\n  ],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": null,\n  \"charge\": null,\n  \"multiplicity\": null,\n  \"orbital\": \"HOMO\",\n  \"esp_preset\": null,\n  \"advisor_focus_tab\": \"summary\",\n  \"follow_up_mode\": \"add_analysis\",\n  \"clarification_kind\": \"continuation_targeting\",\n  \"missing_slots\": [\n    \"structure_query\"\n  ],\n  \"needs_clarification\": true,\n  \"chat_response\": null\n}계산 완료대기열 비어 있음Completed (100%)CancelEthanolamine의 오비탈 계산이 완료되었습니다. HOMO/LUMO와 관련 에너지 차이를 바로 확인할 수 있습니다.U그거 ESP도Plan: esp_map | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"그거 ESP 도\",\n  \"intent\": \"esp_map\",\n  \"job_type\": \"esp_map\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compu",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "UMEA 알아?",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "MEA는 보통 Ethanolamine를 의미합니다.분자식: C2H7NOCID: 700근거: resolved from local alias preference for monoethanolamine원하시면 이 분자를 기준으로 HOMO/LUMO, ESP, 구조 최적화 같은 계산을 바로 이어서 진행할 수 있습니다.{\n  \"normalized_text\": \"MEA 알아?\",\n  \"intent\": \"chat\",\n  \"job_type\": \"chat\",\n  \"query_kind\": \"chat_only\",\n  \"planner_lane\": \"chat_only\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"chat_only\",\n  \"semantic_grounding_needed\": true,\n  \"question_like\": true,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": true,\n  \"grounding_intent\": false,\n  \"compute_intent\": false,\n  \"unknown_acronyms\": [\n    \"MEA\"\n  ],\n  \"confidence\": 0.82,\n  \"confidence_band\": \"high\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"Heuristic chat-only routing.\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"question-like input without explicit compute action -> chat_only\",\n    \"descriptor or unresolved acronym requires grounding before compute\",\n    \"unknown uppercase acronym detected\",\n    \"structure analysis candidate\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"MEA 알아?\"\n  ],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"MEA 알아?\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  ",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "U그거 HOMO 보여줘",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Plan: orbital_preview | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | orbital=HOMO | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"그거 HOMO 보여줘\",\n  \"intent\": \"orbital_preview\",\n  \"job_type\": \"orbital_preview\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": true,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.35,\n  \"confidence_band\": \"low\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"structure_query not confidently extracted\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"그거 HOMO 보여줘\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [\n    \"HOMO\"\n  ],\n  \"batch_request\": false,\n  \"",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--progress"
+        ],
+        "text": "계산 완료대기열 비어 있음Completed (100%)Cancel",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Ethanolamine의 오비탈 계산이 완료되었습니다. HOMO/LUMO와 관련 에너지 차이를 바로 확인할 수 있습니다.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "U그거 ESP도",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Plan: esp_map | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"그거 ESP 도\",\n  \"intent\": \"esp_map\",\n  \"job_type\": \"esp_map\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.35,\n  \"confidence_band\": \"low\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"structure_query not confidently extracted\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"그거 ESP 도\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [\n    \"ESP\"\n  ],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": ",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--progress"
+        ],
+        "text": "계산 완료대기열 비어 있음Completed (100%)Cancel",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Ethanolamine의 ESP 분석이 완료되었습니다. 전하 분포가 집중되는 영역을 시각적으로 해석할 수 있습니다.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "Ubasis만 더 키워봐",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Plan: esp_map | structure=Ethanolamine | method=B3LYP | basis=def2-tzvp | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"basis 만 더 키워봐\",\n  \"intent\": \"analyze\",\n  \"job_type\": \"analyze\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.35,\n  \"confidence_band\": \"low\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"structure_query not confidently extracted\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"collapsed spaced Hangul fragments before structure matching\",\n    \"detected semantic descriptor wording without grounded molecule name\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"basis 만더키워봐\"\n  ],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"basis만 더 키워봐\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\":",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--progress"
+        ],
+        "text": "계산 완료대기열 비어 있음Completed (100%)Cancel",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Ethanolamine의 ESP 분석이 완료되었습니다. 전하 분포가 집중되는 영역을 시각적으로 해석할 수 있습니다.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "Umethod를 PBE0로 바꿔",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--clarify"
+        ],
+        "text": "설명 기반 후보를 확인해 주세요 / Confirm candidates from the description입력하신 설명을 기반으로 MolChat에서 구조화한 후보를 정리했습니다.분자를 선택해 주세요 / Choose a molecule직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+        "isUser": false,
+        "isClarify": true,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [
+      {
+        "text": "설명 기반 후보를 확인해 주세요 / Confirm candidates from the description입력하신 설명을 기반으로 MolChat에서 구조화한 후보를 정리했습니다.분자를 선택해 주세요 / Choose a molecule직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+        "labels": [
+          "분자를 선택해 주세요 / Choose a molecule",
+          "직접 입력 / Custom molecule name or SMILES"
+        ],
+        "selects": [
+          [
+            "custom"
+          ]
+        ],
+        "textInputs": [
+          {
+            "fieldId": "structure_custom",
+            "value": "",
+            "placeholder": "예: acetone, water, CC(=O)C"
+          }
+        ]
+      }
+    ],
+    "confirms": [],
+    "active_result": {
+      "structure_query": "Ethanolamine",
+      "structure_name": "Ethanolamine",
+      "job_type": "esp_map",
+      "analysis_bundle": [],
+      "visualization_available": {
+        "orbital": false,
+        "density": false,
+        "esp": true
+      },
+      "orbital": "",
+      "esp_preset": "acs"
+    },
+    "active_result_sig": "{\"structure_query\":\"Ethanolamine\",\"structure_name\":\"Ethanolamine\",\"job_type\":\"esp_map\",\"analysis_bundle\":[],\"visualization_available\":{\"orbital\":false,\"density\":false,\"esp\":true},\"orbital\":\"\",\"esp_preset\":\"acs\"}",
+    "active_job_id": "e8804b70e7db4c27bb0a26e6d08cc91f",
+    "jobs_count": 3,
+    "jobs": [
+      {
+        "job_id": "c38cabecd4da45d7a6252a5c47c88c58",
+        "status": "completed",
+        "payload_job_type": "",
+        "payload_structure_query": ""
+      },
+      {
+        "job_id": "2820e682a22e4572a03a8b607fc4296c",
+        "status": "completed",
+        "payload_job_type": "",
+        "payload_structure_query": ""
+      },
+      {
+        "job_id": "e8804b70e7db4c27bb0a26e6d08cc91f",
+        "status": "completed",
+        "payload_job_type": "",
+        "payload_structure_query": ""
+      }
+    ],
+    "session_id": "qcviz-mndgciu7-zs1d9c",
+    "last_user_input": "method를 PBE0로 바꿔"
+  },
+  "events": [
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.addModel(xyz, 'xyz', {keepH:true})"
+      },
+      "at": 1774891230.700944
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — applyStyle: stick"
+      },
+      "at": 1774891230.7010832
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] applyStyle: stick → {\"stick\":{\"radius\":0.15},\"sphere\":{\"scale\":0.25}}"
+      },
+      "at": 1774891230.7011957
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — labels: true"
+      },
+      "at": 1774891230.7422707
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — available surfaces: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774891231.2524383
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viz keys: xyz, molecule_xyz, esp, available, xyz_block"
+      },
+      "at": 1774891231.2526298
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — currentMode: orbital"
+      },
+      "at": 1774891231.2527215
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — calling addSurface"
+      },
+      "at": 1774891231.2527955
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774891231.252898
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — no surface to add for mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774891231.2529962
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _populateOrbitalDropdown — 10 orbitals, selected: undefined"
+      },
+      "at": 1774891231.25309
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — final zoomTo + render"
+      },
+      "at": 1774891231.2531393
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate END ───"
+      },
+      "at": 1774891231.334562
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 🎛 Form submit event"
+      },
+      "at": 1774891231.3802073
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 sendMessage: method를 PBE0로 바꿔 ..."
+      },
+      "at": 1774891231.3803866
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: user text length: 16 extra: turnId"
+      },
+      "at": 1774891231.3805256
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: chat length: 192"
+      },
+      "at": 1774891231.3806245
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 347"
+      },
+      "at": 1774891231.624097
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,message,payload,turn_id,timestamp"
+      },
+      "at": 1774891231.6245718
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: awaiting_ack → idle"
+      },
+      "at": 1774891231.6246736
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774891232.477306
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 3002"
+      },
+      "at": 1774891239.4032276
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: clarify keys: type,session_id,message,clarification_kind,form,fields,plan,turn_id,timestamp"
+      },
+      "at": 1774891239.4033563
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← clarify, fields: 2"
+      },
+      "at": 1774891239.4034305
+    }
+  ]
+}

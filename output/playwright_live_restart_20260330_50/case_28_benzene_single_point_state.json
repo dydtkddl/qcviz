@@ -1,0 +1,1096 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 5,
+    "clarify_count": 0,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.\n                  \n                \n              \n            Usingle point energy for benzenePlan: single_point | structure=benzene | method=B3LYP | basis=def2-SVP | confidence=0.95 | via=heuristic{\n  \"normalized_text\": \"single point energy for benzene\",\n  \"intent\": \"single_point\",\n  \"job_type\": \"single_point\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.95,\n  \"confidence_band\": \"high\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"candidate extracted from raw message\",\n    \"structure analysis candidate\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": \"benzene\",\n  \"structure_query_candidates\": [\n    \"benzene\"\n  ],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"benzene\"\n  ],\n  \"canonical_candidates\": [\n    \"benzene\"\n  ],\n  \"raw_input\": \"benzene\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": null,\n  \"charge\": null,\n  \"multiplicity\": null,\n  \"orbital\": null,\n  \"esp_preset\": null,\n  \"advisor_focus_tab\": \"summary\",\n  \"follow_up_mode\": null,\n  \"clarification_kind\": null,\n  \"missing_slots\": [],\n  \"needs_clarification\": false,\n  \"chat_response\": null\n}계산 완료대기열 비어 있음Completed (100%)Cancelbenzene 계산이 완료되었습니다. 핵심 에너지와 수렴 상태를 바탕으로 후속 분석을 진행할 수 있습니다.",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "Usingle point energy for benzene",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Plan: single_point | structure=benzene | method=B3LYP | basis=def2-SVP | confidence=0.95 | via=heuristic{\n  \"normalized_text\": \"single point energy for benzene\",\n  \"intent\": \"single_point\",\n  \"job_type\": \"single_point\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.95,\n  \"confidence_band\": \"high\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"candidate extracted from raw message\",\n    \"structure analysis candidate\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": \"benzene\",\n  \"structure_query_candidates\": [\n    \"benzene\"\n  ],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"benzene\"\n  ],\n  \"canonical_candidates\": [\n    \"benzene\"\n  ],\n  \"raw_input\": \"benzene\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecule",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--progress"
+        ],
+        "text": "계산 완료대기열 비어 있음Completed (100%)Cancel",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "benzene 계산이 완료되었습니다. 핵심 에너지와 수렴 상태를 바탕으로 후속 분석을 진행할 수 있습니다.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [],
+    "confirms": [],
+    "active_result": {
+      "structure_query": "benzene",
+      "structure_name": "benzene",
+      "job_type": "single_point",
+      "analysis_bundle": [],
+      "visualization_available": {
+        "orbital": false,
+        "density": false,
+        "esp": false
+      },
+      "orbital": "",
+      "esp_preset": ""
+    },
+    "active_result_sig": "{\"structure_query\":\"benzene\",\"structure_name\":\"benzene\",\"job_type\":\"single_point\",\"analysis_bundle\":[],\"visualization_available\":{\"orbital\":false,\"density\":false,\"esp\":false},\"orbital\":\"\",\"esp_preset\":\"\"}",
+    "active_job_id": "18e3c188840c4781bbb7413d116768fe",
+    "jobs_count": 1,
+    "jobs": [
+      {
+        "job_id": "18e3c188840c4781bbb7413d116768fe",
+        "status": "completed",
+        "payload_job_type": "",
+        "payload_structure_query": ""
+      }
+    ],
+    "session_id": "qcviz-mndfw2mb-l0h4ps",
+    "last_user_input": "single point energy for benzene"
+  },
+  "events": [
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:8817/compute/jobs?include_result=true&session_id=qcviz-mndfw2mb-l0h4ps",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890354.8470738
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — response status: 200"
+      },
+      "at": 1774890354.8471844
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — loaded 0 jobs from server"
+      },
+      "at": 1774890354.8480048
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 0 filter: (none)"
+      },
+      "at": 1774890354.8614516
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 🎛 Form submit event"
+      },
+      "at": 1774890354.900446
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 sendMessage: single point energy for benzene ..."
+      },
+      "at": 1774890354.9006207
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: user text length: 31 extra: turnId"
+      },
+      "at": 1774890354.9007685
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: chat length: 207"
+      },
+      "at": 1774890354.9008746
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890354.9872622
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890355.0149825
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 377"
+      },
+      "at": 1774890355.1519156
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,message,payload,turn_id,timestamp"
+      },
+      "at": 1774890355.152111
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: awaiting_ack → idle"
+      },
+      "at": 1774890355.1522021
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1914"
+      },
+      "at": 1774890355.1523151
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: assistant keys: type,session_id,message,plan,payload_preview,turn_id,timestamp"
+      },
+      "at": 1774890355.152417
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← assistant message, length: 104 has plan: true"
+      },
+      "at": 1774890355.1525443
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: assistant text length: 104 extra: plan,turnId,jobId"
+      },
+      "at": 1774890355.1527135
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — attaching plan JSON"
+      },
+      "at": 1774890355.1527953
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1396"
+      },
+      "at": 1774890355.152932
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_submitted keys: type,session_id,job,turn_id,timestamp"
+      },
+      "at": 1774890355.1530902
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_submitted, job_id: 18e3c188840c4781bbb7413d116768fe job_type: ?"
+      },
+      "at": 1774890355.1532247
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890355.1533196
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774890355.1533952
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event status:changed — kind: running text: Computing..."
+      },
+      "at": 1774890355.1535316
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] updateStatus — kind: running text: Computing..."
+      },
+      "at": 1774890355.1536663
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 1 step: submitted msg: Job submitted"
+      },
+      "at": 1774890355.1538396
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 2110"
+      },
+      "at": 1774890355.1539314
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774890355.1540227
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 0 step: queued msg: Queued"
+      },
+      "at": 1774890355.154162
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 0 step: queued msg: Queued"
+      },
+      "at": 1774890355.1542947
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890355.1543567
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 296"
+      },
+      "at": 1774890355.1545956
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_event keys: type,session_id,job_id,event,turn_id"
+      },
+      "at": 1774890355.1546886
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_event"
+      },
+      "at": 1774890355.1547387
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774890355.1670308
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://3dmol.org/build/3Dmol-min.js",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890356.0048761
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ✔ 3Dmol loaded from CDN 0 : https://3Dmol.org/build/3Dmol-min.js"
+      },
+      "at": 1774890356.0279357
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] initViewer — $3Dmol: true viewer3d: true"
+      },
+      "at": 1774890356.0280893
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ✔ Viewer created, viewerReady=true"
+      },
+      "at": 1774890356.0389893
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774890357.161456
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 5878"
+      },
+      "at": 1774890362.4149578
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,step,message,queue,job,turn_id"
+      },
+      "at": 1774890362.4151645
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: undefined step: job_started msg: Job started"
+      },
+      "at": 1774890362.4154477
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 0 step: job_started msg: Job started"
+      },
+      "at": 1774890362.4157124
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890362.4158177
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774890362.4158967
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 3234"
+      },
+      "at": 1774890362.416042
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,preview_result"
+      },
+      "at": 1774890362.4161572
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 0.14 step: structure_ready msg: Structure ready for preview"
+      },
+      "at": 1774890362.4164128
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 14 step: structure_ready msg: Structure ready for preview"
+      },
+      "at": 1774890362.4166057
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← structure preview ready for job: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890362.4166992
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: preview"
+      },
+      "at": 1774890362.4168305
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: preview result keys: success,preview,job_type,structure_query,structure_name,atom_spec,xyz,method,basis,charge,multiplicity,warnings,advisor_focus_tab,visualization,default_tab"
+      },
+      "at": 1774890362.417232
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: undefined viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890362.417459
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774890362.4176435
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774890362.4177308
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774890362.4178588
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: undefined viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890362.4180756
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: benzene job_type: single_point method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774890362.4183657
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774890362.4185522
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: preview jobId: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890362.4187372
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774890362.4188297
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 709"
+      },
+      "at": 1774890362.4189281
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890362.4190907
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 0.05 step: resolve msg: Resolving structure"
+      },
+      "at": 1774890362.4192388
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 5 step: resolve msg: Resolving structure"
+      },
+      "at": 1774890362.4193769
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 710"
+      },
+      "at": 1774890362.41946
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890362.4195473
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 0.15 step: build_scf msg: Building SCF model"
+      },
+      "at": 1774890362.4196827
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 15 step: build_scf msg: Building SCF model"
+      },
+      "at": 1774890362.4198165
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 697"
+      },
+      "at": 1774890362.4198976
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890362.4199877
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 0.35 step: scf msg: Running SCF"
+      },
+      "at": 1774890362.4207275
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 35 step: scf msg: Running SCF"
+      },
+      "at": 1774890362.420928
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 745"
+      },
+      "at": 1774890362.4210367
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_cycle"
+      },
+      "at": 1774890362.4211338
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 0.5 step: scf msg: Cache hit: SCF skipped (0.0s)"
+      },
+      "at": 1774890362.4212856
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 50 step: scf msg: Cache hit: SCF skipped (0.0s)"
+      },
+      "at": 1774890362.4214523
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 712"
+      },
+      "at": 1774890362.4215388
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890362.4216232
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 0.85 step: analyze msg: Collecting observables"
+      },
+      "at": 1774890362.4217703
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 85 step: analyze msg: Collecting observables"
+      },
+      "at": 1774890362.4218998
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 719"
+      },
+      "at": 1774890362.4219794
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890362.4220634
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 1 step: done msg: Single-point calculation complete"
+      },
+      "at": 1774890362.4221945
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 100 step: done msg: Single-point calculation complete"
+      },
+      "at": 1774890362.4223213
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 58320"
+      },
+      "at": 1774890362.4227705
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,result,turn_id"
+      },
+      "at": 1774890362.4229128
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 18e3c188840c4781bbb7413d116768fe progress: 1 step: job_completed msg: Completed"
+      },
+      "at": 1774890362.4231255
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 18e3c188840c4781bbb7413d116768fe pct: 100 step: job_completed msg: Completed"
+      },
+      "at": 1774890362.4232903
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← terminal result attached to job_update for job: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890362.423355
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: job_update"
+      },
+      "at": 1774890362.4235747
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: job_update result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,orbitals,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted"
+      },
+      "at": 1774890362.4237008
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -232.0844400947973 viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890362.4238284
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774890362.4239755
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774890362.4240475
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774890362.4241362
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -232.0844400947973 viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890362.4242723
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: benzene job_type: single_point method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774890362.4244132
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774890362.4244835
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: job_update jobId: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890362.4246154
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774890362.4247105
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890362.4247923
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 57773"
+      },
+      "at": 1774890362.4250839
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: result keys: type,session_id,job,result,summary,turn_id"
+      },
+      "at": 1774890362.4251747
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← result received"
+      },
+      "at": 1774890362.4252274
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result — jobId: 18e3c188840c4781bbb7413d116768fe result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,orbitals,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted has visualization: true"
+      },
+      "at": 1774890362.4253516
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result.visualization keys: xyz,molecule_xyz,available"
+      },
+      "at": 1774890362.4254127
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result.visualization.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890362.4254744
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890362.4255824
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: chat"
+      },
+      "at": 1774890362.4264047
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: chat result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,orbitals,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted"
+      },
+      "at": 1774890362.4266791
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -232.0844400947973 viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890362.42687
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774890362.4269686
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774890362.42704
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774890362.4271338
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -232.0844400947973 viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890362.4274247
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: benzene job_type: single_point method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774890362.427567
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774890362.427631
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: chat jobId: 18e3c188840c4781bbb7413d116768fe"
+      },
+      "at": 1774890362.4277508
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774890362.4280138
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: assistant text length: 59 extra: turnId,jobId"
+      },
+      "at": 1774890362.4281516
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event status:changed — kind: idle text: Ready"
+      },
+      "at": 1774890362.4282472
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] updateStatus — kind: idle text: Ready"
+      },
+      "at": 1774890362.4283366
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774890362.440992
+    }
+  ]
+}

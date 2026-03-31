@@ -1,0 +1,1557 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <script>
+      (function (g, d) {
+        var path = (g.location && g.location.pathname) || "/";
+        var root = path === "/" ? "" : path.replace(/\/$/, "");
+        if (root === "/") root = "";
+        g.__ROOT_PATH = root;
+        g.QCVIZ_API_PREFIX = root;
+        d.write('<base href="' + (root || "") + '/">');
+      })(window, document);
+    </script>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>QCViz-MCP v3</title>
+    <meta
+      name="description"
+      content="Quantum chemistry visualization with PySCF, 3Dmol.js, Gemini AI, MolChat integration, and WebSocket orchestration."
+    />
+    <meta name="theme-color" content="#6366f1" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="static/favicon.svg"
+    />
+    <link
+      rel="shortcut icon"
+      href="static/favicon.svg"
+    />
+    <!-- FIX(M11): ARIA landmark: lang attribute set -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="static/style.css" />
+
+    <script>
+      /* FIX(M11): QCVizApp global store — inline bootstrap */
+      (function (g) {
+        "use strict";
+        if (g.QCVizApp && g.QCVizApp.__v3) return;
+
+        var SESSION_STORAGE_KEY = "QCVIZ_V3_SESSION_ID";
+        var SESSION_TOKEN_STORAGE_KEY = "QCVIZ_V3_SESSION_TOKEN";
+        var AUTH_STORAGE_KEY = "QCVIZ_V3_AUTH";
+        var listeners = new Map();
+
+        function safeStr(v, fb) {
+          return v == null ? fb || "" : String(v).trim();
+        }
+        function clone(v) {
+          try {
+            return JSON.parse(JSON.stringify(v));
+          } catch (_) {
+            return v;
+          }
+        }
+        function deepMerge(base, patch) {
+          var lhs = base && typeof base === "object" ? clone(base) : {};
+          var rhs = patch && typeof patch === "object" ? patch : {};
+          Object.keys(rhs).forEach(function (k) {
+            var lv = lhs[k],
+              rv = rhs[k];
+            if (
+              lv &&
+              rv &&
+              typeof lv === "object" &&
+              typeof rv === "object" &&
+              !Array.isArray(lv) &&
+              !Array.isArray(rv)
+            ) {
+              lhs[k] = deepMerge(lv, rv);
+            } else {
+              lhs[k] = clone(rv);
+            }
+          });
+          return lhs;
+        }
+
+        function makeSessionId() {
+          var ts = Date.now().toString(36);
+          var r = Math.random().toString(36).substring(2, 8);
+          return "qcviz-" + ts + "-" + r;
+        }
+
+        function getTabStorage() {
+          try {
+            return g.sessionStorage || null;
+          } catch (_) {
+            return null;
+          }
+        }
+
+        function getScopedStorage() {
+          var tabStorage = getTabStorage();
+          if (tabStorage) return tabStorage;
+          try {
+            return g.localStorage || null;
+          } catch (_) {
+            return null;
+          }
+        }
+
+        function getPersistentStorage() {
+          try {
+            return g.localStorage || getScopedStorage() || null;
+          } catch (_) {
+            return getScopedStorage() || null;
+          }
+        }
+
+        function loadOrCreateSessionId() {
+          var tabStorage = getTabStorage();
+          if (tabStorage) {
+            try {
+              var saved = safeStr(tabStorage.getItem(SESSION_STORAGE_KEY));
+              if (saved) return saved;
+            } catch (_) {}
+          }
+          var fresh = makeSessionId();
+          if (tabStorage) {
+            try {
+              tabStorage.setItem(SESSION_STORAGE_KEY, fresh);
+            } catch (_) {}
+          }
+          return fresh;
+        }
+
+        function loadSessionToken() {
+          var storage = getTabStorage();
+          if (!storage) return "";
+          try {
+            return safeStr(storage.getItem(SESSION_TOKEN_STORAGE_KEY));
+          } catch (_) {
+            return "";
+          }
+        }
+
+        function persistSessionAuth(sessionId, sessionToken) {
+          var storage = getTabStorage();
+          if (!storage) return;
+          try {
+            storage.setItem(SESSION_STORAGE_KEY, safeStr(sessionId));
+            if (safeStr(sessionToken)) {
+              storage.setItem(SESSION_TOKEN_STORAGE_KEY, safeStr(sessionToken));
+            } else {
+              storage.removeItem(SESSION_TOKEN_STORAGE_KEY);
+            }
+          } catch (_) {}
+        }
+
+        function clearSessionToken() {
+          var storage = getTabStorage();
+          if (!storage) return;
+          try {
+            storage.removeItem(SESSION_TOKEN_STORAGE_KEY);
+          } catch (_) {}
+        }
+
+        function loadAuthState() {
+          var storage = getPersistentStorage();
+          if (!storage) return { authToken: "", authUser: null };
+          try {
+            var raw = storage.getItem(AUTH_STORAGE_KEY);
+            if (!raw) return { authToken: "", authUser: null };
+            var parsed = JSON.parse(raw);
+            return {
+              authToken: safeStr(parsed && parsed.authToken),
+              authUser: parsed && parsed.authUser ? parsed.authUser : null,
+            };
+          } catch (_) {
+            return { authToken: "", authUser: null };
+          }
+        }
+
+        function persistAuthState(authToken, authUser) {
+          var storage = getPersistentStorage();
+          if (!storage) return;
+          try {
+            if (!safeStr(authToken)) {
+              storage.removeItem(AUTH_STORAGE_KEY);
+              return;
+            }
+            storage.setItem(
+              AUTH_STORAGE_KEY,
+              JSON.stringify({
+                authToken: safeStr(authToken),
+                authUser: authUser || null,
+              }),
+            );
+          } catch (_) {}
+        }
+
+        var currentSessionId = loadOrCreateSessionId();
+        var currentSessionToken = loadSessionToken();
+        var authState = loadAuthState();
+
+        var apiPrefix = g.QCVIZ_API_PREFIX || g.__ROOT_PATH || "";
+
+        function getSnapshotStorageKey(sessionId) {
+          return "QCVIZ_V3_UI_SNAPSHOTS_" + safeStr(sessionId || currentSessionId);
+        }
+
+        function getChatStorageKey(sessionId) {
+          return "QCVIZ_CHAT_" + safeStr(sessionId || currentSessionId);
+        }
+
+        var store = {
+          version: "v3",
+          jobsById: {},
+          jobOrder: [],
+          resultsByJobId: {},
+          activeJobId: null,
+          activeResult: null,
+          status: {
+            text: "Ready",
+            kind: "idle",
+            source: "app",
+            at: Date.now(),
+          },
+          uiSnapshotsByJobId: {},
+          chatMessages: [],
+          chatMessagesByJobId: {},
+          theme: "dark",
+          lastUserInput: "",
+          sessionId: currentSessionId,
+          sessionToken: currentSessionToken,
+          authToken: authState.authToken,
+          authUser: authState.authUser,
+          quota: null,
+          queue: null,
+        };
+        var MAX_CHAT_MESSAGES = 200;
+        var chatSaveTimer = null;
+        var sessionBootstrapPromise = null;
+        var chatMessageCounter = 0;
+
+        function emit(ev, detail) {
+          (listeners.get(ev) || []).slice().forEach(function (fn) {
+            try {
+              fn(detail);
+            } catch (_) {}
+          });
+        }
+        function on(ev, fn) {
+          if (!listeners.has(ev)) listeners.set(ev, []);
+          listeners.get(ev).push(fn);
+          return function () {
+            var arr = listeners.get(ev) || [];
+            var idx = arr.indexOf(fn);
+            if (idx >= 0) arr.splice(idx, 1);
+          };
+        }
+
+        function persistSnapshots() {
+          var storage = getScopedStorage();
+          if (!storage) return;
+          try {
+            storage.setItem(
+              getSnapshotStorageKey(store.sessionId),
+              JSON.stringify(store.uiSnapshotsByJobId),
+            );
+          } catch (_) {}
+        }
+        function loadSnapshots() {
+          var storage = getScopedStorage();
+          if (!storage) return;
+          try {
+            var raw = storage.getItem(getSnapshotStorageKey(store.sessionId || currentSessionId));
+            if (raw) store.uiSnapshotsByJobId = JSON.parse(raw);
+          } catch (_) {}
+        }
+        loadSnapshots();
+
+        function persistChatMessages() {
+          var storage = getScopedStorage();
+          if (!storage) return;
+          try {
+            var msgs = store.chatMessages.slice(-MAX_CHAT_MESSAGES);
+            var data = { global: msgs, byJob: store.chatMessagesByJobId };
+            storage.setItem(getChatStorageKey(store.sessionId), JSON.stringify(data));
+          } catch (_) {}
+        }
+        function throttledSaveChatMessages() {
+          if (chatSaveTimer) return;
+          chatSaveTimer = setTimeout(function () {
+            chatSaveTimer = null;
+            persistChatMessages();
+          }, 1000);
+        }
+        function loadChatMessages() {
+          var storage = getScopedStorage();
+          if (!storage) return;
+          try {
+            var raw = storage.getItem(getChatStorageKey(store.sessionId || currentSessionId));
+            if (raw) {
+              var parsed = JSON.parse(raw);
+              store.chatMessages = parsed.global || parsed || [];
+              store.chatMessagesByJobId = parsed.byJob || {};
+            }
+          } catch (_) {
+            store.chatMessages = [];
+            store.chatMessagesByJobId = {};
+          }
+        }
+        loadChatMessages();
+
+        function nextChatMessageId() {
+          chatMessageCounter += 1;
+          return "chatmsg-" + Date.now().toString(36) + "-" + String(chatMessageCounter);
+        }
+
+        function reindexChatMessagesByJob() {
+          store.chatMessagesByJobId = {};
+          store.chatMessages.forEach(function (msg) {
+            var jobId = safeStr(msg && msg.jobId);
+            if (!jobId) return;
+            if (!store.chatMessagesByJobId[jobId]) {
+              store.chatMessagesByJobId[jobId] = [];
+            }
+            store.chatMessagesByJobId[jobId].push(clone(msg));
+          });
+        }
+
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+        function applyTheme(theme) {
+          store.theme = theme;
+          document.documentElement.setAttribute("data-theme", theme);
+          emit("theme:changed", { theme: theme });
+        }
+        var savedTheme = localStorage.getItem("QCVIZ_THEME");
+        if (savedTheme) applyTheme(savedTheme);
+        else applyTheme(prefersDark.matches ? "dark" : "light");
+        prefersDark.addEventListener("change", function (e) {
+          if (!localStorage.getItem("QCVIZ_THEME"))
+            applyTheme(e.matches ? "dark" : "light");
+        });
+
+        g.QCVizApp = {
+          __v3: true,
+          store: store,
+          on: on,
+          emit: emit,
+          clone: clone,
+          deepMerge: deepMerge,
+          apiPrefix: apiPrefix,
+
+          setTheme: function (theme) {
+            localStorage.setItem("QCVIZ_THEME", theme);
+            applyTheme(theme);
+          },
+
+          setStatus: function (text, kind, source) {
+            store.status = {
+              text: text,
+              kind: kind || "idle",
+              source: source || "app",
+              at: Date.now(),
+            };
+            emit("status:changed", clone(store.status));
+          },
+
+          upsertJob: function (job) {
+            if (!job || typeof job !== "object") return null;
+            var jobId = safeStr(job.job_id);
+            if (!jobId) return null;
+            var prev = store.jobsById[jobId] || {};
+            var next = deepMerge(prev, job);
+            store.jobsById[jobId] = next;
+            if (next.result) store.resultsByJobId[jobId] = clone(next.result);
+            store.jobOrder = Object.values(store.jobsById)
+              .sort(function (a, b) {
+                return (
+                  Number(b.created_at || b.updated_at || 0) -
+                  Number(a.created_at || a.updated_at || 0)
+                );
+              })
+              .map(function (j) {
+                return j.job_id;
+              });
+            emit("jobs:changed", {
+              job: clone(next),
+              jobs: store.jobOrder.map(function (id) {
+                return clone(store.jobsById[id]);
+              }),
+            });
+            return clone(next);
+          },
+
+          setActiveJob: function (jobId) {
+            store.activeJobId = jobId;
+            var result = store.resultsByJobId[jobId] || null;
+            store.activeResult = result ? clone(result) : null;
+            emit("activejob:changed", {
+              jobId: jobId,
+              result: store.activeResult,
+            });
+            if (result)
+              emit("result:changed", {
+                jobId: jobId,
+                result: clone(result),
+                source: "history",
+              });
+          },
+
+          setActiveResult: function (res, opts) {
+            opts = opts || {};
+            var jobId = safeStr(opts.jobId || store.activeJobId);
+            store.activeResult = res;
+            if (jobId) {
+              store.activeJobId = jobId;
+              store.resultsByJobId[jobId] = clone(res);
+            }
+            emit("result:changed", {
+              jobId: jobId,
+              result: clone(res),
+              source: opts.source || "app",
+            });
+          },
+
+          saveUISnapshot: function (jobId, snapshot) {
+            if (!jobId) return;
+            store.uiSnapshotsByJobId[jobId] = clone(snapshot);
+            persistSnapshots();
+          },
+
+          getUISnapshot: function (jobId) {
+            return store.uiSnapshotsByJobId[jobId]
+              ? clone(store.uiSnapshotsByJobId[jobId])
+              : null;
+          },
+
+          addChatMessage: function (msg) {
+            var entry = clone(msg) || {};
+            entry.id = safeStr(entry.id) || nextChatMessageId();
+            entry.jobId = safeStr(entry.jobId) || "";
+            entry.turnId = safeStr(entry.turnId) || "";
+            entry.timestamp = Number(entry.timestamp || Date.now());
+            var existingIdx = store.chatMessages.findIndex(function (item) {
+              return safeStr(item && item.id) === entry.id;
+            });
+            if (existingIdx >= 0) {
+              store.chatMessages[existingIdx] = entry;
+            } else {
+              store.chatMessages.push(entry);
+            }
+            if (store.chatMessages.length > MAX_CHAT_MESSAGES) {
+              store.chatMessages = store.chatMessages.slice(-MAX_CHAT_MESSAGES);
+            }
+            reindexChatMessagesByJob();
+            throttledSaveChatMessages();
+            emit("chat:message", clone(entry));
+            return clone(entry);
+          },
+
+          bindChatTurnToJob: function (turnId, jobId) {
+            var nextTurnId = safeStr(turnId);
+            var nextJobId = safeStr(jobId);
+            if (!nextTurnId || !nextJobId) return 0;
+            var updated = 0;
+            store.chatMessages = store.chatMessages.map(function (msg) {
+              if (safeStr(msg && msg.turnId) !== nextTurnId) return msg;
+              updated += 1;
+              var next = clone(msg) || {};
+              next.jobId = nextJobId;
+              return next;
+            });
+            reindexChatMessagesByJob();
+            throttledSaveChatMessages();
+            emit("chat:rebound", { turnId: nextTurnId, jobId: nextJobId, updated: updated });
+            return updated;
+          },
+
+          getChatMessages: function () {
+            return clone(store.chatMessages);
+          },
+
+          getChatMessagesForJob: function (jobId) {
+            if (!jobId || !store.chatMessagesByJobId[jobId]) return [];
+            return clone(store.chatMessagesByJobId[jobId]);
+          },
+
+          clearChatMessages: function () {
+            store.chatMessages = [];
+            store.chatMessagesByJobId = {};
+            try {
+              var storage = getScopedStorage();
+              if (storage) storage.removeItem(getChatStorageKey(store.sessionId));
+            } catch (_) {}
+          },
+
+          persistUISnapshots: function () {
+            persistSnapshots();
+          },
+
+          setSessionAuth: function (sessionId, sessionToken) {
+            var nextId = safeStr(sessionId);
+            var nextToken = safeStr(sessionToken);
+            if (!nextId) return;
+            var prevId = safeStr(store.sessionId);
+            if (prevId && prevId !== nextId) {
+              store.uiSnapshotsByJobId = {};
+              store.chatMessages = [];
+              store.chatMessagesByJobId = {};
+            }
+            store.sessionId = nextId;
+            store.sessionToken = nextToken;
+            currentSessionId = nextId;
+            currentSessionToken = nextToken;
+            persistSessionAuth(nextId, nextToken);
+            emit("session:changed", {
+              previousSessionId: prevId,
+              sessionId: nextId,
+              changed: !!(prevId && prevId !== nextId),
+            });
+          },
+
+          getSessionHeaders: function () {
+            return {
+              "X-QCViz-Session-Id": safeStr(store.sessionId),
+              "X-QCViz-Session-Token": safeStr(store.sessionToken),
+            };
+          },
+
+          getAuthHeaders: function () {
+            return store.authToken
+              ? { "X-QCViz-Auth-Token": safeStr(store.authToken) }
+              : {};
+          },
+
+          setQuota: function (quota) {
+            store.quota = quota && typeof quota === "object" ? clone(quota) : null;
+            emit("quota:changed", clone(store.quota));
+          },
+
+          setQueue: function (queue) {
+            store.queue = queue && typeof queue === "object" ? clone(queue) : null;
+            emit("queue:changed", clone(store.queue));
+          },
+
+          clearQuota: function () {
+            store.quota = null;
+            emit("quota:changed", null);
+          },
+
+          clearQueue: function () {
+            store.queue = null;
+            emit("queue:changed", null);
+          },
+
+          setAuthState: function (authToken, authUser) {
+            store.authToken = safeStr(authToken);
+            store.authUser = authUser || null;
+            persistAuthState(store.authToken, store.authUser);
+            emit("auth:changed", {
+              authToken: store.authToken,
+              authUser: clone(store.authUser),
+            });
+          },
+
+          clearAuthState: function () {
+            store.authToken = "";
+            store.authUser = null;
+            persistAuthState("", null);
+            store.quota = null;
+            store.queue = null;
+            emit("auth:changed", {
+              authToken: "",
+              authUser: null,
+            });
+            emit("quota:changed", null);
+            emit("queue:changed", null);
+          },
+
+          ensureSession: function () {
+            if (sessionBootstrapPromise) return sessionBootstrapPromise;
+
+            function bootstrapWithCurrentAuth(allowFreshRetry) {
+              return fetch(apiPrefix + "/session/bootstrap", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  session_id: safeStr(store.sessionId),
+                  session_token: safeStr(store.sessionToken),
+                }),
+              }).then(function (resp) {
+                if (!resp.ok) {
+                  var err = new Error("Session bootstrap failed: HTTP " + resp.status);
+                  err.status = resp.status;
+                  throw err;
+                }
+                return resp.json();
+              }).then(function (data) {
+                if (data && data.session_id && data.session_token) {
+                  g.QCVizApp.setSessionAuth(data.session_id, data.session_token);
+                }
+                return data;
+              }).catch(function (err) {
+                if (allowFreshRetry && err && err.status === 403) {
+                  var freshId = makeSessionId();
+                  g.QCVizApp.setSessionAuth(freshId, "");
+                  clearSessionToken();
+                  return bootstrapWithCurrentAuth(false);
+                }
+                throw err;
+              });
+            }
+
+            sessionBootstrapPromise = bootstrapWithCurrentAuth(true).finally(function () {
+              sessionBootstrapPromise = null;
+            });
+            return sessionBootstrapPromise;
+          },
+        };
+      })(window);
+    </script>
+  </head>
+
+  <body>
+    <!-- FIX(M11): skip-to-content link -->
+    <a href="#chatInput" class="skip-link">Skip to chat input</a>
+
+    <!-- Loading overlay -->
+    <div id="appLoader" class="app-loader" role="status" aria-label="Loading">
+      <div class="loader-content">
+        <div class="loader-spinner"></div>
+        <p class="loader-text">Initializing QCViz-MCP v3...</p>
+        <p class="loader-sub">Loading 3D visualization engine</p>
+      </div>
+    </div>
+    <script>
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          var loader = document.getElementById("appLoader");
+          if (loader) {
+            loader.classList.add("fade-out");
+            setTimeout(function () {
+              if (loader.parentNode) loader.parentNode.removeChild(loader);
+            }, 600);
+          }
+        }, 1500);
+      });
+    </script>
+
+    <div class="app-shell" id="appShell">
+      <!-- Top Bar -->
+      <header class="topbar" id="topbar" role="banner">
+        <div class="topbar__left">
+          <div class="topbar__logo" aria-label="QCViz Logo">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 28 28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect width="28" height="28" rx="8" fill="url(#logoGrad)" />
+              <path
+                d="M8 14a6 6 0 1 1 12 0 6 6 0 0 1-12 0Zm6-3.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"
+                fill="white"
+                fill-opacity="0.95"
+              />
+              <path
+                d="M17.5 17.5L21 21"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-opacity="0.9"
+              />
+              <defs>
+                <linearGradient
+                  id="logoGrad"
+                  x1="0"
+                  y1="0"
+                  x2="28"
+                  y2="28"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="#6366f1" />
+                  <stop offset="1" stop-color="#8b5cf6" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="topbar__title"
+              >QCViz-MCP <span class="topbar__badge">v3</span></span
+            >
+          </div>
+        </div>
+        <div class="topbar__center">
+          <div class="status-indicator" id="globalStatus" role="status">
+            <span class="status-indicator__dot" data-kind="idle"></span>
+            <span class="status-indicator__text">Ready</span>
+          </div>
+        </div>
+        <div class="topbar__right">
+          <button
+            class="quota-chip"
+            id="quotaChip"
+            aria-label="Active job quota"
+            title="Active job quota"
+            type="button"
+          >
+            <span class="quota-chip__label">Jobs</span>
+            <span class="quota-chip__status" id="quotaStatusText">0/0</span>
+            <span class="quota-chip__meta" id="quotaMetaText">queue 0</span>
+          </button>
+          <button
+            class="auth-chip"
+            id="btnAuthOpen"
+            aria-label="Sign in"
+            title="Sign in"
+            type="button"
+          >
+            <span class="auth-chip__status" id="authStatusText">Guest</span>
+          </button>
+          <button
+            class="chip-btn chip-btn--admin"
+            id="btnAdminOpen"
+            type="button"
+            title="Admin dashboard"
+            hidden
+          >
+            Admin
+          </button>
+          <button
+            class="icon-btn"
+            id="btnThemeToggle"
+            aria-label="Toggle theme"
+            title="Toggle theme (Ctrl+\)"
+          >
+            <svg
+              class="icon-sun"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+              />
+            </svg>
+            <svg
+              class="icon-moon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          </button>
+          <button
+            class="icon-btn"
+            id="btnKeyboardShortcuts"
+            aria-label="Keyboard shortcuts"
+            title="Keyboard shortcuts (?)"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <path
+                d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <nav
+        class="mobile-panel-nav"
+        id="mobilePanelNav"
+        aria-label="Mobile panel navigation"
+      >
+        <button class="mobile-panel-nav__btn" data-panel-target="panelViewer" type="button">
+          Viewer
+        </button>
+        <button class="mobile-panel-nav__btn" data-panel-target="panelChat" type="button">
+          Chat
+        </button>
+        <button class="mobile-panel-nav__btn" data-panel-target="panelResults" type="button">
+          Results
+        </button>
+        <button class="mobile-panel-nav__btn" data-panel-target="panelHistory" type="button">
+          History
+        </button>
+      </nav>
+
+      <!-- FIX(M11): 3-column dashboard with ARIA landmarks -->
+      <main class="dashboard" id="dashboard" role="main">
+        <!-- Viewer Panel (column 1) -->
+        <section
+          class="panel panel--viewer"
+          id="panelViewer"
+          aria-label="3D Molecular Viewer"
+          role="region"
+        >
+          <div class="panel__header">
+            <h2 class="panel__title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+              Molecular Viewer
+            </h2>
+            <div class="panel__actions">
+              <button class="chip-btn" id="btnViewerReset" title="Reset view">
+                Reset
+              </button>
+              <div id="vizModeToggle" class="viz-mode-toggle" hidden>
+                <button
+                  id="btnModeOrbital"
+                  class="toggle-btn active"
+                  title="Orbital surface"
+                >
+                  Orbital
+                </button>
+                <button id="btnModeESP" class="toggle-btn" title="ESP map">
+                  ESP
+                </button>
+              </div>
+              <button
+                class="chip-btn"
+                id="btnViewerScreenshot"
+                title="Screenshot"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                Capture
+              </button>
+              <button
+                class="icon-btn icon-btn--sm"
+                id="btnViewerFullscreen"
+                title="Fullscreen"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="viewer-container" id="viewerContainer">
+            <div class="viewer-3d" id="viewer3d"></div>
+            <div class="viewer-empty" id="viewerEmpty">
+              <div class="viewer-empty__icon">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  opacity="0.35"
+                >
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <p class="viewer-empty__text">
+                Submit a computation to render the molecule
+              </p>
+              <p class="viewer-empty__hint">
+                Try: "Calculate energy of water with STO-3G"
+              </p>
+            </div>
+            <div class="viewer-controls" id="viewerControls" hidden>
+              <div class="viewer-controls__group">
+                <label class="viewer-controls__label">Style</label>
+                <div class="segmented" id="segStyle">
+                  <button
+                    class="segmented__btn segmented__btn--active"
+                    data-value="stick"
+                  >
+                    Stick
+                  </button>
+                  <button class="segmented__btn" data-value="sphere">
+                    Sphere
+                  </button>
+                  <button class="segmented__btn" data-value="line">Line</button>
+                </div>
+              </div>
+              <div class="viewer-controls__group" id="grpOrbital" hidden>
+                <label class="viewer-controls__label">Isosurface</label>
+                <input
+                  type="range"
+                  class="range-input"
+                  id="sliderIsovalue"
+                  min="0.001"
+                  max="0.1"
+                  step="0.001"
+                  value="0.03"
+                />
+                <span class="viewer-controls__value" id="lblIsovalue"
+                  >0.030</span
+                >
+              </div>
+              <div class="viewer-controls__group" id="grpESP" hidden>
+                <label class="viewer-controls__label">ESP Density Iso</label>
+                <input
+                  type="range"
+                  class="range-input"
+                  id="sliderEspDensIso"
+                  min="0.0001"
+                  max="0.02"
+                  step="0.0001"
+                  value="0.001"
+                />
+                <span class="viewer-controls__value" id="lblEspDensIso"
+                  >0.0010</span
+                >
+              </div>
+              <div class="viewer-controls__group" id="grpOpacity" hidden>
+                <label class="viewer-controls__label">Opacity</label>
+                <input
+                  type="range"
+                  class="range-input"
+                  id="sliderOpacity"
+                  min="0.1"
+                  max="1.0"
+                  step="0.05"
+                  value="0.75"
+                />
+                <span class="viewer-controls__value" id="lblOpacity">0.75</span>
+              </div>
+              <div class="viewer-controls__group" id="grpColorScheme">
+                <label class="viewer-controls__label">Color Scheme</label>
+                <select id="selectColorScheme" class="viewer-select">
+                  <option value="classic">Classic (Blue/Red)</option>
+                  <option value="jmol">Jmol</option>
+                  <option value="rwb">RWB</option>
+                  <option value="bwr">BWR</option>
+                  <option value="spectral">Spectral</option>
+                  <option value="viridis">Viridis</option>
+                  <option value="inferno">Inferno</option>
+                </select>
+              </div>
+              <div class="viewer-controls__group" id="grpOrbitalSelect" hidden>
+                <label class="viewer-controls__label">Orbital</label>
+                <select class="viewer-select" id="selectOrbital"></select>
+              </div>
+              <!-- Trajectory playback controls -->
+              <div
+                class="viewer-controls__group viewer-controls__group--traj"
+                id="grpTrajectory"
+                hidden
+              >
+                <label class="viewer-controls__label">Trajectory</label>
+                <div class="traj-controls">
+                  <button
+                    class="traj-controls__btn"
+                    id="btnTrajPlay"
+                    title="Play/Pause"
+                    aria-label="Play trajectory"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <polygon points="5,3 19,12 5,21" />
+                    </svg>
+                  </button>
+                  <input
+                    type="range"
+                    class="range-input"
+                    id="sliderTrajFrame"
+                    min="0"
+                    max="0"
+                    step="1"
+                    value="0"
+                  />
+                  <span class="viewer-controls__value" id="lblTrajFrame"
+                    >0/0</span
+                  >
+                </div>
+                <div class="traj-controls__energy" id="lblTrajEnergy"></div>
+              </div>
+              <div class="viewer-controls__group">
+                <label class="viewer-controls__label">Labels</label>
+                <button
+                  class="toggle-btn"
+                  id="btnToggleLabels"
+                  data-active="true"
+                  aria-pressed="true"
+                >
+                  On
+                </button>
+              </div>
+            </div>
+            <div class="viewer-legend" id="viewerLegend" hidden></div>
+          </div>
+        </section>
+
+        <!-- Chat Panel (column 2) -->
+        <section
+          class="panel panel--chat"
+          id="panelChat"
+          aria-label="Chat Assistant"
+          role="region"
+        >
+          <div class="panel__header">
+            <h2 class="panel__title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                />
+              </svg>
+              Assistant
+            </h2>
+            <div class="panel__actions">
+              <div class="ws-status" id="wsStatus">
+                <span class="ws-status__dot" data-connected="false"></span>
+                <span class="ws-status__label">Disconnected</span>
+              </div>
+            </div>
+          </div>
+          <div class="chat-scroll" id="chatScroll">
+            <div
+              class="chat-messages"
+              id="chatMessages"
+              aria-live="polite"
+              aria-relevant="additions"
+            >
+              <div class="chat-msg chat-msg--system">
+                <div class="chat-msg__avatar chat-msg__avatar--system">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                  </svg>
+                </div>
+                <div class="chat-msg__body">
+                  <p class="chat-msg__text">
+                    Welcome to <strong>QCViz-MCP v3</strong>. I can run quantum
+                    chemistry calculations using PySCF with Gemini AI planning.
+                    Ask me to compute energies, optimize geometries, visualize
+                    orbitals and ESP maps. Supports Korean input and ion pairs.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-area" id="chatInputArea">
+            <div class="chat-suggestions" id="chatSuggestions">
+              <button
+                class="suggestion-chip"
+                data-prompt="Calculate the energy of water using STO-3G basis"
+              >
+                Water energy
+              </button>
+              <button
+                class="suggestion-chip"
+                data-prompt="벤젠의 HOMO 오비탈을 보여줘"
+              >
+                벤젠 HOMO
+              </button>
+              <button
+                class="suggestion-chip"
+                data-prompt="Optimize the geometry of methane with 6-31G basis"
+              >
+                Methane optimize
+              </button>
+              <button
+                class="suggestion-chip"
+                data-prompt="아스피린의 ESP 맵을 계산해줘"
+              >
+                아스피린 ESP
+              </button>
+            </div>
+            <form class="chat-form" id="chatForm" autocomplete="off">
+              <div class="chat-form__input-wrap">
+                <textarea
+                  class="chat-form__input"
+                  id="chatInput"
+                  placeholder="Ask about quantum chemistry... / 양자화학에 대해 물어보세요..."
+                  rows="1"
+                  maxlength="4000"
+                ></textarea>
+                <button
+                  class="chat-form__send"
+                  id="chatSend"
+                  type="submit"
+                  aria-label="Send"
+                  disabled
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                </button>
+              </div>
+              <p class="chat-form__hint">
+                Press <kbd>Enter</kbd> to send, <kbd>Shift+Enter</kbd> for new
+                line
+              </p>
+            </form>
+          </div>
+        </section>
+
+        <!-- Results Panel (column 3, row 1) -->
+        <section
+          class="panel panel--results"
+          id="panelResults"
+          aria-label="Computation Results"
+          role="region"
+        >
+          <div class="panel__header">
+            <h2 class="panel__title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+              Results
+            </h2>
+          </div>
+          <div class="results-tabs" id="resultsTabs" role="tablist"></div>
+          <div class="results-content" id="resultsContent">
+            <div class="results-empty" id="resultsEmpty">
+              <p>No results yet. Submit a computation from the chat.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- History Panel (column 3, row 2) -->
+        <section
+          class="panel panel--history"
+          id="panelHistory"
+          aria-label="Job History"
+          role="region"
+        >
+          <div class="panel__header">
+            <h2 class="panel__title">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              History
+            </h2>
+            <div class="panel__actions">
+              <button
+                class="icon-btn icon-btn--sm"
+                id="btnRefreshHistory"
+                title="Refresh"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="history-search-wrap">
+            <svg
+              class="history-search-icon"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="search"
+              class="history-search"
+              id="historySearch"
+              placeholder="Search jobs..."
+            />
+          </div>
+          <div class="history-list" id="historyList">
+            <div class="history-empty" id="historyEmpty">
+              <p>No previous computations</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <dialog class="modal" id="modalShortcuts">
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__content">
+        <div class="modal__header">
+          <h3>Keyboard Shortcuts</h3>
+          <button class="icon-btn icon-btn--sm" data-close aria-label="Close">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal__body shortcuts-grid">
+          <div class="shortcut-row">
+            <span class="shortcut-keys"
+              ><kbd>Ctrl</kbd><span class="shortcut-plus">+</span
+              ><kbd>/</kbd></span
+            ><span>Focus chat input</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-keys"
+              ><kbd>Ctrl</kbd><span class="shortcut-plus">+</span
+              ><kbd>K</kbd></span
+            ><span>Search history</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-keys"
+              ><kbd>Ctrl</kbd><span class="shortcut-plus">+</span
+              ><kbd>\</kbd></span
+            ><span>Toggle theme</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-keys"><kbd>Esc</kbd></span
+            ><span>Close modals / blur</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-keys"
+              ><kbd>1</kbd><span class="shortcut-dash">&ndash;</span
+              ><kbd>6</kbd></span
+            ><span>Switch result tabs</span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-keys"><kbd>?</kbd></span
+            ><span>Show this dialog</span>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="modalAuth">
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__content">
+        <div class="modal__header">
+          <h3 id="authModalTitle">Sign In</h3>
+          <button class="icon-btn icon-btn--sm" data-close aria-label="Close">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal__body auth-modal">
+          <div class="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
+            <button class="toggle-btn active" id="btnAuthModeLogin" type="button">Sign In</button>
+            <button class="toggle-btn" id="btnAuthModeRegister" type="button">Register</button>
+          </div>
+          <form id="authForm" class="auth-form">
+            <label class="auth-form__field">
+              <span>Username</span>
+              <input id="authUsername" class="auth-form__input" type="text" autocomplete="username" required />
+            </label>
+            <label class="auth-form__field" id="authDisplayNameField" hidden>
+              <span>Display Name</span>
+              <input id="authDisplayName" class="auth-form__input" type="text" autocomplete="nickname" />
+            </label>
+            <label class="auth-form__field">
+              <span>Password</span>
+              <input id="authPassword" class="auth-form__input" type="password" autocomplete="current-password" required />
+            </label>
+            <div class="auth-form__actions">
+              <button class="clarify-btn clarify-btn--primary" id="btnAuthSubmit" type="submit">Sign In</button>
+              <button class="clarify-btn clarify-btn--secondary" id="btnAuthLogout" type="button" hidden>Sign Out</button>
+            </div>
+            <p class="auth-form__status" id="authStatusMessage" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="modalAdmin">
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__content modal__content--wide">
+        <div class="modal__header">
+          <div>
+            <h3>Admin Overview</h3>
+            <p class="modal__subtle" id="adminOverviewStamp">Loading...</p>
+          </div>
+          <button class="icon-btn icon-btn--sm" data-close aria-label="Close">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal__body admin-modal">
+          <div class="admin-grid admin-grid--stats" id="adminOverviewStats"></div>
+          <div class="admin-grid">
+            <section class="admin-panel">
+              <div class="admin-panel__header">
+                <h4>Users</h4>
+                <span class="admin-panel__meta" id="adminUsersMeta"></span>
+              </div>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Active</th>
+                      <th>Total</th>
+                      <th>Tokens</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminUsersTable"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="admin-panel">
+              <div class="admin-panel__header">
+                <h4>Sessions</h4>
+                <span class="admin-panel__meta" id="adminSessionsMeta"></span>
+              </div>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Session</th>
+                      <th>Owner</th>
+                      <th>Active</th>
+                      <th>Total</th>
+                      <th>Last</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminSessionsTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+          <div class="admin-grid">
+            <section class="admin-panel">
+              <div class="admin-panel__header">
+                <h4>Workers</h4>
+                <span class="admin-panel__meta" id="adminWorkersMeta"></span>
+              </div>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Worker</th>
+                      <th>Status</th>
+                      <th>Job</th>
+                      <th>Age</th>
+                      <th>Heartbeat</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminWorkersTable"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="admin-panel">
+              <div class="admin-panel__header">
+                <h4>Queue Recovery</h4>
+                <span class="admin-panel__meta" id="adminRecoveryMeta"></span>
+              </div>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Job</th>
+                      <th>Worker</th>
+                      <th>Stale For</th>
+                      <th>Reason</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminRecoveryTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+          <div class="admin-grid">
+            <section class="admin-panel">
+              <div class="admin-panel__header">
+                <h4>Active Jobs</h4>
+                <span class="admin-panel__meta" id="adminActiveJobsMeta"></span>
+              </div>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Job</th>
+                      <th>Status</th>
+                      <th>Owner</th>
+                      <th>Molecule</th>
+                      <th>Method</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminActiveJobsTable"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="admin-panel">
+              <div class="admin-panel__header">
+                <h4>Recent Jobs</h4>
+                <span class="admin-panel__meta" id="adminRecentJobsMeta"></span>
+              </div>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Job</th>
+                      <th>Status</th>
+                      <th>Owner</th>
+                      <th>Session</th>
+                      <th>Updated</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminRecentJobsTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- FIX(M11): JS 로드 순서 — chat → results → viewer → app -->
+    <script src="static/chat.js" defer></script>
+    <script src="static/results.js" defer></script>
+    <script src="static/viewer.js" defer></script>
+    <script src="static/app.js" defer></script>
+  </body>
+</html>

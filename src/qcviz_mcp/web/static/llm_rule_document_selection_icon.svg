@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="420" viewBox="0 0 760 420" fill="none">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M1 1L11 6L1 11V1Z" fill="#4F46E5"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M1 1L11 6L1 11V1Z" fill="#059669"/>
+    </marker>
+    <linearGradient id="docGrad" x1="40" y1="70" x2="220" y2="310" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <linearGradient id="llmGrad" x1="248" y1="64" x2="482" y2="354" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="selectedGrad" x1="560" y1="164" x2="710" y2="258" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFDF5"/>
+      <stop offset="1" stop-color="#D1FAE5"/>
+    </linearGradient>
+    <style>
+      .label { font-family: "Segoe UI", Arial, sans-serif; font-size: 20px; font-weight: 800; fill: #0F172A; }
+      .ruleText { font-family: "Segoe UI", Arial, sans-serif; font-size: 20px; font-weight: 800; fill: #334155; }
+      .llmText { font-family: "Segoe UI", Arial, sans-serif; font-size: 26px; font-weight: 900; fill: #FFFFFF; letter-spacing: 1px; }
+    </style>
+  </defs>
+
+  <rect width="760" height="420" fill="none"/>
+
+  <g filter="url(#shadow)">
+    <g transform="translate(56 82)">
+      <rect x="18" y="18" width="144" height="190" rx="22" fill="url(#docGrad)" stroke="#94A3B8" stroke-width="3"/>
+      <rect x="0" y="0" width="144" height="190" rx="22" fill="url(#docGrad)" stroke="#94A3B8" stroke-width="3"/>
+      <rect x="20" y="18" width="56" height="22" rx="8" fill="#CBD5E1"/>
+      <text x="48" y="34" text-anchor="middle" class="ruleText">RULE</text>
+      <line x1="22" y1="68" x2="122" y2="68" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+      <line x1="22" y1="94" x2="122" y2="94" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+      <line x1="22" y1="120" x2="110" y2="120" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+      <line x1="22" y1="146" x2="118" y2="146" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <line x1="220" y1="210" x2="290" y2="210" stroke="#4F46E5" stroke-width="7" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+
+  <g filter="url(#shadow)">
+    <g transform="translate(292 54)">
+      <rect x="0" y="0" width="190" height="300" rx="40" fill="url(#llmGrad)"/>
+      <rect x="28" y="34" width="134" height="172" rx="30" fill="#FFFFFF" fill-opacity="0.10" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="2"/>
+
+      <path d="M95 74C75 74 60 90 60 109C60 121 66 130 76 136C73 142 72 148 72 154C72 177 90 194 112 194H116C138 194 156 177 156 154C156 148 154 142 151 136C161 130 168 121 168 109C168 90 152 74 132 74C123 74 114 77 107 83C104 77 100 74 95 74Z" fill="#FFFFFF" fill-opacity="0.18" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round"/>
+
+      <circle cx="92" cy="112" r="6.5" fill="#FFFFFF"/>
+      <circle cx="125" cy="103" r="6.5" fill="#FFFFFF"/>
+      <circle cx="139" cy="132" r="6.5" fill="#FFFFFF"/>
+      <circle cx="105" cy="145" r="6.5" fill="#FFFFFF"/>
+      <circle cx="82" cy="140" r="6.5" fill="#FFFFFF"/>
+      <path d="M92 112L125 103L139 132L105 145L82 140L92 112Z" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M105 145L125 103M92 112L139 132" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+
+      <rect x="48" y="226" width="94" height="36" rx="18" fill="#FFFFFF" fill-opacity="0.18"/>
+      <text x="95" y="251" text-anchor="middle" class="llmText">LLM</text>
+    </g>
+  </g>
+
+  <line x1="482" y1="210" x2="552" y2="210" stroke="#059669" stroke-width="7" stroke-linecap="round" marker-end="url(#arrowGreen)"/>
+
+  <g filter="url(#shadow)">
+    <g transform="translate(556 96)">
+      <rect x="0" y="0" width="126" height="54" rx="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2.5"/>
+      <circle cx="30" cy="27" r="8" fill="#E2E8F0"/>
+      <line x1="48" y1="27" x2="92" y2="27" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+
+      <rect x="0" y="86" width="154" height="62" rx="20" fill="url(#selectedGrad)" stroke="#10B981" stroke-width="3"/>
+      <circle cx="34" cy="117" r="12" fill="#10B981"/>
+      <path d="M28 117L33 122L42 112" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="54" y1="117" x2="110" y2="117" stroke="#059669" stroke-width="4.5" stroke-linecap="round"/>
+
+      <rect x="0" y="184" width="126" height="54" rx="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2.5"/>
+      <circle cx="30" cy="27" r="8" fill="#E2E8F0"/>
+      <line x1="48" y1="27" x2="92" y2="27" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

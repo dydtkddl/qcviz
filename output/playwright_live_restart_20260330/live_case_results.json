@@ -1,0 +1,329 @@
+{
+  "generated_at": 1774924915.4048672,
+  "counts": {
+    "pass": 20,
+    "fail": 0,
+    "blocked": 0
+  },
+  "results": [
+    {
+      "case_id": "case_01_qcviz_boot",
+      "precondition": "QCViz restarted from a.sh",
+      "prompt_sequence": [],
+      "expected": "/health 200 and root UI loads",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=-::-; viz={}; timeout=False; terminal_timeout=False; last='Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                  '; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Boot",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_01_qcviz_boot.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_01_qcviz_boot_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_02_molchat_availability",
+      "precondition": "MolChat restarted on local 3000/8333 stack",
+      "prompt_sequence": [],
+      "expected": "Frontend responds and backend live health returns 200",
+      "actual": "ws=n/a; clarify=0; confirm=0; result=-::-; viz={}; timeout=False; terminal_timeout=False; last=''; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Boot",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_02_molchat_availability.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_02_molchat_availability_state.json"
+      ],
+      "notes": "backend_live_ok=True"
+    },
+    {
+      "case_id": "case_03_benzene_homo",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "benzene HOMO 보여줘"
+      ],
+      "expected": "Direct compute completes for benzene HOMO",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=benzene::orbital_preview; viz={\"orbital\": true, \"density\": false, \"esp\": false}; timeout=False; terminal_timeout=False; last='계산 완료대기열 비어 있음Completed (100%)Cancel'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Job lifecycle",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_03_benzene_homo.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_03_benzene_homo_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_04_acetone_esp",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "Render ESP map for acetone using ACS preset"
+      ],
+      "expected": "Direct ESP computation completes for acetone",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=acetone::esp_map; viz={\"orbital\": false, \"density\": false, \"esp\": true}; timeout=False; terminal_timeout=False; last='계산 완료대기열 비어 있음Completed (100%)Cancel'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Job lifecycle",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_04_acetone_esp.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_04_acetone_esp_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_05_water_optimize",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "water optimize geometry"
+      ],
+      "expected": "Geometry optimization completes for water",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=water::geometry_optimization; viz={\"orbital\": false, \"density\": false, \"esp\": false}; timeout=False; terminal_timeout=False; last='water의 구조 최적화가 완료되었습니다. 최적화된 좌표와 안정화 경향을 확인할 수 있습니다.'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Job lifecycle",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_05_water_optimize.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_05_water_optimize_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_06_composition_clarification",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "benzene and toluene HOMO"
+      ],
+      "expected": "Composition clarification instead of auto compute",
+      "actual": "ws=Connected; clarify=1; confirm=0; result=-::-; viz={}; timeout=True; terminal_timeout=False; last='추가 정보가 필요합니다 / More information needed필요한 항목만 확인하면 바로 계산을 이어서 진행합니다.'benzene and toluene'을(를) 어떻게 해석할까요? / How should this input be interpreted? 이온쌍 (Ion pair) 단일/그대로 사용 각각 따로 계산확인 / Submit'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Prompt routing",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_06_composition_clarification.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_06_composition_clarification_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_07_homo_concept_chat",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "HOMO가 뭐야?"
+      ],
+      "expected": "Chat-only concept explanation without compute or clarify",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=-::-; viz={}; timeout=True; terminal_timeout=False; last='This looks more like a chemistry question than an explicit calculation request.If you want an explanation, ask the concept directly.If you want a calculation, tell me the molecule and the task together.Examples: benzene '; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Prompt routing",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_07_homo_concept_chat.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_07_homo_concept_chat_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_08_mea_chat_grounded",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "MEA 알아?"
+      ],
+      "expected": "Semantic grounded direct answer mentioning Ethanolamine",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=-::-; viz={}; timeout=True; terminal_timeout=False; last='MEA는 보통 Ethanolamine를 의미합니다.분자식: C2H7NOCID: 700근거: resolved from local alias preference for monoethanolamine원하시면 이 분자를 기준으로 HOMO/LUMO, ESP, 구조 최적화 같은 계산을 바로 이어서 진행할 수 있습니다.{\n  \"normalized_text\": \"MEA 알아?\",\n  \"intent\": \"c'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Semantic grounding",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_08_mea_chat_grounded.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_08_mea_chat_grounded_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_09_mea_compute_requires_grounding",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "MEA HOMO 보여줘"
+      ],
+      "expected": "Grounding clarification, without raw MEA option",
+      "actual": "ws=Connected; clarify=1; confirm=0; result=-::-; viz={}; timeout=True; terminal_timeout=False; last='설명 기반 후보를 확인해 주세요 / Confirm candidates from the description입력하신 설명을 기반으로 MolChat에서 구조화한 후보를 정리했습니다.분자를 선택해 주세요 / Choose a moleculeEthanolamine · CID 700 (C2H7NO)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 '; options=['Ethanolamine', 'custom']",
+      "status": "PASS",
+      "suspected_layer": "Semantic grounding",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_09_mea_compute_requires_grounding.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_09_mea_compute_requires_grounding_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_10_dma_ambiguous",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "DMA 알아?"
+      ],
+      "expected": "Ambiguous clarification for DMA",
+      "actual": "ws=Connected; clarify=1; confirm=0; result=-::-; viz={}; timeout=False; terminal_timeout=False; last='분자 이름을 조금 더 구체적으로 알려주세요 / Clarify the molecule현재 입력만으로는 하나의 분자를 확정하지 못했습니다. 분자 이름이나 SMILES를 직접 입력해 주세요.분자를 선택해 주세요 / Choose a molecule직접 입력 / Custom molecule name or SMILES추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / C'; options=['custom']",
+      "status": "PASS",
+      "suspected_layer": "Semantic grounding",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_10_dma_ambiguous.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_10_dma_ambiguous_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_11_tnt_grounded_compute",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "main component of TNT HOMO 보여줘"
+      ],
+      "expected": "Grounded candidate flow proceeds without second composition clarification",
+      "actual": "ws=Connected; clarify=1; confirm=0; result=2,4,6-TRINITROTOLUENE::orbital_preview; viz={\"orbital\": false, \"density\": false, \"esp\": false}; timeout=False; terminal_timeout=False; last='지금 계산 중실행 중 1/1Running SCF (35%)Cancel'; options=['2,4,6-TRINITROTOLUENE', 'custom']",
+      "status": "PASS",
+      "suspected_layer": "Job lifecycle",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_11_tnt_grounded_compute.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_11_tnt_grounded_compute_state.json"
+      ],
+      "notes": "clarification_submitted=true"
+    },
+    {
+      "case_id": "case_12_pronoun_homo_followup",
+      "precondition": "Shared QCViz session after semantic chat grounding",
+      "prompt_sequence": [
+        "MEA 알아?",
+        "ㅇㅇ 그거 HOMO 보여줘"
+      ],
+      "expected": "Same-session pronoun follow-up reuses Ethanolamine and computes HOMO",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=Ethanolamine::orbital_preview; viz={\"orbital\": true, \"density\": false, \"esp\": false}; timeout=False; terminal_timeout=False; last='계산 완료남은 대기 1개Completed (100%)Cancel'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Job lifecycle",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_12_pronoun_homo_followup.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_12_pronoun_homo_followup_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_13_pronoun_esp_followup",
+      "precondition": "Shared QCViz session after semantic chat grounding",
+      "prompt_sequence": [
+        "그거 ESP도"
+      ],
+      "expected": "Same-session pronoun follow-up adds ESP for Ethanolamine",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=Ethanolamine::esp_map; viz={\"orbital\": false, \"density\": false, \"esp\": true}; timeout=False; terminal_timeout=True; last='Ethanolamine의 ESP 분석이 완료되었습니다. 전하 분포가 집중되는 영역을 시각적으로 해석할 수 있습니다.'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Job lifecycle",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_13_pronoun_esp_followup.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_13_pronoun_esp_followup_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_14_short_esp_followup",
+      "precondition": "Shared QCViz session after semantic chat grounding",
+      "prompt_sequence": [
+        "ESP도"
+      ],
+      "expected": "Short same-session ESP follow-up stays on last structure",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=Ethanolamine::esp_map; viz={\"orbital\": false, \"density\": false, \"esp\": true}; timeout=False; terminal_timeout=False; last='계산 완료대기열 비어 있음Completed (100%)Cancel'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Continuation state",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_14_short_esp_followup.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_14_short_esp_followup_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_15_lumo_followup",
+      "precondition": "Shared QCViz session after semantic chat grounding",
+      "prompt_sequence": [
+        "이번엔 LUMO"
+      ],
+      "expected": "Same-session LUMO follow-up stays on last structure",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=Ethanolamine::orbital_preview; viz={\"orbital\": true, \"density\": false, \"esp\": false}; timeout=False; terminal_timeout=False; last='계산 완료대기열 비어 있음Completed (100%)Cancel'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Continuation state",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_15_lumo_followup.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_15_lumo_followup_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_16_basis_parameter_followup",
+      "precondition": "Shared QCViz session after semantic chat grounding",
+      "prompt_sequence": [
+        "basis만 더 키워봐"
+      ],
+      "expected": "Parameter-only follow-up should not lose target structure",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=Ethanolamine::orbital_preview; viz={\"orbital\": true, \"density\": false, \"esp\": false}; timeout=False; terminal_timeout=False; last='계산 완료대기열 비어 있음Completed (100%)Cancel'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Continuation state",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_16_basis_parameter_followup.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_16_basis_parameter_followup_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_17_method_parameter_followup",
+      "precondition": "Shared QCViz session after semantic chat grounding",
+      "prompt_sequence": [
+        "method를 B3LYP로 바꿔"
+      ],
+      "expected": "Parameter-only method follow-up should not lose target structure",
+      "actual": "ws=Connected; clarify=0; confirm=0; result=Ethanolamine::orbital_preview; viz={\"orbital\": true, \"density\": false, \"esp\": false}; timeout=False; terminal_timeout=False; last='계산 완료대기열 비어 있음Completed (100%)Cancel'; options=[]",
+      "status": "PASS",
+      "suspected_layer": "Continuation state",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_17_method_parameter_followup.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_17_method_parameter_followup_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_18_new_session_pronoun_clarify",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "그거 HOMO 보여줘"
+      ],
+      "expected": "New-session pronoun request clarifies without exposing raw pronoun option",
+      "actual": "ws=Connected; clarify=1; confirm=0; result=-::-; viz={}; timeout=True; terminal_timeout=False; last='계산할 분자를 골라 주세요 / Choose a molecule to compute입력 내용만으로는 분자가 특정되지 않아 먼저 후보를 제안합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Cust'; options=['water', 'methane', 'ethanol', 'methanol', 'benzene', 'custom']",
+      "status": "PASS",
+      "suspected_layer": "Clarification UI",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_18_new_session_pronoun_clarify.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_18_new_session_pronoun_clarify_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_19_new_session_basis_followup",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "basis 더 키워"
+      ],
+      "expected": "New-session parameter-only follow-up asks continuation-targeting clarification",
+      "actual": "ws=Connected; clarify=1; confirm=0; result=-::-; viz={}; timeout=False; terminal_timeout=False; last='설명 기반 후보를 확인해 주세요 / Confirm candidates from the description입력하신 설명을 기반으로 MolChat에서 구조화한 후보를 정리했습니다.분자를 선택해 주세요 / Choose a molecule직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILE'; options=['custom']",
+      "status": "PASS",
+      "suspected_layer": "Prompt routing",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_19_new_session_basis_followup.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_19_new_session_basis_followup_state.json"
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "case_20_red_team_input",
+      "precondition": "Fresh QCViz session",
+      "prompt_sequence": [
+        "\"; DROP TABLE molecules; --\nTraceback (most recent call last):\n유니코드깨짐Ω≈ç√∫˜µ≤≥÷"
+      ],
+      "expected": "Unsafe input is handled without app crash",
+      "actual": "ws=Connected; clarify=1; confirm=0; result=-::-; viz={}; timeout=False; terminal_timeout=False; last='분자 이름을 조금 더 구체적으로 알려주세요 / Clarify the molecule현재 입력만으로는 하나의 분자를 확정하지 못했습니다. 분자 이름이나 SMILES를 직접 입력해 주세요.분자를 선택해 주세요 / Choose a molecule직접 입력 / Custom molecule name or SMILES추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / C'; options=['custom']",
+      "status": "PASS",
+      "suspected_layer": "Prompt routing",
+      "evidence_paths": [
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_20_red_team_input.png",
+        "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\case_20_red_team_input_state.json"
+      ],
+      "notes": ""
+    }
+  ],
+  "pre_health_snapshot": "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\health_snapshot_before_cases.json",
+  "post_health_snapshot": "D:\\20260305_양자화학시각화MCP서버구축\\version03\\output\\playwright_live_restart_20260330\\health_snapshot_after_cases.json"
+}

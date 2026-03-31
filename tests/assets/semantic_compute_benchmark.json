@@ -1,0 +1,147 @@
+{
+  "dataset_id": "semantic_compute_benchmark",
+  "version": 1,
+  "benchmark_tokens": [
+    "TNT",
+    "MEA",
+    "ETHANOLAMINE",
+    "TRINITROTOLUENE"
+  ],
+  "cases": [
+    {
+      "id": "semantic_compute_mea_requires_grounding",
+      "input": "MEA HOMO 보여줘",
+      "variants": [
+        "MEA로 HOMO 계산해줘",
+        "Show HOMO for MEA"
+      ],
+      "language": "mixed",
+      "category": "unknown_acronym_compute",
+      "expected_outcome": "grounding_clarification",
+      "must_not_happen": [
+        "pre_grounding_compute_submit",
+        "generic_fallback",
+        "raw_phrase_option",
+        "second_clarification_after_selection"
+      ],
+      "notes": "Unknown acronym compute requests must stop at semantic grounding before submission.",
+      "selected_candidate": "Ethanolamine",
+      "expected_structure_query": "Ethanolamine",
+      "expected_job_type": "orbital_preview",
+      "molchat_result": {
+        "query_mode": "semantic_descriptor",
+        "resolution_method": "llm",
+        "candidates": [
+          {
+            "name": "Ethanolamine",
+            "cid": 7003,
+            "molecular_formula": "C2H7NO",
+            "confidence": 0.93,
+            "source": "llm",
+            "rationale": "MEA is commonly used as an abbreviation for monoethanolamine / ethanolamine."
+          }
+        ],
+        "notes": []
+      }
+    },
+    {
+      "id": "semantic_compute_tnt_component_requires_grounding",
+      "input": "main component of TNT HOMO 보여줘",
+      "variants": [
+        "TNT의 주요 성분 HOMO 보여줘",
+        "Render HOMO for the main component of TNT"
+      ],
+      "language": "mixed",
+      "category": "semantic_compute",
+      "expected_outcome": "grounding_clarification",
+      "must_not_happen": [
+        "pre_grounding_compute_submit",
+        "generic_fallback",
+        "raw_phrase_option",
+        "second_clarification_after_selection"
+      ],
+      "notes": "Descriptor-style compute requests should clarify the grounded structure first and only then submit.",
+      "selected_candidate": "2,4,6-TRINITROTOLUENE",
+      "expected_structure_query": "2,4,6-TRINITROTOLUENE",
+      "expected_job_type": "orbital_preview",
+      "molchat_result": {
+        "query_mode": "direct_name",
+        "resolution_method": "autocomplete",
+        "candidates": [
+          {
+            "name": "2,4,6-TRINITROTOLUENE",
+            "cid": 8376,
+            "molecular_formula": "C7H5N3O6",
+            "confidence": 0.99,
+            "source": "autocomplete",
+            "rationale": "Resolved from a grounded TNT descriptor."
+          }
+        ],
+        "notes": []
+      }
+    },
+    {
+      "id": "semantic_compute_dma_ambiguous_picker",
+      "input": "DMA HOMO 보여줘",
+      "variants": [
+        "DMA로 HOMO 계산해줘",
+        "Show HOMO for DMA"
+      ],
+      "language": "mixed",
+      "category": "multi_candidate_semantic",
+      "expected_outcome": "grounding_clarification",
+      "must_not_happen": [
+        "pre_grounding_compute_submit",
+        "generic_fallback",
+        "raw_phrase_option"
+      ],
+      "notes": "Ambiguous acronym compute requests should open a clarification picker with grounded candidates.",
+      "molchat_result": {
+        "query_mode": "semantic_descriptor",
+        "resolution_method": "llm",
+        "candidates": [
+          {
+            "name": "Dimethylamine",
+            "cid": 674,
+            "molecular_formula": "C2H7N",
+            "confidence": 0.58,
+            "source": "llm",
+            "rationale": "DMA may refer to dimethylamine in chemistry contexts."
+          },
+          {
+            "name": "Dimethylacetamide",
+            "cid": 31374,
+            "molecular_formula": "C4H9NO",
+            "confidence": 0.54,
+            "source": "llm",
+            "rationale": "DMA is also commonly used for N,N-dimethylacetamide."
+          }
+        ],
+        "notes": []
+      }
+    },
+    {
+      "id": "semantic_compute_unknown_custom_only",
+      "input": "ABC HOMO 보여줘",
+      "variants": [
+        "ABC로 HOMO 계산해줘",
+        "Show HOMO for ABC"
+      ],
+      "language": "mixed",
+      "category": "unknown_acronym_compute",
+      "expected_outcome": "custom_only_clarification",
+      "must_not_happen": [
+        "pre_grounding_compute_submit",
+        "generic_fallback",
+        "raw_phrase_option"
+      ],
+      "notes": "When grounding finds nothing, compute-intent semantic requests should stop at custom-only clarification.",
+      "molchat_result": {
+        "query_mode": "semantic_descriptor",
+        "resolution_method": "llm",
+        "candidates": [],
+        "notes": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,1730 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 14,
+    "clarify_count": 0,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.\n                  \n                \n              \n            UMEA 알아?MEA는 보통 Ethanolamine를 의미합니다.분자식: C2H7NOCID: 700근거: resolved from local alias preference for monoethanolamine원하시면 이 분자를 기준으로 HOMO/LUMO, ESP, 구조 최적화 같은 계산을 바로 이어서 진행할 수 있습니다.{\n  \"normalized_text\": \"MEA 알아?\",\n  \"intent\": \"chat\",\n  \"job_type\": \"chat\",\n  \"query_kind\": \"chat_only\",\n  \"planner_lane\": \"chat_only\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"chat_only\",\n  \"semantic_grounding_needed\": true,\n  \"question_like\": true,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": true,\n  \"grounding_intent\": false,\n  \"compute_intent\": false,\n  \"unknown_acronyms\": [\n    \"MEA\"\n  ],\n  \"confidence\": 0.82,\n  \"confidence_band\": \"high\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"Heuristic chat-only routing.\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"question-like input without explicit compute action -> chat_only\",\n    \"descriptor or unresolved acronym requires grounding before compute\",\n    \"unknown uppercase acronym detected\",\n    \"structure analysis candidate\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"MEA 알아?\"\n  ],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"MEA 알아?\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": null,\n  \"charge\": null,\n  \"multiplicity\": null,\n  \"orbital\": null,\n  \"esp_preset\": null,\n  \"advisor_focus_tab\": \"summary\",\n  \"follow_up_mode\": null,\n  \"clarification_kind\": null,\n  \"missing_slots\": [],\n  \"needs_clarification\": false,\n  \"chat_response\": \"`MEA` looks like an abbreviation, and chemistry abbreviations can be ambiguous.\\n\\n- If you want a calculation, tell me the full compound name or a SMILES string.\\n- If you want an explanation, tell me which compound you mean and what you want to know.\\n\\nFor example: `full name + HOMO`, `full name + ESP`, or `SMILES + optimize`.\"\n}Uㅇㅇ 그거 HOMO 보여줘Plan: orbital_preview | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | orbital=HOMO | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"ㅇㅇ 그거 HOMO 보여줘\",\n  \"intent\": \"orbital_preview\",\n  \"job_type\": \"orbital_preview\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": true,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.35,\n  \"confidence_band\": \"low\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"structure_query not confidently extracted\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"collapsed spaced Hangul fragments before structure matching\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"ㅇㅇ 그거 HOMO 보여줘\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [\n    \"HOMO\"\n  ],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": null,\n  \"charge\": null,\n  \"multiplicity\": null,\n  \"orbital\": \"HOMO\",\n  \"esp_preset\": null,\n  \"advisor_focus_tab\": \"summary\",\n  \"follow_up_mode\": \"add_analysis\",\n  \"clarification_kind\": \"continuation_targeting\",\n  \"missing_slots\": [\n    \"structure_query\"\n  ],\n  \"needs_clarification\": true,\n  \"chat_response\": null\n}계산 완료대기열 비어 있음Completed (100%)CancelEthanolamine의 오비탈 계산이 완료되었습니다. HOMO/LUMO와 관련 에너지 차이를 바로 확인할 수 있습니다.U그거 ESP도Plan: esp_map | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"그거 ESP 도\",\n  \"intent\": \"esp_map\",\n  \"job_type\": \"esp_map\",\n  \"query_kind\": \"compute_ready\",\n  \"pl",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "UMEA 알아?",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "MEA는 보통 Ethanolamine를 의미합니다.분자식: C2H7NOCID: 700근거: resolved from local alias preference for monoethanolamine원하시면 이 분자를 기준으로 HOMO/LUMO, ESP, 구조 최적화 같은 계산을 바로 이어서 진행할 수 있습니다.{\n  \"normalized_text\": \"MEA 알아?\",\n  \"intent\": \"chat\",\n  \"job_type\": \"chat\",\n  \"query_kind\": \"chat_only\",\n  \"planner_lane\": \"chat_only\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"chat_only\",\n  \"semantic_grounding_needed\": true,\n  \"question_like\": true,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": true,\n  \"grounding_intent\": false,\n  \"compute_intent\": false,\n  \"unknown_acronyms\": [\n    \"MEA\"\n  ],\n  \"confidence\": 0.82,\n  \"confidence_band\": \"high\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"Heuristic chat-only routing.\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"question-like input without explicit compute action -> chat_only\",\n    \"descriptor or unresolved acronym requires grounding before compute\",\n    \"unknown uppercase acronym detected\",\n    \"structure analysis candidate\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"MEA 알아?\"\n  ],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"MEA 알아?\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  ",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "Uㅇㅇ 그거 HOMO 보여줘",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Plan: orbital_preview | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | orbital=HOMO | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"ㅇㅇ 그거 HOMO 보여줘\",\n  \"intent\": \"orbital_preview\",\n  \"job_type\": \"orbital_preview\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": true,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.35,\n  \"confidence_band\": \"low\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"structure_query not confidently extracted\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"collapsed spaced Hangul fragments before structure matching\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"ㅇㅇ 그거 HOMO 보여줘\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\":",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--progress"
+        ],
+        "text": "계산 완료대기열 비어 있음Completed (100%)Cancel",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Ethanolamine의 오비탈 계산이 완료되었습니다. HOMO/LUMO와 관련 에너지 차이를 바로 확인할 수 있습니다.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "U그거 ESP도",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Plan: esp_map | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"그거 ESP 도\",\n  \"intent\": \"esp_map\",\n  \"job_type\": \"esp_map\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.35,\n  \"confidence_band\": \"low\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"structure_query not confidently extracted\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"그거 ESP 도\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [\n    \"ESP\"\n  ],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": ",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--progress"
+        ],
+        "text": "계산 완료대기열 비어 있음Completed (100%)Cancel",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Ethanolamine의 ESP 분석이 완료되었습니다. 전하 분포가 집중되는 영역을 시각적으로 해석할 수 있습니다.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "UESP도",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Plan: esp_map | structure=Ethanolamine | method=B3LYP | basis=def2-SVP | confidence=0.35 | via=heuristic{\n  \"normalized_text\": \"ESP 도\",\n  \"intent\": \"esp_map\",\n  \"job_type\": \"esp_map\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": false,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.35,\n  \"confidence_band\": \"low\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"structure_query not confidently extracted\",\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": null,\n  \"structure_query_candidates\": [],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [],\n  \"canonical_candidates\": [],\n  \"raw_input\": \"ESP 도\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [\n    \"ESP\"\n  ],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": null,\n",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--progress"
+        ],
+        "text": "계산 완료대기열 비어 있음Completed (100%)Cancel",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [],
+    "confirms": [],
+    "active_result": {
+      "structure_query": "Ethanolamine",
+      "structure_name": "Ethanolamine",
+      "job_type": "esp_map",
+      "analysis_bundle": [],
+      "visualization_available": {
+        "orbital": false,
+        "density": false,
+        "esp": true
+      },
+      "orbital": "",
+      "esp_preset": "acs"
+    },
+    "active_result_sig": "{\"structure_query\":\"Ethanolamine\",\"structure_name\":\"Ethanolamine\",\"job_type\":\"esp_map\",\"analysis_bundle\":[],\"visualization_available\":{\"orbital\":false,\"density\":false,\"esp\":true},\"orbital\":\"\",\"esp_preset\":\"acs\"}",
+    "active_job_id": "4c7821e1d92143e39359331c04bd0380",
+    "jobs_count": 3,
+    "jobs": [
+      {
+        "job_id": "6b3e3025049a4bbea09d530ba3d20eb1",
+        "status": "completed",
+        "payload_job_type": "",
+        "payload_structure_query": ""
+      },
+      {
+        "job_id": "404c1cb97825468fa1dd47041faa5899",
+        "status": "completed",
+        "payload_job_type": "",
+        "payload_structure_query": ""
+      },
+      {
+        "job_id": "4c7821e1d92143e39359331c04bd0380",
+        "status": "completed",
+        "payload_job_type": "",
+        "payload_structure_query": ""
+      }
+    ],
+    "session_id": "qcviz-mndfmern-mkxucf",
+    "last_user_input": "ESP도"
+  },
+  "events": [
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.addModel(xyz, 'xyz', {keepH:true})"
+      },
+      "at": 1774889996.1859257
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — applyStyle: stick"
+      },
+      "at": 1774889996.1860974
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] applyStyle: stick → {\"stick\":{\"radius\":0.15},\"sphere\":{\"scale\":0.25}}"
+      },
+      "at": 1774889996.1862016
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — labels: true"
+      },
+      "at": 1774889996.2267122
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — available surfaces: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774889996.7266006
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viz keys: xyz, molecule_xyz, esp, available, xyz_block"
+      },
+      "at": 1774889996.7267213
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — currentMode: orbital"
+      },
+      "at": 1774889996.7267911
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — calling addSurface"
+      },
+      "at": 1774889996.7268407
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774889996.7269452
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — no surface to add for mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774889996.727043
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _populateOrbitalDropdown — 10 orbitals, selected: undefined"
+      },
+      "at": 1774889996.727132
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — final zoomTo + render"
+      },
+      "at": 1774889996.72718
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate END ───"
+      },
+      "at": 1774889996.8099172
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 🎛 Form submit event"
+      },
+      "at": 1774889996.862874
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 sendMessage: ESP도 ..."
+      },
+      "at": 1774889996.8633916
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: user text length: 4 extra: turnId"
+      },
+      "at": 1774889996.863525
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: chat length: 180"
+      },
+      "at": 1774889996.863618
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 323"
+      },
+      "at": 1774889997.0101974
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,message,payload,turn_id,timestamp"
+      },
+      "at": 1774889997.0104415
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: awaiting_ack → idle"
+      },
+      "at": 1774889997.0105963
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1868"
+      },
+      "at": 1774889997.0107062
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: assistant keys: type,session_id,message,plan,payload_preview,turn_id,timestamp"
+      },
+      "at": 1774889997.0108025
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← assistant message, length: 104 has plan: true"
+      },
+      "at": 1774889997.010914
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: assistant text length: 104 extra: plan,turnId,jobId"
+      },
+      "at": 1774889997.011028
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — attaching plan JSON"
+      },
+      "at": 1774889997.0110767
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1369"
+      },
+      "at": 1774889997.0111704
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_submitted keys: type,session_id,job,turn_id,timestamp"
+      },
+      "at": 1774889997.0112598
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_submitted, job_id: 4c7821e1d92143e39359331c04bd0380 job_type: ?"
+      },
+      "at": 1774889997.0113516
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774889997.0221026
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774889997.0222266
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event status:changed — kind: running text: Computing..."
+      },
+      "at": 1774889997.0223336
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] updateStatus — kind: running text: Computing..."
+      },
+      "at": 1774889997.022426
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 1 step: submitted msg: Job submitted"
+      },
+      "at": 1774889997.0225646
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 3 filter: (none)"
+      },
+      "at": 1774889997.0228841
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 2078"
+      },
+      "at": 1774889997.0252614
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774889997.0255022
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0 step: queued msg: Queued"
+      },
+      "at": 1774889997.025804
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 0 step: queued msg: Queued"
+      },
+      "at": 1774889997.0260274
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774889997.0353644
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 292"
+      },
+      "at": 1774889997.0359578
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_event keys: type,session_id,job_id,event,turn_id"
+      },
+      "at": 1774889997.036163
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_event"
+      },
+      "at": 1774889997.0362246
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 3 filter: (none)"
+      },
+      "at": 1774889997.0363212
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774889999.9425566
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 4765"
+      },
+      "at": 1774890002.9561536
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774890002.9563408
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0.14 step: structure_ready msg: Structure ready for preview"
+      },
+      "at": 1774890002.9565046
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 14 step: structure_ready msg: Structure ready for preview"
+      },
+      "at": 1774890002.9566479
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890002.9668608
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774890002.9670246
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 4729"
+      },
+      "at": 1774890002.9671996
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,step,message,queue,job,turn_id"
+      },
+      "at": 1774890002.967332
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: undefined step: job_started msg: Job started"
+      },
+      "at": 1774890002.9675267
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 0 step: job_started msg: Job started"
+      },
+      "at": 1774890002.9677253
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890002.980282
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 3071"
+      },
+      "at": 1774890002.980566
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,preview_result"
+      },
+      "at": 1774890002.9807966
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0.14 step: structure_ready msg: Structure ready for preview"
+      },
+      "at": 1774890002.9810996
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 14 step: structure_ready msg: Structure ready for preview"
+      },
+      "at": 1774890002.9814515
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← structure preview ready for job: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890002.9816148
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: preview"
+      },
+      "at": 1774890002.9818957
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: preview result keys: success,preview,job_type,structure_query,structure_name,atom_spec,xyz,method,basis,charge,multiplicity,warnings,advisor_focus_tab,visualization,default_tab"
+      },
+      "at": 1774890002.9821386
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: undefined viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890002.98251
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774890002.9826548
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774890002.9827428
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774890002.9828684
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: undefined viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890002.983027
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: Ethanolamine job_type: esp_map method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774890002.9832203
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774890002.9833233
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: preview jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890002.9835515
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774890002.9836936
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 3 filter: (none)"
+      },
+      "at": 1774890002.9846857
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer — debounce fired, calling _doUpdate"
+      },
+      "at": 1774890003.0923972
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate START ───"
+      },
+      "at": 1774890003.092521
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] extractXyz — keys checked: {viz.xyz_block: true, viz.xyz: true, viz.molecule_xyz: true, result.xyz_block: false, result.xyz: true}"
+      },
+      "at": 1774890003.0926883
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — xyz length: 444 first 80 chars: 11\nEthanolamine\nO   1.81980000  0.16390000 -0.00440000\nN  -1.84600000 -0.1503000"
+      },
+      "at": 1774890003.0929039
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.clear()"
+      },
+      "at": 1774890003.092988
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.addModel(xyz, 'xyz', {keepH:true})"
+      },
+      "at": 1774890003.2340453
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — applyStyle: stick"
+      },
+      "at": 1774890003.2342405
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] applyStyle: stick → {\"stick\":{\"radius\":0.15},\"sphere\":{\"scale\":0.25}}"
+      },
+      "at": 1774890003.2345364
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — labels: true"
+      },
+      "at": 1774890003.283267
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — available surfaces: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890003.9109426
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viz keys: xyz, molecule_xyz, defaults, available, xyz_block"
+      },
+      "at": 1774890003.9111462
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — currentMode: orbital"
+      },
+      "at": 1774890003.9112568
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — calling addSurface"
+      },
+      "at": 1774890003.9113317
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890003.9114711
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — no surface to add for mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774890003.9116108
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — final zoomTo + render"
+      },
+      "at": 1774890003.9116774
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate END ───"
+      },
+      "at": 1774890004.0238569
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 5444"
+      },
+      "at": 1774890004.0278325
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774890004.0280955
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0.7 step: cube msg: Generating density/ESP cubes"
+      },
+      "at": 1774890004.0283391
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 70 step: cube msg: Generating density/ESP cubes"
+      },
+      "at": 1774890004.0285773
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890004.041607
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 684"
+      },
+      "at": 1774890004.0418606
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890004.0420618
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0.05 step: resolve msg: Resolving structure"
+      },
+      "at": 1774890004.0425994
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 5 step: resolve msg: Resolving structure"
+      },
+      "at": 1774890004.0429766
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 685"
+      },
+      "at": 1774890004.0431535
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890004.0432982
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0.15 step: build_scf msg: Building SCF model"
+      },
+      "at": 1774890004.0436895
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 15 step: build_scf msg: Building SCF model"
+      },
+      "at": 1774890004.0443356
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 672"
+      },
+      "at": 1774890004.0444973
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890004.0446413
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0.35 step: scf msg: Running SCF"
+      },
+      "at": 1774890004.0448549
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 35 step: scf msg: Running SCF"
+      },
+      "at": 1774890004.0450926
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 720"
+      },
+      "at": 1774890004.0452304
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_cycle"
+      },
+      "at": 1774890004.045371
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0.5 step: scf msg: Cache hit: SCF skipped (0.0s)"
+      },
+      "at": 1774890004.0455964
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 50 step: scf msg: Cache hit: SCF skipped (0.0s)"
+      },
+      "at": 1774890004.0457938
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 689"
+      },
+      "at": 1774890004.045913
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890004.0460727
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 0.7 step: cube msg: Generating density/ESP cubes"
+      },
+      "at": 1774890004.046273
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 70 step: cube msg: Generating density/ESP cubes"
+      },
+      "at": 1774890004.0464675
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 3 filter: (none)"
+      },
+      "at": 1774890004.0466342
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: ping length: 15"
+      },
+      "at": 1774890004.060074
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774890004.9825134
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 39"
+      },
+      "at": 1774890006.533549
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ping keys: type,ts"
+      },
+      "at": 1774890006.5336928
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← unknown message type: ping"
+      },
+      "at": 1774890006.5337691
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 702"
+      },
+      "at": 1774890016.212371
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774890016.212509
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 1 step: done msg: ESP map complete"
+      },
+      "at": 1774890016.2128556
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 100 step: done msg: ESP map complete"
+      },
+      "at": 1774890016.2130027
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 7649174"
+      },
+      "at": 1774890016.5237665
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,result,turn_id"
+      },
+      "at": 1774890016.5239542
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: 4c7821e1d92143e39359331c04bd0380 progress: 1 step: job_completed msg: Completed"
+      },
+      "at": 1774890016.5241737
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: 4c7821e1d92143e39359331c04bd0380 pct: 100 step: job_completed msg: Completed"
+      },
+      "at": 1774890016.5243857
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← terminal result attached to job_update for job: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890016.5244575
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: job_update"
+      },
+      "at": 1774890016.5245533
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: job_update result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,esp_preset,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,mulliken_charges,partial_charges,orbitals,esp_auto_range_au,esp_auto_range_kcal,esp_auto_fit,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted"
+      },
+      "at": 1774890016.5246775
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -210.22244403918305 viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774890016.5248034
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774890016.5249026
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774890016.5249662
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774890016.5250573
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -210.22244403918305 viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774890016.5251715
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: Ethanolamine job_type: esp_map method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774890016.525308
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774890016.5253692
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: job_update jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890016.5254805
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774890016.5255723
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890016.5256348
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774890016.5256839
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 3 filter: (none)"
+      },
+      "at": 1774890016.5265095
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer — debounce fired, calling _doUpdate"
+      },
+      "at": 1774890016.5265756
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate START ───"
+      },
+      "at": 1774890016.5266285
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] extractXyz — keys checked: {viz.xyz_block: true, viz.xyz: true, viz.molecule_xyz: true, result.xyz_block: false, result.xyz: true}"
+      },
+      "at": 1774890016.5266984
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — xyz length: 444 first 80 chars: 11\nEthanolamine\nO   1.81980000  0.16390000 -0.00440000\nN  -1.84600000 -0.1503000"
+      },
+      "at": 1774890016.5268006
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.clear()"
+      },
+      "at": 1774890016.5268483
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.addModel(xyz, 'xyz', {keepH:true})"
+      },
+      "at": 1774890016.5725834
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — applyStyle: stick"
+      },
+      "at": 1774890016.572717
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] applyStyle: stick → {\"stick\":{\"radius\":0.15},\"sphere\":{\"scale\":0.25}}"
+      },
+      "at": 1774890016.5728416
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — labels: true"
+      },
+      "at": 1774890016.6129549
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — available surfaces: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774890017.124135
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viz keys: xyz, molecule_xyz, esp, available, xyz_block"
+      },
+      "at": 1774890017.1242716
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — currentMode: orbital"
+      },
+      "at": 1774890017.12435
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — calling addSurface"
+      },
+      "at": 1774890017.1244042
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774890017.1245112
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — no surface to add for mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774890017.1246064
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _populateOrbitalDropdown — 10 orbitals, selected: undefined"
+      },
+      "at": 1774890017.1246989
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — final zoomTo + render"
+      },
+      "at": 1774890017.124749
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate END ───"
+      },
+      "at": 1774890017.2076445
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 7648632"
+      },
+      "at": 1774890017.515555
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: result keys: type,session_id,job,result,summary,turn_id"
+      },
+      "at": 1774890017.5160024
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← result received"
+      },
+      "at": 1774890017.5161645
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result — jobId: 4c7821e1d92143e39359331c04bd0380 result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,esp_preset,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,mulliken_charges,partial_charges,orbitals,esp_auto_range_au,esp_auto_range_kcal,esp_auto_fit,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted has visualization: true"
+      },
+      "at": 1774890017.5163872
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result.visualization keys: xyz,molecule_xyz,esp,available"
+      },
+      "at": 1774890017.5164866
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result.visualization.available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774890017.5165808
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] viz.esp keys: preset,range_au,range_kcal,density_iso,opacity,fit_stats,fit_strategy,surface_scheme,cube_b64 has cube_b64: true"
+      },
+      "at": 1774890017.5166738
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890017.5167453
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: chat"
+      },
+      "at": 1774890017.51684
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: chat result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,esp_preset,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,mulliken_charges,partial_charges,orbitals,esp_auto_range_au,esp_auto_range_kcal,esp_auto_fit,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted"
+      },
+      "at": 1774890017.5169618
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -210.22244403918305 viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774890017.51713
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774890017.517219
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774890017.517366
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774890017.517626
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -210.22244403918305 viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":true}"
+      },
+      "at": 1774890017.5179434
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: Ethanolamine job_type: esp_map method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774890017.518093
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774890017.5181587
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: chat jobId: 4c7821e1d92143e39359331c04bd0380"
+      },
+      "at": 1774890017.5182781
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774890017.5183668
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: assistant text length: 64 extra: turnId,jobId"
+      },
+      "at": 1774890017.5184786
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event status:changed — kind: idle text: Ready"
+      },
+      "at": 1774890017.5186052
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] updateStatus — kind: idle text: Ready"
+      },
+      "at": 1774890017.5186925
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 3 filter: (none)"
+      },
+      "at": 1774890017.5187771
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 116"
+      },
+      "at": 1774890017.5188606
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,status,turn_id,timestamp"
+      },
+      "at": 1774890017.5189433
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: idle → idle"
+      },
+      "at": 1774890017.5190163
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer — debounce fired, calling _doUpdate"
+      },
+      "at": 1774890017.5207818
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate START ───"
+      },
+      "at": 1774890017.5208955
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] extractXyz — keys checked: {viz.xyz_block: true, viz.xyz: true, viz.molecule_xyz: true, result.xyz_block: false, result.xyz: true}"
+      },
+      "at": 1774890017.5210042
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — xyz length: 444 first 80 chars: 11\nEthanolamine\nO   1.81980000  0.16390000 -0.00440000\nN  -1.84600000 -0.1503000"
+      },
+      "at": 1774890017.52113
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.clear()"
+      },
+      "at": 1774890017.5211933
+    }
+  ]
+}

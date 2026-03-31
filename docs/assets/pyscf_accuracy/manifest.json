@@ -1,0 +1,173 @@
+{
+  "dataset_id": "pyscf_accuracy_assets",
+  "dataset_name": "PySCF Literature and Numerical Accuracy Asset Pack",
+  "dataset_version": "2026-03-30",
+  "generated_at": "2026-03-29T17:02:15+00:00",
+  "encoding": "utf-8",
+  "source_documents": [
+    {
+      "path": "docs/pyscf값전수조사.md",
+      "role": "fenced CSV source"
+    },
+    {
+      "path": "docs/presentation/pyscf정확도문헌조사.md",
+      "role": "presentation narrative + markdown tables"
+    }
+  ],
+  "artifacts": [
+    {
+      "filename": "energy_accuracy_comparison.csv",
+      "kind": "csv",
+      "description": "PySCF energy accuracy comparison values extracted from the fenced CSV source.",
+      "source_document": "docs/pyscf값전수조사.md",
+      "source_locator": "CSV 1: 에너지 정확도 비교 (Energy Accuracy Comparison) (lines 7-38)",
+      "row_count": 29,
+      "columns": [
+        "source_id",
+        "source_short",
+        "source_full",
+        "year",
+        "molecule",
+        "method_functional",
+        "basis_set",
+        "comparison_pair",
+        "code_A",
+        "code_B",
+        "energy_A_hartree",
+        "energy_B_hartree",
+        "energy_diff_hartree",
+        "energy_diff_microhartree",
+        "energy_diff_kcal_mol",
+        "comparison_type",
+        "notes"
+      ]
+    },
+    {
+      "filename": "performance_benchmark.csv",
+      "kind": "csv",
+      "description": "Performance and cost benchmark rows extracted from the fenced CSV source.",
+      "source_document": "docs/pyscf값전수조사.md",
+      "source_locator": "CSV 2: 속도/성능 비교 (Performance Benchmark) (lines 44-61)",
+      "row_count": 15,
+      "columns": [
+        "source_id",
+        "source_short",
+        "year",
+        "molecule",
+        "method",
+        "basis_set",
+        "code",
+        "hardware",
+        "n_cores_or_gpu",
+        "wall_time_seconds",
+        "relative_speedup_vs",
+        "speedup_factor",
+        "cost_usd",
+        "notes"
+      ]
+    },
+    {
+      "filename": "source_registry.csv",
+      "kind": "csv",
+      "description": "Source-level registry of papers, issues, and benchmark references.",
+      "source_document": "docs/pyscf값전수조사.md",
+      "source_locator": "CSV 3: 문헌 메타데이터 (Source Registry) (lines 67-80)",
+      "row_count": 11,
+      "columns": [
+        "source_id",
+        "authors",
+        "title",
+        "journal_or_venue",
+        "year",
+        "doi_or_url",
+        "peer_reviewed",
+        "comparison_codes",
+        "comparison_type",
+        "key_finding"
+      ]
+    },
+    {
+      "filename": "gh688_total_energy_table.csv",
+      "kind": "csv",
+      "description": "Presentation table for GitHub Issue #688 total-energy comparison.",
+      "source_document": "docs/presentation/pyscf정확도문헌조사.md",
+      "source_locator": "3-1. PySCF vs Gaussian vs GAMESS vs NWChem — 총 에너지 차이 보고 (lines 116-121)",
+      "row_count": 4,
+      "columns": [
+        "코드",
+        "Total Energy (a.u.)"
+      ]
+    },
+    {
+      "filename": "literature_summary_matrix.csv",
+      "kind": "csv",
+      "description": "Presentation summary matrix of major PySCF comparison evidence.",
+      "source_document": "docs/presentation/pyscf정확도문헌조사.md",
+      "source_locator": "5. 종합 결론 (lines 175-183)",
+      "row_count": 7,
+      "columns": [
+        "비교 대상",
+        "비교 항목",
+        "결과",
+        "주요 출처"
+      ]
+    }
+  ],
+  "regeneration": {
+    "command": "python docs/assets/pyscf_accuracy/build_pyscf_accuracy_assets.py",
+    "outputs": [
+      "energy_accuracy_comparison.csv",
+      "performance_benchmark.csv",
+      "source_registry.csv",
+      "gh688_total_energy_table.csv",
+      "literature_summary_matrix.csv",
+      "manifest.json"
+    ]
+  },
+  "source_provenance": {
+    "fenced_csv_blocks": [
+      {
+        "heading": "CSV 1: 에너지 정확도 비교 (Energy Accuracy Comparison)",
+        "line_range": [
+          7,
+          38
+        ],
+        "row_count": 29
+      },
+      {
+        "heading": "CSV 2: 속도/성능 비교 (Performance Benchmark)",
+        "line_range": [
+          44,
+          61
+        ],
+        "row_count": 15
+      },
+      {
+        "heading": "CSV 3: 문헌 메타데이터 (Source Registry)",
+        "line_range": [
+          67,
+          80
+        ],
+        "row_count": 11
+      }
+    ],
+    "markdown_table_blocks": [
+      {
+        "heading": "3-1. PySCF vs Gaussian vs GAMESS vs NWChem — 총 에너지 차이 보고",
+        "line_range": [
+          116,
+          121
+        ],
+        "row_count": 4
+      },
+      {
+        "heading": "5. 종합 결론",
+        "line_range": [
+          175,
+          183
+        ],
+        "row_count": 7
+      }
+    ]
+  }
+}

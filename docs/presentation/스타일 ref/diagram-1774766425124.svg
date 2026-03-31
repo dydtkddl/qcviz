@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <clipPath id="slideClipA">
+      <rect x="0" y="0" width="1920" height="1080"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#slideClipA)">
+    <!-- Full-bleed primary blue base -->
+    <rect x="0" y="0" width="1920" height="1080" fill="#1B3A5C"/>
+    
+    <!-- Darker angular overlay - large diagonal block -->
+    <polygon points="0,0 1920,0 1920,420 0,520" fill="#142D4A"/>
+    
+    <!-- Lighter angular accent strip -->
+    <polygon points="0,520 1920,420 1920,480 0,580" fill="#24547A"/>
+    
+    <!-- Very subtle grid lines for briefing texture -->
+    <line x1="200" y1="0" x2="200" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    <line x1="400" y1="0" x2="400" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    <line x1="600" y1="0" x2="600" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    <line x1="800" y1="0" x2="800" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    <line x1="1000" y1="0" x2="1000" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    <line x1="1200" y1="0" x2="1200" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    <line x1="1400" y1="0" x2="1400" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    <line x1="1600" y1="0" x2="1600" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    <line x1="1800" y1="0" x2="1800" y2="1080" stroke="#1E3F63" stroke-width="0.5"/>
+    
+    <!-- Large section number - ghosted -->
+    <text x="1580" y="380" font-family="Arial, Helvetica, sans-serif" font-size="320" font-weight="900" fill="#1E3F63" text-anchor="end" letter-spacing="-10">02</text>
+    
+    <!-- Section label tag -->
+    <rect x="80" y="160" width="8" height="60" fill="#4DA8DA"/>
+    <text x="108" y="200" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600" fill="#4DA8DA" letter-spacing="4">SECTION TWO</text>
+    
+    <!-- Section title -->
+    <text x="80" y="340" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="#FFFFFF" letter-spacing="1">Computational Workflow</text>
+    <text x="80" y="410" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="#FFFFFF" letter-spacing="1">Architecture</text>
+    
+    <!-- Subtitle describing purpose -->
+    <text x="80" y="640" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" fill="#8CB8D8" letter-spacing="0.5">End-to-end pipeline from molecular input to property prediction,</text>
+    <text x="80" y="672" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" fill="#8CB8D8" letter-spacing="0.5">including DFT integration, featurization strategy, and model inference</text>
+    
+    <!-- Thin accent line -->
+    <rect x="80" y="700" width="120" height="3" fill="#4DA8DA"/>
+    
+    <!-- Bottom metadata band -->
+    <rect x="0" y="960" width="1920" height="120" fill="#0F2438"/>
+    
+    <!-- Keyword strip in metadata band -->
+    <text x="80" y="1010" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#4DA8DA" letter-spacing="3">KEYWORDS</text>
+    <text x="80" y="1040" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#6B99B8" letter-spacing="1">DFT · MOLECULAR DESCRIPTORS · GNN · PROPERTY PREDICTION · AUTOMATION</text>
+    
+    <!-- Right side metadata -->
+    <text x="1840" y="1010" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" fill="#4DA8DA" letter-spacing="3" text-anchor="end">LAB MEETING</text>
+    <text x="1840" y="1040" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#6B99B8" letter-spacing="1" text-anchor="end">MARCH 2026 · COMPUTATIONAL CHEMISTRY GROUP</text>
+    
+    <!-- Thin top accent -->
+    <rect x="0" y="0" width="1920" height="4" fill="#4DA8DA"/>
+  </g>
+</svg>

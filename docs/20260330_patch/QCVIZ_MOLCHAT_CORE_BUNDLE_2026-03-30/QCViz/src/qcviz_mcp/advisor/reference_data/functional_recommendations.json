@@ -1,0 +1,465 @@
+{
+  "_metadata": {
+    "description": "Rule-based DFT functional recommendation decision tree",
+    "sources": [
+      {
+        "short": "Bursch et al. Angew. Chem. Int. Ed. 2022, 61, e202205735",
+        "doi": "10.1002/anie.202205735"
+      },
+      {
+        "short": "Goerigk et al. PCCP 2017, 19, 32184",
+        "doi": "10.1039/C7CP04913G"
+      },
+      {
+        "short": "Mardirossian & Head-Gordon, Mol. Phys. 2017, 115, 2315",
+        "doi": "10.1080/00268976.2017.1333644"
+      }
+    ],
+    "version": "1.1.0",
+    "last_modified": "2026-03-08"
+  },
+  "organic_small": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "B3LYP-D3(BJ)/def2-SVP is a robust, well-benchmarked combination for small organic molecules. B3LYP is the most widely validated hybrid functional with 20% Hartree-Fock exchange. The D3(BJ) dispersion correction (Grimme 2011) eliminates the known over-repulsiveness of uncorrected B3LYP. def2-SVP provides a balanced double-zeta description with polarization functions on all atoms. GMTKN55 WTMAD-2 for B3LYP-D3(BJ) is 6.42 kcal/mol.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022 (best-practice DFT)"
+        },
+        { "doi": "10.1002/jcc.21759", "short": "Grimme et al. 2011 (D3BJ)" },
+        { "doi": "10.1039/B508541A", "short": "Weigend & Ahlrichs 2005 (def2)" }
+      ],
+      "confidence": 0.9
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "For geometry optimization of small organic molecules, B3LYP-D3(BJ)/def2-SVP provides an excellent cost-accuracy balance. Bond length MAE is typically 0.008 Angstrom. The double-zeta basis is sufficient for geometry, though single-point energies should use a larger basis.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" },
+        { "doi": "10.1002/jcc.21759", "short": "Grimme et al. 2011 (D3BJ)" }
+      ],
+      "confidence": 0.92
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Single-point energy calculations require a larger basis set to minimize basis set incompleteness error. def2-TZVP provides triple-zeta quality with polarization, reducing BSSE significantly compared to def2-SVP.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" },
+        { "doi": "10.1039/B508541A", "short": "Weigend & Ahlrichs 2005" }
+      ],
+      "confidence": 0.9
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO/IAO bonding analysis is relatively insensitive to the basis set beyond double-zeta quality. The intrinsic atomic orbital construction is designed to be robust across basis sets. B3LYP provides a good balance of exchange-correlation for orbital localization.",
+      "references": [
+        { "doi": "10.1021/ct400687b", "short": "Knizia 2013 (IAO/IBO)" },
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.88
+    },
+    "reaction_energy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Reaction energies are sensitive to basis set size and dispersion. def2-TZVP is recommended for energy differences. B3LYP-D3(BJ) has a reaction energy MAE of approximately 3.5 kcal/mol.",
+      "references": [
+        {
+          "doi": "10.1039/C7CP04913G",
+          "short": "Goerigk et al. 2017 (GMTKN55)"
+        },
+        { "doi": "10.1002/jcc.21759", "short": "Grimme et al. 2011" }
+      ],
+      "confidence": 0.82
+    },
+    "spectroscopy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Vibrational frequency calculations benefit from a triple-zeta basis. Scale factors for B3LYP/def2-TZVP are well established. Harmonic frequencies should be scaled by approximately 0.965.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.85
+    },
+    "esp_mapping": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "ESP mapping is primarily sensitive to the quality of the electron density, which is well-described even at double-zeta level for organic molecules. The electron density converges faster with basis set than the energy.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.88
+    },
+    "alternatives": [
+      {
+        "functional": "PBE0-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP."
+      },
+      {
+        "functional": "r2SCAN-3c",
+        "basis": "mTZVPP (built-in)",
+        "rationale": "Composite method: very efficient, includes BSSE and dispersion corrections. Recommended for rapid screening of large molecules."
+      }
+    ]
+  },
+  "organic_large": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "For large organic systems (>50 atoms), B3LYP-D3(BJ)/def2-SVP provides the best cost-accuracy tradeoff. Hybrid DFT scales as N^4, which becomes the bottleneck. Consider r2SCAN-3c as a faster alternative.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.82
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Same as default. For very large systems (>200 atoms), consider PBE-D3(BJ)/def2-SVP as a GGA alternative.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.78
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single-point energies at the optimized geometry. For systems >100 atoms with hybrid DFT, this may be computationally demanding.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.78
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO/IAO analysis at double-zeta level is adequate for large organic systems. Computational cost is dominated by the SCF step.",
+      "references": [
+        { "doi": "10.1021/ct400687b", "short": "Knizia 2013 (IAO/IBO)" }
+      ],
+      "confidence": 0.8
+    },
+    "alternatives": [
+      {
+        "functional": "PBE-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points."
+      },
+      {
+        "functional": "r2SCAN-3c",
+        "basis": "mTZVPP (built-in)",
+        "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive."
+      }
+    ]
+  },
+  "3d_tm": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "B3LYP remains the most widely used and validated functional for 3d transition metal complexes. The 20% HF exchange provides a reasonable balance for geometry optimization. However, spin-state energetics are highly sensitive to the HF exchange fraction. ECPs for elements beyond Kr are built into the def2 basis sets.",
+      "references": [
+        {
+          "doi": "10.1039/D4SC05471G",
+          "short": "TM spin-state benchmark 2024"
+        },
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.72
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "B3LYP-D3(BJ)/def2-SVP is the standard choice for 3d TM geometry optimization. Bond length errors are typically 0.01-0.03 Angstrom for metal-ligand bonds.",
+      "references": [
+        { "doi": "10.1039/D4SC05471G", "short": "TM benchmark 2024" }
+      ],
+      "confidence": 0.75
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta basis is important for reliable energetics of TM complexes. Consider checking multiple spin states.",
+      "references": [
+        { "doi": "10.1039/D4SC05471G", "short": "TM benchmark 2024" },
+        { "doi": "10.1039/B508541A", "short": "Weigend & Ahlrichs 2005" }
+      ],
+      "confidence": 0.7
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO analysis of TM complexes can reveal metal-ligand bonding character. Results should be interpreted with care for systems with significant multireference character.",
+      "references": [
+        { "doi": "10.1021/ct400687b", "short": "Knizia 2013 (IAO/IBO)" }
+      ],
+      "confidence": 0.68
+    },
+    "alternatives": [
+      {
+        "functional": "TPSSh-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP."
+      },
+      {
+        "functional": "PBE0-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry."
+      }
+    ]
+  },
+  "heavy_tm": {
+    "default": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "PBE0-D3(BJ) is recommended for 4d/5d transition metal complexes. The def2 basis sets include scalar relativistic effective core potentials (ECPs) for elements beyond Kr, which account for the dominant relativistic effects. PBE0 provides robust performance across the periodic table.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005 (def2 + ECP)"
+        }
+      ],
+      "confidence": 0.68
+    },
+    "geometry_opt": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "PBE0-D3(BJ)/def2-SVP for geometry optimization of 4d/5d TM complexes. ECPs handle scalar relativistic effects.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.7
+    },
+    "single_point": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for accurate energetics. ECPs remain the same; only valence basis functions increase.",
+      "references": [
+        { "doi": "10.1039/B508541A", "short": "Weigend & Ahlrichs 2005" }
+      ],
+      "confidence": 0.65
+    },
+    "bonding_analysis": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO analysis for heavy TM complexes. Interpretation should account for relativistic effects on orbital energies.",
+      "references": [
+        { "doi": "10.1021/ct400687b", "short": "Knizia 2013 (IAO/IBO)" }
+      ],
+      "confidence": 0.62
+    },
+    "alternatives": [
+      {
+        "functional": "B3LYP-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases."
+      }
+    ]
+  },
+  "lanthanide": {
+    "default": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Lanthanide (4f) complexes are challenging for single-reference DFT. PBE0-D3(BJ)/def2-SVP with scalar relativistic ECPs from the def2 family is the most practical starting point. However, multiconfigurational effects may be important for open-shell lanthanides, and results should be treated with extra caution.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005 (def2 + ECP)"
+        }
+      ],
+      "confidence": 0.55
+    },
+    "geometry_opt": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Geometry optimization for lanthanide complexes. Metal-ligand bond lengths may have errors of 0.03-0.05 Angstrom. Consider checking multiple spin states for open-shell Ln ions.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.55
+    },
+    "single_point": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for lanthanide energetics. Results should be verified with multireference methods if spin-state ordering is critical.",
+      "references": [
+        { "doi": "10.1039/B508541A", "short": "Weigend & Ahlrichs 2005" }
+      ],
+      "confidence": 0.5
+    },
+    "alternatives": [
+      {
+        "functional": "TPSSh-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations."
+      }
+    ]
+  },
+  "radical": {
+    "default": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Unrestricted B3LYP (UB3LYP) is the standard approach for radical species. Spin contamination should always be monitored via the <S^2> expectation value. If <S^2> deviates more than 10% from the expected value, the results may be unreliable.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.78
+    },
+    "geometry_opt": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Geometry optimization for radical species using unrestricted DFT. Always check <S^2> after convergence. For doublets, expected <S^2> = 0.75; deviations > 0.82 indicate significant spin contamination.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.8
+    },
+    "single_point": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single-point energy for radical species. Larger basis reduces BSSE. Check <S^2> at this level as well.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.78
+    },
+    "bonding_analysis": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO analysis for open-shell systems requires unrestricted orbitals. Alpha and beta IBO sets should be analyzed separately. Singly-occupied molecular orbitals (SOMOs) are of particular chemical interest.",
+      "references": [
+        { "doi": "10.1021/ct400687b", "short": "Knizia 2013 (IAO/IBO)" },
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.72
+    },
+    "alternatives": [
+      {
+        "functional": "UM06-2X-D3(0)",
+        "basis": "def2-TZVP",
+        "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk."
+      }
+    ]
+  },
+  "charged_organic": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Charged species require a larger basis set (at least triple-zeta) to adequately describe the diffuse electron density of anions or the compact density of cations. For anions, consider adding diffuse functions (def2-TZVPD). Dispersion correction is essential for ion-pair interaction energies.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" },
+        { "doi": "10.1039/B508541A", "short": "Weigend & Ahlrichs 2005" }
+      ],
+      "confidence": 0.8
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Charged species geometry optimization benefits from triple-zeta basis even at the optimization stage, particularly for anions where diffuse charge distributions require adequate basis function coverage.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.82
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Same basis as geometry optimization for charged species. Consider def2-TZVPD (with diffuse functions) for anions.",
+      "references": [
+        { "doi": "10.1039/B508541A", "short": "Weigend & Ahlrichs 2005" }
+      ],
+      "confidence": 0.8
+    },
+    "alternatives": [
+      {
+        "functional": "wB97X-D",
+        "basis": "def2-TZVP",
+        "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range."
+      }
+    ]
+  },
+  "main_group_metal": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Main-group metal compounds (Li, Na, Mg, Al, etc.) are generally well-described by standard hybrid DFT. The def2 basis sets cover the entire periodic table and include ECPs where appropriate.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.82
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Standard geometry optimization for main-group metal compounds.",
+      "references": [
+        { "doi": "10.1002/anie.202205735", "short": "Bursch et al. 2022" }
+      ],
+      "confidence": 0.82
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for main-group metal compound energetics.",
+      "references": [
+        { "doi": "10.1039/B508541A", "short": "Weigend & Ahlrichs 2005" }
+      ],
+      "confidence": 0.82
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO analysis reveals ionic vs. covalent character in main-group metal bonds. Particularly useful for organolithium and Grignard reagents.",
+      "references": [
+        { "doi": "10.1021/ct400687b", "short": "Knizia 2013 (IAO/IBO)" }
+      ],
+      "confidence": 0.8
+    },
+    "alternatives": [
+      {
+        "functional": "PBE0-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "Alternative hybrid with slightly different exchange-correlation balance."
+      }
+    ]
+  }
+}

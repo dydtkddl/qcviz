@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="560" viewBox="0 0 1400 560" fill="none">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrowSlate" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M1 1L11 6L1 11V1Z" fill="#475569"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M1 1L11 6L1 11V1Z" fill="#5B5FEF"/>
+    </marker>
+    <style>
+      .panelTitle { font-family: "Segoe UI", Arial, sans-serif; font-size: 28px; font-weight: 800; fill: #0F172A; }
+      .body { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; font-weight: 600; fill: #475569; }
+      .small { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #475569; }
+      .bubble { font-family: "Segoe UI", Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #0F172A; }
+      .node { font-family: "Segoe UI", Arial, sans-serif; font-size: 16px; font-weight: 800; fill: #FFFFFF; }
+      .step { font-family: "Segoe UI", Arial, sans-serif; font-size: 14px; font-weight: 800; fill: #64748B; letter-spacing: 1px; }
+      .terminal { font-family: "Consolas", "Courier New", monospace; font-size: 13px; font-weight: 700; fill: #E2E8F0; }
+      .xmark { font-family: "Segoe UI", Arial, sans-serif; font-size: 56px; font-weight: 900; fill: #DC2626; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="560" fill="none"/>
+
+  <g filter="url(#shadow)">
+    <rect x="30" y="40" width="640" height="480" rx="24" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2"/>
+    <text x="64" y="84" class="panelTitle">Traditionally</text>
+
+    <g transform="translate(78 122)">
+      <circle cx="44" cy="32" r="24" fill="#DBEAFE"/>
+      <circle cx="36" cy="28" r="4.5" fill="#EAF4FF" stroke="#334155" stroke-width="2.5"/>
+      <circle cx="52" cy="28" r="4.5" fill="#EAF4FF" stroke="#334155" stroke-width="2.5"/>
+      <path d="M40 28H48" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M25 66H63L70 108H18L25 66Z" fill="#DBEAFE" stroke="#334155" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M30 78L44 100L58 78" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="44" y="136" text-anchor="middle" class="small">Experimentalist</text>
+    </g>
+
+    <g transform="translate(166 122)">
+      <rect x="0" y="0" width="248" height="82" rx="24" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="3"/>
+      <path d="M24 82L40 82L30 102Z" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="3" stroke-linejoin="round"/>
+      <text x="24" y="49" class="bubble">“Show me the HOMO”</text>
+    </g>
+
+    <line x1="128" y1="240" x2="456" y2="240" stroke="#94A3B8" stroke-width="4" marker-end="url(#arrowSlate)"/>
+
+    <g transform="translate(460 122)">
+      <circle cx="44" cy="32" r="24" fill="#FED7AA"/>
+      <circle cx="36" cy="28" r="4.5" fill="#FFF7ED" stroke="#7C2D12" stroke-width="2.5"/>
+      <circle cx="52" cy="28" r="4.5" fill="#FFF7ED" stroke="#7C2D12" stroke-width="2.5"/>
+      <path d="M40 28H48" stroke="#7C2D12" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M25 66H63L70 108H18L25 66Z" fill="#FED7AA" stroke="#7C2D12" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M30 78L44 100L58 78" stroke="#7C2D12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="44" y="136" text-anchor="middle" class="small">Comp. Chemist</text>
+    </g>
+
+    <g transform="translate(162 308)">
+      <rect x="0" y="0" width="380" height="48" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+      <text x="190" y="30" text-anchor="middle" class="body">interpret request</text>
+    </g>
+    <g transform="translate(162 370)">
+      <rect x="0" y="0" width="380" height="48" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+      <text x="190" y="30" text-anchor="middle" class="body">identify molecule and task</text>
+    </g>
+    <g transform="translate(162 432)">
+      <rect x="0" y="0" width="182" height="48" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+      <text x="91" y="30" text-anchor="middle" class="body">choose settings</text>
+    </g>
+    <g transform="translate(360 432)">
+      <rect x="0" y="0" width="182" height="48" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+      <text x="91" y="30" text-anchor="middle" class="body">prepare input</text>
+    </g>
+
+    <line x1="542" y1="456" x2="590" y2="456" stroke="#94A3B8" stroke-width="4" marker-end="url(#arrowSlate)"/>
+
+    <g transform="translate(590 394)" filter="url(#shadow)">
+      <rect x="0" y="0" width="54" height="76" rx="10" fill="#111827" stroke="#334155" stroke-width="2"/>
+      <rect x="6" y="8" width="42" height="10" rx="4" fill="#334155"/>
+      <text x="14" y="43" class="terminal">&gt; scf</text>
+      <text x="14" y="60" class="terminal">run</text>
+    </g>
+    <text x="617" y="490" text-anchor="middle" class="small">Linux compute job</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="730" y="40" width="640" height="480" rx="24" fill="#EEF2FF" stroke="#C7D2FE" stroke-width="2"/>
+    <text x="764" y="84" class="panelTitle">QCViz</text>
+
+    <g transform="translate(778 122)">
+      <circle cx="44" cy="32" r="24" fill="#DBEAFE"/>
+      <circle cx="36" cy="28" r="4.5" fill="#EAF4FF" stroke="#334155" stroke-width="2.5"/>
+      <circle cx="52" cy="28" r="4.5" fill="#EAF4FF" stroke="#334155" stroke-width="2.5"/>
+      <path d="M40 28H48" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M25 66H63L70 108H18L25 66Z" fill="#DBEAFE" stroke="#334155" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M30 78L44 100L58 78" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="44" y="136" text-anchor="middle" class="small">Experimentalist</text>
+    </g>
+
+    <g transform="translate(870 122)">
+      <rect x="0" y="0" width="270" height="82" rx="24" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="3"/>
+      <path d="M24 82L40 82L30 102Z" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="3" stroke-linejoin="round"/>
+      <text x="24" y="49" class="bubble">“Show me the HOMO”</text>
+    </g>
+
+    <line x1="828" y1="240" x2="930" y2="240" stroke="#A5B4FC" stroke-width="4" marker-end="url(#arrowBlue)"/>
+
+    <g transform="translate(930 220)" filter="url(#shadow)">
+      <rect x="0" y="0" width="240" height="96" rx="20" fill="#5B5FEF"/>
+      <text x="120" y="54" text-anchor="middle" class="node">LLM Orchestration</text>
+    </g>
+
+    <g transform="translate(828 338)">
+      <rect x="0" y="0" width="120" height="42" rx="14" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="2"/>
+      <text x="60" y="26" text-anchor="middle" class="small">interpret</text>
+      <text x="102" y="32" class="xmark">×</text>
+    </g>
+    <g transform="translate(968 338)">
+      <rect x="0" y="0" width="160" height="42" rx="14" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="2"/>
+      <text x="80" y="26" text-anchor="middle" class="small">identify task</text>
+      <text x="140" y="32" class="xmark">×</text>
+    </g>
+    <g transform="translate(1148 338)">
+      <rect x="0" y="0" width="136" height="42" rx="14" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="2"/>
+      <text x="68" y="26" text-anchor="middle" class="small">prepare input</text>
+      <text x="116" y="32" class="xmark">×</text>
+    </g>
+
+    <line x1="1050" y1="316" x2="1050" y2="366" stroke="#5B5FEF" stroke-width="4" marker-end="url(#arrowBlue)"/>
+
+    <g transform="translate(810 408)">
+      <rect x="0" y="0" width="148" height="66" rx="18" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="2.5"/>
+      <text x="74" y="39" text-anchor="middle" class="body">Molecule</text>
+    </g>
+    <g transform="translate(976 408)">
+      <rect x="0" y="0" width="148" height="66" rx="18" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="2.5"/>
+      <text x="74" y="39" text-anchor="middle" class="body">Task</text>
+    </g>
+    <g transform="translate(1142 408)">
+      <rect x="0" y="0" width="166" height="66" rx="18" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="2.5"/>
+      <text x="83" y="39" text-anchor="middle" class="body">Compute request</text>
+    </g>
+
+    <line x1="958" y1="441" x2="976" y2="441" stroke="#A5B4FC" stroke-width="4" marker-end="url(#arrowBlue)"/>
+    <line x1="1124" y1="441" x2="1142" y2="441" stroke="#A5B4FC" stroke-width="4" marker-end="url(#arrowBlue)"/>
+  </g>
+</svg>

@@ -1,0 +1,209 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 3,
+    "clarify_count": 1,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.\n                  \n                \n              \n            Uacetic acid optimize geometry이전 계산 대상을 확인해 주세요 / Confirm what to continue후속 요청으로 보이지만 이어받을 이전 구조가 없어 계산 대상을 먼저 확인해야 합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "Uacetic acid optimize geometry",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--clarify"
+        ],
+        "text": "이전 계산 대상을 확인해 주세요 / Confirm what to continue후속 요청으로 보이지만 이어받을 이전 구조가 없어 계산 대상을 먼저 확인해야 합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+        "isUser": false,
+        "isClarify": true,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [
+      {
+        "text": "이전 계산 대상을 확인해 주세요 / Confirm what to continue후속 요청으로 보이지만 이어받을 이전 구조가 없어 계산 대상을 먼저 확인해야 합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+        "labels": [
+          "분자를 선택해 주세요 / Choose a molecule",
+          "직접 입력 / Custom molecule name or SMILES"
+        ],
+        "selects": [
+          [
+            "water",
+            "methane",
+            "ethanol",
+            "methanol",
+            "benzene",
+            "custom"
+          ]
+        ],
+        "textInputs": [
+          {
+            "fieldId": "structure_custom",
+            "value": "",
+            "placeholder": "예: acetone, water, CC(=O)C"
+          }
+        ]
+      }
+    ],
+    "confirms": [],
+    "active_result": null,
+    "active_result_sig": "",
+    "active_job_id": "",
+    "jobs_count": 0,
+    "jobs": [],
+    "session_id": "qcviz-mndfw1wa-bsgixa",
+    "last_user_input": "acetic acid optimize geometry"
+  },
+  "events": [
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:8817/compute/jobs?include_result=true&session_id=qcviz-mndfw1wa-bsgixa",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890353.9382856
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — response status: 200"
+      },
+      "at": 1774890353.938448
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — loaded 0 jobs from server"
+      },
+      "at": 1774890353.9391263
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 0 filter: (none)"
+      },
+      "at": 1774890353.9441102
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 🎛 Form submit event"
+      },
+      "at": 1774890353.9661918
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 sendMessage: acetic acid optimize geometry ..."
+      },
+      "at": 1774890353.9664216
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: user text length: 29 extra: turnId"
+      },
+      "at": 1774890353.966572
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: chat length: 205"
+      },
+      "at": 1774890353.9666784
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890354.0527306
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890354.073288
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 373"
+      },
+      "at": 1774890354.4180453
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,message,payload,turn_id,timestamp"
+      },
+      "at": 1774890354.4181988
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: awaiting_ack → idle"
+      },
+      "at": 1774890354.418286
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 3466"
+      },
+      "at": 1774890354.4183939
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: clarify keys: type,session_id,message,clarification_kind,form,fields,plan,turn_id,timestamp"
+      },
+      "at": 1774890354.418488
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← clarify, fields: 2"
+      },
+      "at": 1774890354.4185514
+    }
+  ]
+}

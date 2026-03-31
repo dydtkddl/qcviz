@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" fill="none">
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowSlate" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M1 1L11 6L1 11V1Z" fill="#475569"/>
+    </marker>
+    <style>
+      .boxTitle { font-family: "Segoe UI", Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #0F172A; }
+      .boxBody { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; font-weight: 600; fill: #475569; }
+      .tiny { font-family: "Segoe UI", Arial, sans-serif; font-size: 12px; font-weight: 800; fill: #64748B; letter-spacing: 1px; }
+      .output { font-family: "Segoe UI", Arial, sans-serif; font-size: 24px; font-weight: 800; fill: #065F46; }
+    </style>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <rect x="40" y="60" width="320" height="98" rx="22" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5"/>
+    <text x="72" y="98" class="tiny">STEP 1</text>
+    <text x="72" y="132" class="boxTitle">Search sources</text>
+    <text x="72" y="154" class="boxBody">PubChem · ChemSpider · CSD · PDB</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="438" y="60" width="338" height="98" rx="22" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5"/>
+    <text x="470" y="98" class="tiny">DECISION</text>
+    <text x="470" y="132" class="boxTitle">3D already available?</text>
+  </g>
+
+  <line x1="360" y1="109" x2="438" y2="109" stroke="#475569" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowSlate)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="40" y="234" width="320" height="98" rx="22" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5"/>
+    <text x="72" y="272" class="tiny">STEP 2A</text>
+    <text x="72" y="306" class="boxTitle">Retrieve 3D</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="456" y="234" width="320" height="98" rx="22" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5"/>
+    <text x="488" y="272" class="tiny">STEP 2B</text>
+    <text x="488" y="306" class="boxTitle">Generate 3D</text>
+    <text x="488" y="328" class="boxBody">RDKit conformer generation</text>
+  </g>
+
+  <path d="M565 158V188H200V234" stroke="#475569" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" marker-end="url(#arrowSlate)"/>
+  <path d="M640 158V234" stroke="#475569" stroke-width="6" stroke-linecap="round" fill="none" marker-end="url(#arrowSlate)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="248" y="406" width="320" height="78" rx="22" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5"/>
+    <text x="280" y="438" class="tiny">STEP 3</text>
+    <text x="280" y="467" class="boxTitle">xTB optimize</text>
+  </g>
+
+  <path d="M200 332V370H408V406" stroke="#475569" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" marker-end="url(#arrowSlate)"/>
+  <path d="M616 332V406" stroke="#475569" stroke-width="6" stroke-linecap="round" fill="none" marker-end="url(#arrowSlate)"/>
+
+  <line x1="568" y1="445" x2="704" y2="445" stroke="#059669" stroke-width="7" stroke-linecap="round" marker-end="url(#arrowSlate)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="704" y="364" width="430" height="162" rx="28" fill="#ECFDF5" stroke="#10B981" stroke-width="3"/>
+    <text x="748" y="418" class="tiny">FINAL OUTPUT</text>
+    <text x="748" y="456" class="output">Compute-ready 3D structure</text>
+    <text x="748" y="488" class="boxBody">validated coordinates for downstream PySCF execution</text>
+  </g>
+</svg>

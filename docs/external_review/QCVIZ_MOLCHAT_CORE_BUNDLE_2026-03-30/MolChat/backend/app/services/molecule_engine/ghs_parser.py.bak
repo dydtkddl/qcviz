@@ -1,0 +1,130 @@
+"""
+GHS safety data fetcher and parser.
+Retrieves GHS classification from PubChem PUG-View API.
+"""
+
+from __future__ import annotations
+
+import structlog
+import httpx
+
+from app.schemas.molecule_card import GHSSafety
+
+logger = structlog.get_logger(__name__)
+
+_PICTOGRAM_BASE = "https://pubchem.ncbi.nlm.nih.gov/images/ghs"
+PICTOGRAM_MAP: dict[str, str] = {
+    "Flammable":            "GHS02",
+    "Oxidizer":             "GHS03",
+    "Compressed Gas":       "GHS04",
+    "Corrosive":            "GHS05",
+    "Acute Toxic":          "GHS06",
+    "Irritant":             "GHS07",
+    "Health Hazard":        "GHS08",
+    "Environmental Hazard": "GHS09",
+    "Explosive":            "GHS01",
+}
+
+
+async def fetch_ghs(cid: int, client: httpx.AsyncClient | None = None) -> GHSSafety | None:
+    """Fetch GHS classification for a compound from PubChem PUG-View."""
+    url = (
+        f"https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/{cid}/JSON"
+        f"?heading=GHS+Classification"
+    )
+    own_client = client is None
+    if own_client:
+        client = httpx.AsyncClient(timeout=5.0)
+    try:
+        resp = await client.get(url, timeout=5.0)
+        if resp.status_code != 200:
+            logger.warning("ghs_fetch_failed", cid=cid, status=resp.status_code)
+            return None
+        data = resp.json()
+        return _parse_ghs_response(data, cid)
+    except httpx.TimeoutException:
+        logger.warning("ghs_fetch_timeout", cid=cid)
+        return None
+    except Exception as e:
+        logger.warning("ghs_fetch_error", cid=cid, error=str(e))
+        return None
+    finally:
+        if own_client:
+            await client.aclose()
+
+
+def _parse_ghs_response(data: dict, cid: int) -> GHSSafety:
+    """Parse PUG-View GHS JSON into a GHSSafety object."""
+    pictograms: list[str] = []
+    pictogram_urls: list[str] = []
+    h_statements: list[str] = []
+    p_statements: list[str] = []
+    signal_word: str | None = None
+
+    try:
+        record = data.get("Record", {})
+        top_sections = record.get("Section", [])
+        for section in top_sections:
+            for sub_section in section.get("Section", []):
+                heading = sub_section.get("TOCHeading", "")
+                if "Pictogram" in heading:
+                    _extract_pictograms(sub_section, pictograms, pictogram_urls)
+                elif "Signal" in heading:
+                    signal_word = _extract_signal_word(sub_section)
+                elif "Hazard Statement" in heading:
+                    _extract_statements(sub_section, h_statements)
+                elif "Precautionary Statement" in heading:
+                    _extract_statements(sub_section, p_statements)
+    except (KeyError, IndexError, TypeError) as e:
+        logger.warning("ghs_parse_error", cid=cid, error=str(e))
+
+    pictograms = sorted(set(pictograms))
+    pictogram_urls = sorted(set(pictogram_urls))
+    h_statements = list(dict.fromkeys(h_statements))
+    p_statements = list(dict.fromkeys(p_statements))
+
+    return GHSSafety(
+        signal_word=signal_word,
+        pictograms=pictograms,
+        pictogram_urls=pictogram_urls,
+        h_statements=h_statements[:20],
+        p_statements=p_statements[:20],
+    )
+
+
+def _extract_pictograms(section: dict, codes: list[str], urls: list[str]) -> None:
+    for info in section.get("Information", []):
+        value = info.get("Value", {})
+        for swm in value.get("StringWithMarkup", []):
+            for markup in swm.get("Markup", []):
+                extra = markup.get("Extra", "")
+                url = markup.get("URL", "")
+                if extra in PICTOGRAM_MAP:
+                    code = PICTOGRAM_MAP[extra]
+                    codes.append(code)
+                    urls.append(url if url else f"{_PICTOGRAM_BASE}/{code}.svg")
+                elif url and "ghs" in url.lower():
+                    for pname, pcode in PICTOGRAM_MAP.items():
+                        if pcode.lower() in url.lower():
+                            codes.append(pcode)
+                            urls.append(url)
+                            break
+
+
+def _extract_signal_word(section: dict) -> str | None:
+    for info in section.get("Information", []):
+        value = info.get("Value", {})
+        for swm in value.get("StringWithMarkup", []):
+            text = swm.get("String", "").strip()
+            if text.lower() in ("danger", "warning"):
+                return text.capitalize()
+    return None
+
+
+def _extract_statements(section: dict, target: list[str]) -> None:
+    for info in section.get("Information", []):
+        value = info.get("Value", {})
+        for swm in value.get("StringWithMarkup", []):
+            text = swm.get("String", "").strip()
+            if text and len(text) > 3:
+                target.append(text)

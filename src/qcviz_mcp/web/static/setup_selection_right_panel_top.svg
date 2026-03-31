@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220" fill="none">
+  <defs>
+    <linearGradient id="panelGrad" x1="0" y1="0" x2="900" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4E79CF"/>
+      <stop offset="1" stop-color="#3F68BF"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="240" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .eyebrow { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 2px; fill: #DCE7FF; }
+      .title { font-family: "Segoe UI", Arial, sans-serif; font-size: 24px; font-weight: 800; fill: #FFFFFF; }
+      .cardTitle { font-family: "Segoe UI", Arial, sans-serif; font-size: 17px; font-weight: 800; fill: #FFFFFF; }
+      .cardBody { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #E7EEFF; }
+    </style>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <rect x="10" y="10" width="880" height="200" rx="18" fill="url(#panelGrad)"/>
+
+    <text x="36" y="42" class="eyebrow">WHY THIS IS HARD</text>
+    <text x="36" y="76" class="title">Scientifically consequential choices need more than guesswork.</text>
+
+    <g transform="translate(36 98)">
+      <rect x="0" y="0" width="250" height="90" rx="18" fill="url(#cardGrad)" stroke="#8FB0F2" stroke-width="1.5"/>
+      <circle cx="42" cy="45" r="22" fill="#FFFFFF" fill-opacity="0.14"/>
+      <circle cx="42" cy="45" r="4.5" fill="#FFFFFF"/>
+      <circle cx="28" cy="33" r="4.5" fill="#FFFFFF"/>
+      <circle cx="28" cy="57" r="4.5" fill="#FFFFFF"/>
+      <circle cx="56" cy="33" r="4.5" fill="#FFFFFF"/>
+      <circle cx="56" cy="57" r="4.5" fill="#FFFFFF"/>
+      <path d="M42 45L28 33M42 45L28 57M42 45L56 33M42 45L56 57" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
+      <text x="82" y="38" class="cardTitle">Domain knowledge</text>
+      <text x="82" y="62" class="cardBody">molecule type</text>
+      <text x="82" y="80" class="cardBody">task dependence</text>
+    </g>
+
+    <g transform="translate(325 98)">
+      <rect x="0" y="0" width="250" height="90" rx="18" fill="url(#cardGrad)" stroke="#8FB0F2" stroke-width="1.5"/>
+      <circle cx="42" cy="45" r="22" fill="#FFFFFF" fill-opacity="0.14"/>
+      <path d="M26 34H58V58H26V34Z" stroke="#FFFFFF" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M42 34V58" stroke="#FFFFFF" stroke-width="2.6"/>
+      <path d="M31 40H38M46 40H53M31 47H38M46 47H53" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+      <text x="82" y="38" class="cardTitle">Literature-grounded</text>
+      <text x="82" y="62" class="cardBody">method evidence</text>
+      <text x="82" y="80" class="cardBody">benchmark support</text>
+    </g>
+
+    <g transform="translate(614 98)">
+      <rect x="0" y="0" width="250" height="90" rx="18" fill="url(#cardGrad)" stroke="#8FB0F2" stroke-width="1.5"/>
+      <circle cx="42" cy="45" r="22" fill="#FFFFFF" fill-opacity="0.14"/>
+      <path d="M35 28H49M38 28V38L28 56C25 61 29 66 35 66H49C55 66 59 61 56 56L46 38V28" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M34 56H50" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+      <text x="82" y="38" class="cardTitle">Practical experience</text>
+      <text x="82" y="62" class="cardBody">reasonable defaults</text>
+      <text x="82" y="80" class="cardBody">for non-experts</text>
+    </g>
+  </g>
+</svg>

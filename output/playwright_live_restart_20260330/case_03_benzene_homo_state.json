@@ -1,0 +1,3222 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 4,
+    "clarify_count": 0,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.\n                  \n                \n              \n            Ubenzene HOMO 보여줘Plan: orbital_preview | structure=benzene | method=B3LYP | basis=def2-SVP | orbital=HOMO | confidence=0.95 | via=heuristic{\n  \"normalized_text\": \"benzene HOMO 보여줘\",\n  \"intent\": \"orbital_preview\",\n  \"job_type\": \"orbital_preview\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": true,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.95,\n  \"confidence_band\": \"high\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"structure analysis candidate\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": \"benzene\",\n  \"structure_query_candidates\": [\n    \"benzene\"\n  ],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"benzene\"\n  ],\n  \"canonical_candidates\": [\n    \"benzene\"\n  ],\n  \"raw_input\": \"benzene\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [\n    \"HOMO\"\n  ],\n  \"batch_request\": false,\n  \"batch_size\": 0,\n  \"method\": null,\n  \"basis\": null,\n  \"charge\": null,\n  \"multiplicity\": null,\n  \"orbital\": \"HOMO\",\n  \"esp_preset\": null,\n  \"advisor_focus_tab\": \"summary\",\n  \"follow_up_mode\": null,\n  \"clarification_kind\": null,\n  \"missing_slots\": [],\n  \"needs_clarification\": false,\n  \"chat_response\": null\n}계산 완료대기열 비어 있음Completed (100%)Cancel",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "Ubenzene HOMO 보여줘",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--assistant"
+        ],
+        "text": "Plan: orbital_preview | structure=benzene | method=B3LYP | basis=def2-SVP | orbital=HOMO | confidence=0.95 | via=heuristic{\n  \"normalized_text\": \"benzene HOMO 보여줘\",\n  \"intent\": \"orbital_preview\",\n  \"job_type\": \"orbital_preview\",\n  \"query_kind\": \"compute_ready\",\n  \"planner_lane\": \"compute_ready\",\n  \"lane_locked\": true,\n  \"locked_lane\": \"compute_ready\",\n  \"semantic_grounding_needed\": false,\n  \"question_like\": false,\n  \"explicit_compute_action\": true,\n  \"explanation_intent\": false,\n  \"grounding_intent\": false,\n  \"compute_intent\": true,\n  \"unknown_acronyms\": [],\n  \"confidence\": 0.95,\n  \"confidence_band\": \"high\",\n  \"reasoning\": \"\",\n  \"provider\": \"heuristic\",\n  \"pipeline_enabled\": true,\n  \"pipeline_fallback_stage\": \"provider\",\n  \"pipeline_repair_count\": 0,\n  \"fallback_reason\": \"no_llm_provider_available\",\n  \"notes\": [\n    \"LLM pipeline fallback at provider: no_llm_provider_available\"\n  ],\n  \"reasoning_notes\": [\n    \"structure analysis candidate\",\n    \"pipeline fallback reason=no_llm_provider_available\"\n  ],\n  \"structure_query\": \"benzene\",\n  \"structure_query_candidates\": [\n    \"benzene\"\n  ],\n  \"formula_mentions\": [],\n  \"alias_mentions\": [\n    \"benzene\"\n  ],\n  \"canonical_candidates\": [\n    \"benzene\"\n  ],\n  \"raw_input\": \"benzene\",\n  \"mixed_input\": false,\n  \"composition_kind\": null,\n  \"charge_hint\": null,\n  \"structures\": null,\n  \"mentioned_molecules\": [],\n  \"target_scope\": null,\n  \"selection_mode\": null,\n  \"selection_hint\": null,\n  \"selected_molecules\": [],\n  \"analysis_bundle\": [\n    \"",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--progress"
+        ],
+        "text": "계산 완료대기열 비어 있음Completed (100%)Cancel",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [],
+    "confirms": [],
+    "active_result": {
+      "structure_query": "benzene",
+      "structure_name": "benzene",
+      "job_type": "orbital_preview",
+      "analysis_bundle": [],
+      "visualization_available": {
+        "orbital": true,
+        "density": false,
+        "esp": false
+      },
+      "orbital": "",
+      "esp_preset": ""
+    },
+    "active_result_sig": "{\"structure_query\":\"benzene\",\"structure_name\":\"benzene\",\"job_type\":\"orbital_preview\",\"analysis_bundle\":[],\"visualization_available\":{\"orbital\":true,\"density\":false,\"esp\":false},\"orbital\":\"\",\"esp_preset\":\"\"}",
+    "active_job_id": "ae80a251e80846c1ae8db8ad94bafcfc",
+    "jobs_count": 1,
+    "jobs": [
+      {
+        "job_id": "ae80a251e80846c1ae8db8ad94bafcfc",
+        "status": "completed",
+        "payload_job_type": "",
+        "payload_structure_query": ""
+      }
+    ],
+    "session_id": "qcviz-mne00f3v-xx5aud",
+    "last_user_input": "benzene HOMO 보여줘"
+  },
+  "events": [
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924150.1420915
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924150.1425617
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 🎛 Form submit event"
+      },
+      "at": 1774924150.1544042
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 sendMessage: benzene HOMO 보여줘 ..."
+      },
+      "at": 1774924150.1545973
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: user text length: 16 extra: turnId"
+      },
+      "at": 1774924150.1547422
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: chat length: 192"
+      },
+      "at": 1774924150.1548595
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 347"
+      },
+      "at": 1774924150.2885342
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,message,payload,turn_id,timestamp"
+      },
+      "at": 1774924150.288733
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: awaiting_ack → idle"
+      },
+      "at": 1774924150.28888
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1896"
+      },
+      "at": 1774924150.2890217
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: assistant keys: type,session_id,message,plan,payload_preview,turn_id,timestamp"
+      },
+      "at": 1774924150.2891457
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← assistant message, length: 122 has plan: true"
+      },
+      "at": 1774924150.2892618
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: assistant text length: 122 extra: plan,turnId,jobId"
+      },
+      "at": 1774924150.2893825
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — attaching plan JSON"
+      },
+      "at": 1774924150.289431
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1370"
+      },
+      "at": 1774924150.2895179
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_submitted keys: type,session_id,job,turn_id,timestamp"
+      },
+      "at": 1774924150.2896051
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_submitted, job_id: ae80a251e80846c1ae8db8ad94bafcfc job_type: ?"
+      },
+      "at": 1774924150.289733
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924150.2898238
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924150.2898939
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event status:changed — kind: running text: Computing..."
+      },
+      "at": 1774924150.2900364
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] updateStatus — kind: running text: Computing..."
+      },
+      "at": 1774924150.290148
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 1 step: submitted msg: Job submitted"
+      },
+      "at": 1774924150.2903616
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 2190"
+      },
+      "at": 1774924150.2904801
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924150.2905934
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0 step: starting msg: Starting job"
+      },
+      "at": 1774924150.290726
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 0 step: starting msg: Starting job"
+      },
+      "at": 1774924150.29091
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924150.2909977
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 299"
+      },
+      "at": 1774924150.2911127
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_event keys: type,session_id,job_id,event,turn_id"
+      },
+      "at": 1774924150.2913578
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_event"
+      },
+      "at": 1774924150.2914047
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 2177"
+      },
+      "at": 1774924150.291488
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,step,message,queue,job,turn_id"
+      },
+      "at": 1774924150.2915714
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: undefined step: job_started msg: Job started"
+      },
+      "at": 1774924150.2916994
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 0 step: job_started msg: Job started"
+      },
+      "at": 1774924150.2919645
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924150.2920578
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924150.2971003
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://3dmol.org/build/3Dmol-min.js",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924151.0741985
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ✔ 3Dmol loaded from CDN 0 : https://3Dmol.org/build/3Dmol-min.js"
+      },
+      "at": 1774924151.0947995
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] initViewer — $3Dmol: true viewer3d: true"
+      },
+      "at": 1774924151.094979
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ✔ Viewer created, viewerReady=true"
+      },
+      "at": 1774924151.1111557
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "warning",
+        "text": "[.WebGL-0x470401c04000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+      },
+      "at": 1774924151.1789155
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "warning",
+        "text": "[.WebGL-0x470401c04000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+      },
+      "at": 1774924151.21009
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924152.293194
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 5236"
+      },
+      "at": 1774924155.8169324
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924155.8172674
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.35 step: scf msg: Running SCF"
+      },
+      "at": 1774924155.8176646
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 35 step: scf msg: Running SCF"
+      },
+      "at": 1774924155.8179555
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924155.818086
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924155.8182144
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 3199"
+      },
+      "at": 1774924155.8184354
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,preview_result"
+      },
+      "at": 1774924155.8186085
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.14 step: structure_ready msg: Structure ready for preview"
+      },
+      "at": 1774924155.8227098
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 14 step: structure_ready msg: Structure ready for preview"
+      },
+      "at": 1774924155.8229344
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← structure preview ready for job: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924155.823074
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: preview"
+      },
+      "at": 1774924155.8233535
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: preview result keys: success,preview,job_type,structure_query,structure_name,atom_spec,xyz,method,basis,charge,multiplicity,warnings,advisor_focus_tab,visualization,default_tab"
+      },
+      "at": 1774924155.8236716
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: undefined viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924155.823991
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774924155.8242404
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774924155.8243787
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774924155.8245664
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: undefined viz_xyz: true viz.available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924155.8247879
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: benzene job_type: orbital_preview method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774924155.8249993
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774924155.8251328
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: preview jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924155.825305
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774924155.8254557
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 671"
+      },
+      "at": 1774924155.8257232
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924155.8258667
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.05 step: resolve msg: Resolving structure"
+      },
+      "at": 1774924155.826037
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 5 step: resolve msg: Resolving structure"
+      },
+      "at": 1774924155.826249
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 672"
+      },
+      "at": 1774924155.8263953
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924155.8265
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.15 step: build_scf msg: Building SCF model"
+      },
+      "at": 1774924155.8266678
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 15 step: build_scf msg: Building SCF model"
+      },
+      "at": 1774924155.826913
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 659"
+      },
+      "at": 1774924155.8270044
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924155.8271048
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.35 step: scf msg: Running SCF"
+      },
+      "at": 1774924155.8272815
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 35 step: scf msg: Running SCF"
+      },
+      "at": 1774924155.8274512
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924155.8344374
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer — debounce fired, calling _doUpdate"
+      },
+      "at": 1774924155.9245114
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate START ───"
+      },
+      "at": 1774924155.9248073
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] extractXyz — keys checked: {viz.xyz_block: true, viz.xyz: true, viz.molecule_xyz: true, result.xyz_block: false, result.xyz: true}"
+      },
+      "at": 1774924155.9250476
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — xyz length: 478 first 80 chars: 12\nbenzene\nC  -1.21310000 -0.68840000  0.00000000\nC  -1.20280000  0.70640000  0."
+      },
+      "at": 1774924155.9254475
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.clear()"
+      },
+      "at": 1774924155.9256194
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.addModel(xyz, 'xyz', {keepH:true})"
+      },
+      "at": 1774924156.064539
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — applyStyle: stick"
+      },
+      "at": 1774924156.0647078
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] applyStyle: stick → {\"stick\":{\"radius\":0.15},\"sphere\":{\"scale\":0.25}}"
+      },
+      "at": 1774924156.0648606
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — labels: true"
+      },
+      "at": 1774924156.1814532
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — available surfaces: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924156.8827739
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viz keys: xyz, molecule_xyz, defaults, available, xyz_block"
+      },
+      "at": 1774924156.883044
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — currentMode: orbital"
+      },
+      "at": 1774924156.8834336
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — calling addSurface"
+      },
+      "at": 1774924156.8836591
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924156.8840833
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — no surface to add for mode: orbital available: {\"orbital\":false,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924156.8843496
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — final zoomTo + render"
+      },
+      "at": 1774924156.884463
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate END ───"
+      },
+      "at": 1774924156.9895806
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "warning",
+        "text": "[.WebGL-0x470401c04000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+      },
+      "at": 1774924156.991346
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "warning",
+        "text": "[.WebGL-0x470401c04000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+      },
+      "at": 1774924156.991462
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 5579"
+      },
+      "at": 1774924159.8450704
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924159.8455908
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.3525 step: scf msg: SCF iteration 1/100 (E=-232.050639 Ha)"
+      },
+      "at": 1774924159.8460753
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 35 step: scf msg: SCF iteration 1/100 (E=-232.050639 Ha)"
+      },
+      "at": 1774924159.84666
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924159.8467753
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924159.8469198
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 822"
+      },
+      "at": 1774924159.8470988
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_dE,scf_cycle,scf_energy,scf_max_cycle"
+      },
+      "at": 1774924159.8472416
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.3525 step: scf msg: SCF iteration 1/100 (E=-232.050639 Ha)"
+      },
+      "at": 1774924159.847455
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 35 step: scf msg: SCF iteration 1/100 (E=-232.050639 Ha)"
+      },
+      "at": 1774924159.8476644
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924159.8591332
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 5976"
+      },
+      "at": 1774924161.4786825
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924161.4792593
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.355 step: scf msg: SCF iteration 2/100 (E=-232.048231 Ha dE=+2.41e-03)"
+      },
+      "at": 1774924161.4799747
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 36 step: scf msg: SCF iteration 2/100 (E=-232.048231 Ha dE=+2.41e-03)"
+      },
+      "at": 1774924161.4806247
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924161.4810023
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 908"
+      },
+      "at": 1774924161.4813342
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_dE,scf_cycle,scf_energy,scf_max_cycle"
+      },
+      "at": 1774924161.481622
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.355 step: scf msg: SCF iteration 2/100 (E=-232.048231 Ha dE=+2.41e-03)"
+      },
+      "at": 1774924161.48206
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 36 step: scf msg: SCF iteration 2/100 (E=-232.048231 Ha dE=+2.41e-03)"
+      },
+      "at": 1774924161.482481
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924161.4924033
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 6407"
+      },
+      "at": 1774924162.987137
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924162.9874392
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.3575 step: scf msg: SCF iteration 3/100 (E=-232.084372 Ha dE=-3.61e-02)"
+      },
+      "at": 1774924162.987902
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 36 step: scf msg: SCF iteration 3/100 (E=-232.084372 Ha dE=-3.61e-02)"
+      },
+      "at": 1774924162.9887438
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924162.9890227
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924162.989261
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 965"
+      },
+      "at": 1774924162.9895399
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_dE,scf_cycle,scf_energy,scf_max_cycle"
+      },
+      "at": 1774924162.9898953
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.3575 step: scf msg: SCF iteration 3/100 (E=-232.084372 Ha dE=-3.61e-02)"
+      },
+      "at": 1774924162.9906642
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 36 step: scf msg: SCF iteration 3/100 (E=-232.084372 Ha dE=-3.61e-02)"
+      },
+      "at": 1774924162.9913275
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924162.9936213
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 6890"
+      },
+      "at": 1774924164.4980538
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924164.4985933
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.36 step: scf msg: SCF iteration 4/100 (E=-232.084435 Ha dE=-6.24e-05)"
+      },
+      "at": 1774924164.498955
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 36 step: scf msg: SCF iteration 4/100 (E=-232.084435 Ha dE=-6.24e-05)"
+      },
+      "at": 1774924164.4993987
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924164.4997075
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1022"
+      },
+      "at": 1774924164.5004034
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_dE,scf_cycle,scf_energy,scf_max_cycle"
+      },
+      "at": 1774924164.5009158
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.36 step: scf msg: SCF iteration 4/100 (E=-232.084435 Ha dE=-6.24e-05)"
+      },
+      "at": 1774924164.501611
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 36 step: scf msg: SCF iteration 4/100 (E=-232.084435 Ha dE=-6.24e-05)"
+      },
+      "at": 1774924164.5019352
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924164.5123277
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924165.5449147
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 7440"
+      },
+      "at": 1774924165.8837707
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924165.8844268
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.3625 step: scf msg: SCF iteration 5/100 (E=-232.084440 Ha dE=-5.45e-06)"
+      },
+      "at": 1774924165.8849218
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 36 step: scf msg: SCF iteration 5/100 (E=-232.084440 Ha dE=-5.45e-06)"
+      },
+      "at": 1774924165.8855083
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924165.8857417
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1081"
+      },
+      "at": 1774924165.8859494
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_dE,scf_cycle,scf_energy,scf_max_cycle"
+      },
+      "at": 1774924165.8862195
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.3625 step: scf msg: SCF iteration 5/100 (E=-232.084440 Ha dE=-5.45e-06)"
+      },
+      "at": 1774924165.886463
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 36 step: scf msg: SCF iteration 5/100 (E=-232.084440 Ha dE=-5.45e-06)"
+      },
+      "at": 1774924165.886683
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924165.8868651
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 8034"
+      },
+      "at": 1774924167.473568
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924167.474086
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.365 step: scf msg: SCF iteration 6/100 (E=-232.084440 Ha dE=+8.27e-09)"
+      },
+      "at": 1774924167.4749172
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 37 step: scf msg: SCF iteration 6/100 (E=-232.084440 Ha dE=+8.27e-09)"
+      },
+      "at": 1774924167.475426
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924167.4757128
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1131"
+      },
+      "at": 1774924167.4760203
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_dE,scf_cycle,scf_energy,scf_max_cycle"
+      },
+      "at": 1774924167.4763272
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.365 step: scf msg: SCF iteration 6/100 (E=-232.084440 Ha dE=+8.27e-09)"
+      },
+      "at": 1774924167.4768403
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 37 step: scf msg: SCF iteration 6/100 (E=-232.084440 Ha dE=+8.27e-09)"
+      },
+      "at": 1774924167.4773169
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924167.4776087
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924167.8354967
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 8688"
+      },
+      "at": 1774924169.1711454
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924169.1714368
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.3675 step: scf msg: SCF iteration 7/100 (E=-232.084440 Ha dE=-1.50e-08)"
+      },
+      "at": 1774924169.171773
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 37 step: scf msg: SCF iteration 7/100 (E=-232.084440 Ha dE=-1.50e-08)"
+      },
+      "at": 1774924169.1722515
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924169.1723464
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1187"
+      },
+      "at": 1774924169.172462
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_dE,scf_cycle,scf_energy,scf_max_cycle"
+      },
+      "at": 1774924169.172589
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.3675 step: scf msg: SCF iteration 7/100 (E=-232.084440 Ha dE=-1.50e-08)"
+      },
+      "at": 1774924169.1728287
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 37 step: scf msg: SCF iteration 7/100 (E=-232.084440 Ha dE=-1.50e-08)"
+      },
+      "at": 1774924169.1731617
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924169.1751611
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: ping length: 15"
+      },
+      "at": 1774924169.9486597
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 9382"
+      },
+      "at": 1774924170.524662
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924170.5249083
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.37 step: scf msg: SCF iteration 8/100 (E=-232.084440 Ha dE=-7.50e-12)"
+      },
+      "at": 1774924170.5251806
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 37 step: scf msg: SCF iteration 8/100 (E=-232.084440 Ha dE=-7.50e-12)"
+      },
+      "at": 1774924170.525492
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924170.5256548
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924170.5258756
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1233"
+      },
+      "at": 1774924170.5260863
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_dE,scf_cycle,scf_energy,scf_max_cycle"
+      },
+      "at": 1774924170.5262704
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.37 step: scf msg: SCF iteration 8/100 (E=-232.084440 Ha dE=-7.50e-12)"
+      },
+      "at": 1774924170.5264578
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 37 step: scf msg: SCF iteration 8/100 (E=-232.084440 Ha dE=-7.50e-12)"
+      },
+      "at": 1774924170.5266438
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924170.5267599
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 10237"
+      },
+      "at": 1774924172.0421045
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924172.0431933
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.7 step: orbital_cube msg: Generating cube 1/10 (HOMO-4)"
+      },
+      "at": 1774924172.0444555
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 70 step: orbital_cube msg: Generating cube 1/10 (HOMO-4)"
+      },
+      "at": 1774924172.044902
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924172.0452056
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 1129"
+      },
+      "at": 1774924172.0453725
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id,scf_history,scf_cycle"
+      },
+      "at": 1774924172.0455225
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.6 step: scf msg: SCF converged in 8 cycles (17.1s)"
+      },
+      "at": 1774924172.045942
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 60 step: scf msg: SCF converged in 8 cycles (17.1s)"
+      },
+      "at": 1774924172.0461826
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 675"
+      },
+      "at": 1774924172.0463092
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924172.0465586
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.7 step: orbital_select msg: Selecting orbital"
+      },
+      "at": 1774924172.046791
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 70 step: orbital_select msg: Selecting orbital"
+      },
+      "at": 1774924172.0471535
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 685"
+      },
+      "at": 1774924172.0473695
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924172.047637
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.7 step: orbital_cube msg: Generating cube 1/10 (HOMO-4)"
+      },
+      "at": 1774924172.0481153
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 70 step: orbital_cube msg: Generating cube 1/10 (HOMO-4)"
+      },
+      "at": 1774924172.048342
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924172.048477
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924173.175085
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 10393"
+      },
+      "at": 1774924173.2919786
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924173.292261
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.725 step: orbital_cube msg: Generating cube 2/10 (HOMO-3)"
+      },
+      "at": 1774924173.2927158
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 73 step: orbital_cube msg: Generating cube 2/10 (HOMO-3)"
+      },
+      "at": 1774924173.2934008
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924173.293571
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 687"
+      },
+      "at": 1774924173.2938075
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924173.2940836
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.725 step: orbital_cube msg: Generating cube 2/10 (HOMO-3)"
+      },
+      "at": 1774924173.2946694
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 73 step: orbital_cube msg: Generating cube 2/10 (HOMO-3)"
+      },
+      "at": 1774924173.2949338
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924173.2950702
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 10541"
+      },
+      "at": 1774924174.3879461
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924174.3883746
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.75 step: orbital_cube msg: Generating cube 3/10 (HOMO-2)"
+      },
+      "at": 1774924174.3890512
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 75 step: orbital_cube msg: Generating cube 3/10 (HOMO-2)"
+      },
+      "at": 1774924174.389676
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924174.3898268
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 686"
+      },
+      "at": 1774924174.3899791
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924174.3901267
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.75 step: orbital_cube msg: Generating cube 3/10 (HOMO-2)"
+      },
+      "at": 1774924174.3903584
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 75 step: orbital_cube msg: Generating cube 3/10 (HOMO-2)"
+      },
+      "at": 1774924174.3905919
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924174.393773
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924175.3101308
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 10734"
+      },
+      "at": 1774924175.476783
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924175.4771943
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.7749999999999999 step: orbital_cube msg: Generating cube 4/10 (HOMO-1)"
+      },
+      "at": 1774924175.4780974
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 77 step: orbital_cube msg: Generating cube 4/10 (HOMO-1)"
+      },
+      "at": 1774924175.4786096
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924175.4788406
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 700"
+      },
+      "at": 1774924175.4791415
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924175.479431
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.7749999999999999 step: orbital_cube msg: Generating cube 4/10 (HOMO-1)"
+      },
+      "at": 1774924175.4798684
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 77 step: orbital_cube msg: Generating cube 4/10 (HOMO-1)"
+      },
+      "at": 1774924175.4804788
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924175.4921234
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 38"
+      },
+      "at": 1774924176.1429908
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ping keys: type,ts"
+      },
+      "at": 1774924176.143213
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← unknown message type: ping"
+      },
+      "at": 1774924176.1437266
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 10891"
+      },
+      "at": 1774924176.5703053
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924176.570753
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.7999999999999999 step: orbital_cube msg: Generating cube 5/10 (HOMO)"
+      },
+      "at": 1774924176.571197
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 80 step: orbital_cube msg: Generating cube 5/10 (HOMO)"
+      },
+      "at": 1774924176.5716088
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924176.5717463
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 698"
+      },
+      "at": 1774924176.5719543
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924176.572125
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.7999999999999999 step: orbital_cube msg: Generating cube 5/10 (HOMO)"
+      },
+      "at": 1774924176.572345
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 80 step: orbital_cube msg: Generating cube 5/10 (HOMO)"
+      },
+      "at": 1774924176.5725558
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924176.5755117
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 11015"
+      },
+      "at": 1774924177.3909278
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924177.3918016
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.825 step: orbital_cube msg: Generating cube 6/10 (LUMO)"
+      },
+      "at": 1774924177.3924856
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 83 step: orbital_cube msg: Generating cube 6/10 (LUMO)"
+      },
+      "at": 1774924177.3929873
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924177.393221
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924177.3934152
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 685"
+      },
+      "at": 1774924177.3937223
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924177.3938968
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.825 step: orbital_cube msg: Generating cube 6/10 (LUMO)"
+      },
+      "at": 1774924177.3942103
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 83 step: orbital_cube msg: Generating cube 6/10 (LUMO)"
+      },
+      "at": 1774924177.3945093
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924177.394689
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 11166"
+      },
+      "at": 1774924178.2115963
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924178.2122126
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.85 step: orbital_cube msg: Generating cube 7/10 (LUMO+1)"
+      },
+      "at": 1774924178.2126887
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 85 step: orbital_cube msg: Generating cube 7/10 (LUMO+1)"
+      },
+      "at": 1774924178.2131286
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924178.2133644
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 686"
+      },
+      "at": 1774924178.2136717
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924178.2139642
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.85 step: orbital_cube msg: Generating cube 7/10 (LUMO+1)"
+      },
+      "at": 1774924178.214404
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 85 step: orbital_cube msg: Generating cube 7/10 (LUMO+1)"
+      },
+      "at": 1774924178.2148354
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924178.2254188
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 11318"
+      },
+      "at": 1774924179.257072
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924179.25792
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.875 step: orbital_cube msg: Generating cube 8/10 (LUMO+2)"
+      },
+      "at": 1774924179.2584805
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 88 step: orbital_cube msg: Generating cube 8/10 (LUMO+2)"
+      },
+      "at": 1774924179.2589867
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924179.2591941
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 685"
+      },
+      "at": 1774924179.2594614
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924179.2597544
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.875 step: orbital_cube msg: Generating cube 8/10 (LUMO+2)"
+      },
+      "at": 1774924179.2601838
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 88 step: orbital_cube msg: Generating cube 8/10 (LUMO+2)"
+      },
+      "at": 1774924179.2606332
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924179.2609653
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924179.4790747
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 11508"
+      },
+      "at": 1774924180.2719278
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924180.2722251
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.8999999999999999 step: orbital_cube msg: Generating cube 9/10 (LUMO+3)"
+      },
+      "at": 1774924180.2725606
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 90 step: orbital_cube msg: Generating cube 9/10 (LUMO+3)"
+      },
+      "at": 1774924180.27333
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924180.2736018
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 698"
+      },
+      "at": 1774924180.273899
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924180.274194
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.8999999999999999 step: orbital_cube msg: Generating cube 9/10 (LUMO+3)"
+      },
+      "at": 1774924180.2748623
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 90 step: orbital_cube msg: Generating cube 9/10 (LUMO+3)"
+      },
+      "at": 1774924180.275305
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924180.275583
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 11675"
+      },
+      "at": 1774924181.0285072
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,turn_id"
+      },
+      "at": 1774924181.0290563
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.9249999999999999 step: orbital_cube msg: Generating cube 10/10 (LUMO+4)"
+      },
+      "at": 1774924181.0294774
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 93 step: orbital_cube msg: Generating cube 10/10 (LUMO+4)"
+      },
+      "at": 1774924181.0297182
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924181.029824
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 699"
+      },
+      "at": 1774924181.0299518
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924181.0300865
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 0.9249999999999999 step: orbital_cube msg: Generating cube 10/10 (LUMO+4)"
+      },
+      "at": 1774924181.0302923
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 93 step: orbital_cube msg: Generating cube 10/10 (LUMO+4)"
+      },
+      "at": 1774924181.0307243
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924181.042246
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 708"
+      },
+      "at": 1774924182.1377506
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,turn_id"
+      },
+      "at": 1774924182.1379147
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 1 step: done msg: Orbital preview complete"
+      },
+      "at": 1774924182.1381805
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 100 step: done msg: Orbital preview complete"
+      },
+      "at": 1774924182.1383514
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 7656028"
+      },
+      "at": 1774924182.5159788
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: job_update keys: type,session_id,job_id,status,progress,step,message,queue,job,result,turn_id"
+      },
+      "at": 1774924182.5162828
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← job_update, jobId: ae80a251e80846c1ae8db8ad94bafcfc progress: 1 step: job_completed msg: Completed"
+      },
+      "at": 1774924182.516675
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 100 step: job_completed msg: Completed"
+      },
+      "at": 1774924182.5168786
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← terminal result attached to job_update for job: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924182.5169504
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: job_update"
+      },
+      "at": 1774924182.517048
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: job_update result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,scf_history,n_scf_cycles,scf_final_delta_e_hartree,scf_elapsed_s,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,mulliken_charges,partial_charges,orbitals,selected_orbital,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted"
+      },
+      "at": 1774924182.5197544
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -232.08444009479695 viz_xyz: true viz.available: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924182.5199103
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774924182.5200233
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774924182.5201173
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774924182.5202377
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -232.08444009479695 viz_xyz: true viz.available: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924182.5203996
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: benzene job_type: orbital_preview method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774924182.520555
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774924182.5206184
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: job_update jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924182.5208046
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774924182.5209227
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924182.5209894
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924182.52104
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924182.5217674
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer — debounce fired, calling _doUpdate"
+      },
+      "at": 1774924182.5218387
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate START ───"
+      },
+      "at": 1774924182.5219083
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] extractXyz — keys checked: {viz.xyz_block: true, viz.xyz: true, viz.molecule_xyz: true, result.xyz_block: false, result.xyz: true}"
+      },
+      "at": 1774924182.5219781
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — xyz length: 478 first 80 chars: 12\nbenzene\nC  -1.21310000 -0.68840000  0.00000000\nC  -1.20280000  0.70640000  0."
+      },
+      "at": 1774924182.5220714
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.clear()"
+      },
+      "at": 1774924182.5221338
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.addModel(xyz, 'xyz', {keepH:true})"
+      },
+      "at": 1774924182.5748928
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — applyStyle: stick"
+      },
+      "at": 1774924182.5750427
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] applyStyle: stick → {\"stick\":{\"radius\":0.15},\"sphere\":{\"scale\":0.25}}"
+      },
+      "at": 1774924182.5751595
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — labels: true"
+      },
+      "at": 1774924182.6284146
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — available surfaces: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924183.3123572
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viz keys: xyz, molecule_xyz, orbital, available, xyz_block"
+      },
+      "at": 1774924183.3125453
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — currentMode: orbital"
+      },
+      "at": 1774924183.3126879
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — calling addSurface"
+      },
+      "at": 1774924183.3127615
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — mode: orbital available: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924183.3128626
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface/ORBITAL — cube_b64: true b64 length: 3793212"
+      },
+      "at": 1774924183.3129642
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface/ORBITAL — decoded cube length: 2844909 iso: 0.03 opacity: 0.75 colorScheme: {pos: blue, neg: red, gradient: rwb, invert: false}"
+      },
+      "at": 1774924183.3143008
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] showColorBar — mode: orbital scheme: {pos: blue, neg: red, gradient: rwb, invert: false}"
+      },
+      "at": 1774924183.4337082
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface/ORBITAL — ✔ both surfaces added (colors: blue / red )"
+      },
+      "at": 1774924183.4343603
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _populateOrbitalDropdown — 10 orbitals, selected: HOMO"
+      },
+      "at": 1774924183.4345727
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — final zoomTo + render"
+      },
+      "at": 1774924183.434679
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate END ───"
+      },
+      "at": 1774924183.5618877
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 7655486"
+      },
+      "at": 1774924183.9190574
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: result keys: type,session_id,job,result,summary,turn_id"
+      },
+      "at": 1774924183.9192505
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← result received"
+      },
+      "at": 1774924183.9193637
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result — jobId: ae80a251e80846c1ae8db8ad94bafcfc result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,scf_history,n_scf_cycles,scf_final_delta_e_hartree,scf_elapsed_s,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,mulliken_charges,partial_charges,orbitals,selected_orbital,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted has visualization: true"
+      },
+      "at": 1774924183.9195867
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result.visualization keys: xyz,molecule_xyz,orbital,available"
+      },
+      "at": 1774924183.9196792
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] result.visualization.available: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924183.919808
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] viz.orbital keys: label,index,zero_based_index,spin,energy_hartree,energy_ev,occupancy,cube_b64 has cube_b64: true"
+      },
+      "at": 1774924183.9200122
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event jobs:changed — jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924183.9201436
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendProgress — jobId: ae80a251e80846c1ae8db8ad94bafcfc pct: 100 step: done msg: Completed"
+      },
+      "at": 1774924183.9205225
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] 📡 Event result:changed — has result: true source: chat"
+      },
+      "at": 1774924183.9207082
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — has result: true source: chat result keys: success,job_type,structure_name,structure_query,atom_spec,xyz,method,basis,charge,multiplicity,n_atoms,formula,atoms,bonds,geometry_summary,warnings,advisor_focus_tab,visualization,scf_converged,total_energy_hartree,total_energy_ev,total_energy_kcal_mol,scf_history,n_scf_cycles,scf_final_delta_e_hartree,scf_elapsed_s,dipole_moment,frontier_channels,orbital_gap_hartree,orbital_gap_ev,homo_energy_hartree,homo_energy_ev,homo_index,lumo_energy_hartree,lumo_energy_ev,lumo_index,spin_square,spin_multiplicity_estimate,mulliken_charges,partial_charges,orbitals,selected_orbital,default_tab,advisor,advisor_summary,explanation,human_summary,ws_payload_compacted"
+      },
+      "at": 1774924183.9208856
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -232.08444009479695 viz_xyz: true viz.available: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924183.9211602
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] displayResult — defaultTab: summary activeTab: summary"
+      },
+      "at": 1774924183.9213505
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderTabs — activeTab: summary"
+      },
+      "at": 1774924183.921444
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — tab: summary has result: true"
+      },
+      "at": 1774924183.9215744
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] mapResultKeys — energy_ha: -232.08444009479695 viz_xyz: true viz.available: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924183.9217417
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderSummary — structure: benzene job_type: orbital_preview method: B3LYP basis: def2-SVP"
+      },
+      "at": 1774924183.922093
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[results.js] renderContent — done for tab: summary"
+      },
+      "at": 1774924183.9221983
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] 📡 Event result:changed, has result: true source: chat jobId: ae80a251e80846c1ae8db8ad94bafcfc"
+      },
+      "at": 1774924183.9223707
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer called, viewerReady: true result: true"
+      },
+      "at": 1774924183.922612
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: assistant text length: 62 extra: turnId,jobId"
+      },
+      "at": 1774924183.9227276
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event status:changed — kind: idle text: Ready"
+      },
+      "at": 1774924183.9228172
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] updateStatus — kind: idle text: Ready"
+      },
+      "at": 1774924183.9229026
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7SUc.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924183.923039
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 1 filter: (none)"
+      },
+      "at": 1774924183.9231486
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 116"
+      },
+      "at": 1774924183.923227
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,status,turn_id,timestamp"
+      },
+      "at": 1774924183.923313
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: idle → idle"
+      },
+      "at": 1774924183.9233873
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] updateViewer — debounce fired, calling _doUpdate"
+      },
+      "at": 1774924183.9234622
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate START ───"
+      },
+      "at": 1774924183.9235122
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] extractXyz — keys checked: {viz.xyz_block: true, viz.xyz: true, viz.molecule_xyz: true, result.xyz_block: false, result.xyz: true}"
+      },
+      "at": 1774924183.9235775
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — xyz length: 478 first 80 chars: 12\nbenzene\nC  -1.21310000 -0.68840000  0.00000000\nC  -1.20280000  0.70640000  0."
+      },
+      "at": 1774924183.923666
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.clear()"
+      },
+      "at": 1774924183.9237134
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viewer.addModel(xyz, 'xyz', {keepH:true})"
+      },
+      "at": 1774924184.0426998
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — applyStyle: stick"
+      },
+      "at": 1774924184.0428662
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] applyStyle: stick → {\"stick\":{\"radius\":0.15},\"sphere\":{\"scale\":0.25}}"
+      },
+      "at": 1774924184.0429819
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — labels: true"
+      },
+      "at": 1774924184.09483
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — available surfaces: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924184.755959
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — viz keys: xyz, molecule_xyz, orbital, available, xyz_block"
+      },
+      "at": 1774924184.756093
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — currentMode: orbital"
+      },
+      "at": 1774924184.7561803
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — calling addSurface"
+      },
+      "at": 1774924184.7562294
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface — mode: orbital available: {\"orbital\":true,\"density\":false,\"esp\":false}"
+      },
+      "at": 1774924184.7563243
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface/ORBITAL — cube_b64: true b64 length: 3793212"
+      },
+      "at": 1774924184.7564158
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface/ORBITAL — decoded cube length: 2844909 iso: 0.03 opacity: 0.75 colorScheme: {pos: blue, neg: red, gradient: rwb, invert: false}"
+      },
+      "at": 1774924184.7584767
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] showColorBar — mode: orbital scheme: {pos: blue, neg: red, gradient: rwb, invert: false}"
+      },
+      "at": 1774924184.845593
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] addSurface/ORBITAL — ✔ both surfaces added (colors: blue / red )"
+      },
+      "at": 1774924184.8458211
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _populateOrbitalDropdown — 10 orbitals, selected: HOMO"
+      },
+      "at": 1774924184.8459895
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] _doUpdate — final zoomTo + render"
+      },
+      "at": 1774924184.8460996
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[viewer.js] ─── _doUpdate END ───"
+      },
+      "at": 1774924184.9526117
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] throttledSaveSnapshots — saved to localStorage"
+      },
+      "at": 1774924184.9572306
+    }
+  ]
+}

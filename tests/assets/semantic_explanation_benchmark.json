@@ -1,0 +1,141 @@
+{
+  "dataset_id": "semantic_explanation_benchmark",
+  "version": 1,
+  "benchmark_tokens": [
+    "TNT",
+    "MEA",
+    "ETHANOLAMINE",
+    "TRINITROTOLUENE"
+  ],
+  "cases": [
+    {
+      "id": "semantic_explanation_mea_direct_answer",
+      "input": "MEA라는 물질이 뭐야?",
+      "variants": [
+        "MEA가 뭐야?",
+        "Tell me about MEA"
+      ],
+      "language": "mixed",
+      "category": "semantic_explanation",
+      "expected_outcome": "grounded_direct_answer",
+      "must_not_happen": [
+        "compute_submit",
+        "generic_fallback",
+        "raw_phrase_option",
+        "clarification_picker"
+      ],
+      "notes": "Single grounded candidate should answer directly for explanation-style acronym queries.",
+      "molchat_result": {
+        "query_mode": "semantic_descriptor",
+        "resolution_method": "llm",
+        "candidates": [
+          {
+            "name": "Ethanolamine",
+            "cid": 7003,
+            "molecular_formula": "C2H7NO",
+            "confidence": 0.93,
+            "source": "llm",
+            "rationale": "MEA is commonly used as an abbreviation for monoethanolamine / ethanolamine."
+          }
+        ],
+        "notes": []
+      }
+    },
+    {
+      "id": "semantic_explanation_tnt_direct_answer",
+      "input": "TNT에 들어가는 주물질이 뭐지?",
+      "variants": [
+        "TNT의 주요 성분이 뭐야?",
+        "main component of TNT"
+      ],
+      "language": "mixed",
+      "category": "single_candidate_semantic",
+      "expected_outcome": "grounded_direct_answer",
+      "must_not_happen": [
+        "compute_submit",
+        "generic_fallback",
+        "raw_phrase_option",
+        "clarification_picker"
+      ],
+      "notes": "A single high-confidence grounded candidate should answer directly without opening a picker.",
+      "molchat_result": {
+        "query_mode": "semantic_descriptor",
+        "resolution_method": "llm",
+        "candidates": [
+          {
+            "name": "2,4,6-TRINITROTOLUENE",
+            "cid": 8376,
+            "molecular_formula": "C7H5N3O6",
+            "confidence": 0.99,
+            "source": "llm",
+            "rationale": "The main component of TNT is 2,4,6-trinitrotoluene."
+          }
+        ],
+        "notes": []
+      }
+    },
+    {
+      "id": "semantic_explanation_dma_requires_clarification",
+      "input": "DMA가 뭐야?",
+      "variants": [
+        "DMA라는 물질이 뭐야?",
+        "Tell me about DMA"
+      ],
+      "language": "mixed",
+      "category": "multi_candidate_semantic",
+      "expected_outcome": "grounding_clarification",
+      "must_not_happen": [
+        "compute_submit",
+        "generic_fallback",
+        "raw_phrase_option"
+      ],
+      "notes": "Multiple grounded candidates should stay in clarification mode for explanation-style queries.",
+      "molchat_result": {
+        "query_mode": "semantic_descriptor",
+        "resolution_method": "llm",
+        "candidates": [
+          {
+            "name": "Dimethylamine",
+            "cid": 674,
+            "molecular_formula": "C2H7N",
+            "confidence": 0.58,
+            "source": "llm",
+            "rationale": "DMA may refer to dimethylamine in chemistry contexts."
+          },
+          {
+            "name": "Dimethylacetamide",
+            "cid": 31374,
+            "molecular_formula": "C4H9NO",
+            "confidence": 0.54,
+            "source": "llm",
+            "rationale": "DMA is also commonly used for N,N-dimethylacetamide."
+          }
+        ],
+        "notes": []
+      }
+    },
+    {
+      "id": "semantic_explanation_unknown_custom_only",
+      "input": "ABC라는 물질이 뭐야?",
+      "variants": [
+        "ABC가 뭐야?",
+        "Tell me about ABC"
+      ],
+      "language": "mixed",
+      "category": "semantic_explanation",
+      "expected_outcome": "custom_only_clarification",
+      "must_not_happen": [
+        "compute_submit",
+        "generic_fallback",
+        "raw_phrase_option"
+      ],
+      "notes": "When grounding returns no candidate, explanation queries should stop at a custom-only clarification instead of computing.",
+      "molchat_result": {
+        "query_mode": "semantic_descriptor",
+        "resolution_method": "llm",
+        "candidates": [],
+        "notes": []
+      }
+    }
+  ]
+}

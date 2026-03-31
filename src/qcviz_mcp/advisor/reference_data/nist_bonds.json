@@ -1,0 +1,483 @@
+{
+  "H2": {
+    "H-H": {
+      "value": 0.741,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "H2O": {
+    "O-H": {
+      "value": 0.958,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "H-O-H": {
+      "value": 104.5,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "NH3": {
+    "N-H": {
+      "value": 1.012,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "H-N-H": {
+      "value": 106.7,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "CH4": {
+    "C-H": {
+      "value": 1.087,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "HF": {
+    "H-F": {
+      "value": 0.917,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "HCl": {
+    "H-Cl": {
+      "value": 1.275,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "CO": {
+    "C-O": {
+      "value": 1.128,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "CO2": {
+    "C=O": {
+      "value": 1.162,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "O=C=O": {
+      "value": 180.0,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "N2": {
+    "N-N": {
+      "value": 1.098,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "O2": {
+    "O-O": {
+      "value": 1.208,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "F2": {
+    "F-F": {
+      "value": 1.412,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "Cl2": {
+    "Cl-Cl": {
+      "value": 1.988,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "C2H2": {
+    "C-H": {
+      "value": 1.063,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "C#C": {
+      "value": 1.203,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "C2H4": {
+    "C-H": {
+      "value": 1.081,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "C=C": {
+      "value": 1.339,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "H-C-H": {
+      "value": 117.6,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "C2H6": {
+    "C-H": {
+      "value": 1.089,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "C-C": {
+      "value": 1.535,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "H-C-H": {
+      "value": 107.7,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "CH4O": {
+    "C-O": {
+      "value": 1.427,
+      "source": "NIST CCCBDB, expt. (methanol)",
+      "type": "bond_length"
+    },
+    "O-H": {
+      "value": 0.956,
+      "source": "NIST CCCBDB, expt. (methanol)",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.094,
+      "source": "NIST CCCBDB, expt. (methanol)",
+      "type": "bond_length"
+    },
+    "C-O-H": {
+      "value": 108.5,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "CH2O": {
+    "C=O": {
+      "value": 1.203,
+      "source": "NIST CCCBDB, expt. re (formaldehyde)",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.099,
+      "source": "NIST CCCBDB, expt. re (formaldehyde)",
+      "type": "bond_length"
+    },
+    "H-C-H": {
+      "value": 116.5,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "CH2O2": {
+    "C=O": {
+      "value": 1.202,
+      "source": "NIST CCCBDB, expt. (formic acid)",
+      "type": "bond_length"
+    },
+    "C-O": {
+      "value": 1.343,
+      "source": "NIST CCCBDB, expt. (formic acid)",
+      "type": "bond_length"
+    },
+    "O-H": {
+      "value": 0.972,
+      "source": "NIST CCCBDB, expt. (formic acid)",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.097,
+      "source": "NIST CCCBDB, expt. (formic acid)",
+      "type": "bond_length"
+    }
+  },
+  "H2S": {
+    "S-H": {
+      "value": 1.336,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "H-S-H": {
+      "value": 92.1,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "PH3": {
+    "P-H": {
+      "value": 1.421,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "H-P-H": {
+      "value": 93.3,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "HCN": {
+    "C-H": {
+      "value": 1.065,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "C#N": {
+      "value": 1.153,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "N2O": {
+    "N-N": {
+      "value": 1.128,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "N-O": {
+      "value": 1.184,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "SO2": {
+    "S=O": {
+      "value": 1.431,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "O=S=O": {
+      "value": 119.3,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "CS2": {
+    "C=S": {
+      "value": 1.553,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "NF3": {
+    "N-F": {
+      "value": 1.365,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "F-N-F": {
+      "value": 102.2,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "BF3": {
+    "B-F": {
+      "value": 1.307,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "BCl3": {
+    "B-Cl": {
+      "value": 1.742,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "SiH4": {
+    "Si-H": {
+      "value": 1.48,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "C6H6": {
+    "C-C": {
+      "value": 1.397,
+      "source": "NIST CCCBDB, expt. re (benzene)",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.084,
+      "source": "NIST CCCBDB, expt. re (benzene)",
+      "type": "bond_length"
+    }
+  },
+  "C3H6": {
+    "C-C": {
+      "value": 1.51,
+      "source": "NIST CCCBDB, expt. re (cyclopropane)",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.083,
+      "source": "NIST CCCBDB, expt. re (cyclopropane)",
+      "type": "bond_length"
+    }
+  },
+  "CH5N": {
+    "C-N": {
+      "value": 1.471,
+      "source": "NIST CCCBDB, expt. (methylamine)",
+      "type": "bond_length"
+    },
+    "N-H": {
+      "value": 1.019,
+      "source": "NIST CCCBDB, expt. (methylamine)",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.093,
+      "source": "NIST CCCBDB, expt. (methylamine)",
+      "type": "bond_length"
+    }
+  },
+  "CH3F": {
+    "C-F": {
+      "value": 1.383,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.086,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "CH3Cl": {
+    "C-Cl": {
+      "value": 1.781,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.086,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "ClHO": {
+    "O-Cl": {
+      "value": 1.69,
+      "source": "NIST CCCBDB, expt. re (HOCl)",
+      "type": "bond_length"
+    },
+    "O-H": {
+      "value": 0.964,
+      "source": "NIST CCCBDB, expt. re (HOCl)",
+      "type": "bond_length"
+    },
+    "H-O-Cl": {
+      "value": 102.5,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "LiH": {
+    "Li-H": {
+      "value": 1.596,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "LiF": {
+    "Li-F": {
+      "value": 1.564,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "NaCl": {
+    "Na-Cl": {
+      "value": 2.361,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "NO": {
+    "N-O": {
+      "value": 1.151,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "OH": {
+    "O-H": {
+      "value": 0.97,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "CH3": {
+    "C-H": {
+      "value": 1.079,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    }
+  },
+  "NH2": {
+    "N-H": {
+      "value": 1.024,
+      "source": "NIST CCCBDB, expt. re",
+      "type": "bond_length"
+    },
+    "H-N-H": {
+      "value": 103.4,
+      "source": "NIST CCCBDB, expt.",
+      "type": "bond_angle"
+    }
+  },
+  "C10H8": {
+    "C-C_bridge": {
+      "value": 1.421,
+      "source": "NIST CCCBDB, expt. (naphthalene)",
+      "type": "bond_length"
+    },
+    "C=C": {
+      "value": 1.381,
+      "source": "NIST CCCBDB, expt. (naphthalene)",
+      "type": "bond_length"
+    },
+    "C-C_fusion": {
+      "value": 1.412,
+      "source": "NIST CCCBDB, expt. (naphthalene)",
+      "type": "bond_length"
+    },
+    "C-H": {
+      "value": 1.086,
+      "source": "NIST CCCBDB, expt. (naphthalene)",
+      "type": "bond_length"
+    }
+  },
+  "CH4N2O": {
+    "C=O": {
+      "value": 1.221,
+      "source": "NIST CCCBDB, expt. gas phase (urea), Godfrey et al. 1997",
+      "type": "bond_length"
+    },
+    "C-N": {
+      "value": 1.378,
+      "source": "NIST CCCBDB, expt. gas phase (urea), Godfrey et al. 1997",
+      "type": "bond_length"
+    },
+    "N-H": {
+      "value": 1.005,
+      "source": "NIST CCCBDB, expt. gas phase (urea), Godfrey et al. 1997",
+      "type": "bond_length"
+    }
+  }
+}

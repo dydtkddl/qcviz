@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>QCViz-MCP Enterprise v5</title>
+  <meta name="description" content="Enterprise quantum chemistry visualization with PySCF, 3Dmol.js, chat orchestration, job history restoration, and state-synced viewer controls." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+
+  <script>
+    (function (g) {
+      "use strict";
+      if (g.QCVizApp && g.QCVizApp.__enterpriseV5) return;
+
+      var STORAGE_KEY = "QCVIZ_ENTERPRISE_V5_UI_SNAPSHOTS";
+      var listeners = new Map();
+
+      function safeStr(v, fb) { return v == null ? (fb || "") : String(v).trim(); }
+      function clone(v) { try { return JSON.parse(JSON.stringify(v)); } catch (_) { return v; } }
+      function deepMerge(base, patch) {
+        var lhs = base && typeof base === "object" ? clone(base) : {};
+        var rhs = patch && typeof patch === "object" ? patch : {};
+        Object.keys(rhs).forEach(function (k) {
+          var lv = lhs[k], rv = rhs[k];
+          if (lv && rv && typeof lv === "object" && typeof rv === "object" && !Array.isArray(lv) && !Array.isArray(rv)) {
+            lhs[k] = deepMerge(lv, rv);
+          } else { lhs[k] = clone(rv); }
+        });
+        return lhs;
+      }
+
+      /* 읽기 쉬운 세션 ID 생성 */
+      function makeSessionId() {
+        var ts = Date.now().toString(36);
+        var r = Math.random().toString(36).substring(2, 8);
+        return "qcviz-" + ts + "-" + r;
+      }
+
+      var apiPrefix = g.QCVIZ_API_PREFIX || "/api";
+
+      var store = {
+        version: "enterprise-v5",
+        jobsById: {},
+        jobOrder: [],
+        resultsByJobId: {},
+        activeJobId: null,
+        activeResult: null,
+        status: { text: "Ready", kind: "idle", source: "app", at: Date.now() },
+        uiSnapshotsByJobId: {},
+        chatMessages: [],
+        theme: "dark",
+        lastUserInput: "",
+        sessionId: makeSessionId(),
+      };
+
+      function emit(ev, detail) {
+        (listeners.get(ev) || []).slice().forEach(function (fn) { try { fn(detail); } catch (_) {} });
+      }
+      function on(ev, fn) {
+        if (!listeners.has(ev)) listeners.set(ev, []);
+        listeners.get(ev).push(fn);
+        return function () {
+          var arr = listeners.get(ev) || [];
+          var idx = arr.indexOf(fn);
+          if (idx >= 0) arr.splice(idx, 1);
+        };
+      }
+
+      function persistSnapshots() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store.uiSnapshotsByJobId)); } catch (_) {}
+      }
+      function loadSnapshots() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) store.uiSnapshotsByJobId = JSON.parse(raw);
+        } catch (_) {}
+      }
+      loadSnapshots();
+
+      var prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+      function applyTheme(theme) {
+        store.theme = theme;
+        document.documentElement.setAttribute("data-theme", theme);
+        emit("theme:changed", { theme: theme });
+      }
+      var savedTheme = localStorage.getItem("QCVIZ_THEME");
+      if (savedTheme) applyTheme(savedTheme);
+      else applyTheme(prefersDark.matches ? "dark" : "light");
+      prefersDark.addEventListener("change", function (e) {
+        if (!localStorage.getItem("QCVIZ_THEME")) applyTheme(e.matches ? "dark" : "light");
+      });
+
+      g.QCVizApp = {
+        __enterpriseV5: true,
+        store: store,
+        on: on,
+        emit: emit,
+        clone: clone,
+        deepMerge: deepMerge,
+        apiPrefix: apiPrefix,
+
+        setTheme: function (theme) {
+          localStorage.setItem("QCVIZ_THEME", theme);
+          applyTheme(theme);
+        },
+
+        setStatus: function (text, kind, source) {
+          store.status = { text: text, kind: kind || "idle", source: source || "app", at: Date.now() };
+          emit("status:changed", clone(store.status));
+        },
+
+        upsertJob: function (job) {
+          if (!job || typeof job !== "object") return null;
+          var jobId = safeStr(job.job_id);
+          if (!jobId) return null;
+          var prev = store.jobsById[jobId] || {};
+          var next = deepMerge(prev, job);
+          store.jobsById[jobId] = next;
+          if (next.result) store.resultsByJobId[jobId] = clone(next.result);
+          store.jobOrder = Object.values(store.jobsById)
+            .sort(function (a, b) { return Number(b.updated_at || 0) - Number(a.updated_at || 0); })
+            .map(function (j) { return j.job_id; });
+          emit("jobs:changed", { job: clone(next), jobs: store.jobOrder.map(function (id) { return clone(store.jobsById[id]); }) });
+          return clone(next);
+        },
+
+        setActiveJob: function (jobId) {
+          store.activeJobId = jobId;
+          var result = store.resultsByJobId[jobId] || null;
+          store.activeResult = result ? clone(result) : null;
+          emit("activejob:changed", { jobId: jobId, result: store.activeResult });
+          if (result) emit("result:changed", { jobId: jobId, result: clone(result), source: "history" });
+        },
+
+        setActiveResult: function (res, opts) {
+          opts = opts || {};
+          var jobId = safeStr(opts.jobId || store.activeJobId);
+          store.activeResult = res;
+          if (jobId) {
+            store.activeJobId = jobId;
+            store.resultsByJobId[jobId] = clone(res);
+          }
+          emit("result:changed", { jobId: jobId, result: clone(res), source: opts.source || "app" });
+        },
+
+        saveUISnapshot: function (jobId, snapshot) {
+          if (!jobId) return;
+          store.uiSnapshotsByJobId[jobId] = clone(snapshot);
+          persistSnapshots();
+        },
+
+        getUISnapshot: function (jobId) {
+          return store.uiSnapshotsByJobId[jobId] ? clone(store.uiSnapshotsByJobId[jobId]) : null;
+        },
+
+        addChatMessage: function (msg) {
+          store.chatMessages.push(msg);
+          emit("chat:message", clone(msg));
+        },
+      };
+    })(window);
+  </script>
+</head>
+
+<body>
+
+<!-- ═══ 로딩 오버레이 ═══ -->
+<div id="appLoader" class="app-loader">
+  <div class="loader-content">
+    <div class="loader-spinner"></div>
+    <p class="loader-text">Initializing QCViz-MCP...</p>
+    <p class="loader-sub">Loading 3D visualization engine</p>
+  </div>
+</div>
+<script>
+  // Fallback to ensure loader doesn't hang forever
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      var loader = document.getElementById('appLoader');
+      if (loader) {
+        loader.classList.add('fade-out');
+        setTimeout(function() {
+          if (loader.parentNode) loader.parentNode.removeChild(loader);
+        }, 600);
+      }
+    }, 1500);
+  });
+</script>
+
+  <div class="app-shell" id="appShell">
+
+    <!-- Top Bar -->
+    <header class="topbar" id="topbar">
+      <div class="topbar__left">
+        <div class="topbar__logo" aria-label="QCViz Logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="28" height="28" rx="8" fill="url(#logoGrad)"/>
+            <path d="M8 14a6 6 0 1 1 12 0 6 6 0 0 1-12 0Zm6-3.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="white" fill-opacity="0.95"/>
+            <path d="M17.5 17.5L21 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-opacity="0.9"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366f1"/>
+                <stop offset="1" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="topbar__title">QCViz-MCP <span class="topbar__badge">v5</span></span>
+        </div>
+      </div>
+      <div class="topbar__center">
+        <div class="status-indicator" id="globalStatus">
+          <span class="status-indicator__dot" data-kind="idle"></span>
+          <span class="status-indicator__text">Ready</span>
+        </div>
+      </div>
+      <div class="topbar__right">
+        <button class="icon-btn" id="btnThemeToggle" aria-label="Toggle theme" title="Toggle theme (Ctrl+\)">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="icon-btn" id="btnKeyboardShortcuts" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Dashboard Grid -->
+    <main class="dashboard" id="dashboard">
+
+      <!-- Viewer Panel -->
+      <section class="panel panel--viewer" id="panelViewer" aria-label="3D Molecular Viewer">
+        <div class="panel__header">
+          <h2 class="panel__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Molecular Viewer
+          </h2>
+          <div class="panel__actions">
+            <button class="chip-btn" id="btnViewerReset" title="Reset view">Reset</button>
+            <div id="vizModeToggle" class="viz-mode-toggle" hidden>
+              <button id="btnModeOrbital" class="toggle-btn active" title="Orbital 표면 보기">Orbital</button>
+              <button id="btnModeESP" class="toggle-btn" title="ESP 맵 보기">ESP</button>
+            </div>
+            <button class="chip-btn" id="btnViewerScreenshot" title="Screenshot">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+              Capture
+            </button>
+            <button class="icon-btn icon-btn--sm" id="btnViewerFullscreen" title="Fullscreen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="viewer-container" id="viewerContainer">
+          <div class="viewer-3d" id="viewer3d"></div>
+          <div class="viewer-empty" id="viewerEmpty">
+            <div class="viewer-empty__icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <p class="viewer-empty__text">Submit a computation to render the molecule</p>
+            <p class="viewer-empty__hint">Try: "Calculate energy of water with STO-3G"</p>
+          </div>
+          <div class="viewer-controls" id="viewerControls" hidden>
+            <div class="viewer-controls__group">
+              <label class="viewer-controls__label">Style</label>
+              <div class="segmented" id="segStyle">
+                <button class="segmented__btn segmented__btn--active" data-value="stick">Stick</button>
+                <button class="segmented__btn" data-value="sphere">Sphere</button>
+                <button class="segmented__btn" data-value="line">Line</button>
+              </div>
+            </div>
+            <div class="viewer-controls__group" id="grpOrbital" hidden>
+              <label class="viewer-controls__label">Isosurface</label>
+              <input type="range" class="range-input" id="sliderIsovalue" min="0.001" max="0.1" step="0.001" value="0.03" />
+              <span class="viewer-controls__value" id="lblIsovalue">0.030</span>
+            </div>
+            <div class="viewer-controls__group" id="grpOpacity" hidden>
+              <label class="viewer-controls__label">Opacity</label>
+              <input type="range" class="range-input" id="sliderOpacity" min="0.1" max="1.0" step="0.05" value="0.75" />
+              <span class="viewer-controls__value" id="lblOpacity">0.75</span>
+            </div>
+            
+            <div class="viewer-controls__group" id="grpColorScheme">
+              <label class="viewer-controls__label">Color Scheme</label>
+              <select id="selectColorScheme" class="viewer-select">
+                <option value="classic">Classic (Blue/Red)</option>
+                <option value="jmol">Jmol</option>
+                <option value="rwb">RWB (Red-White-Blue)</option>
+                <option value="bwr">BWR (Blue-White-Red)</option>
+                <option value="spectral">Spectral</option>
+                <option value="viridis">Viridis</option>
+                <option value="inferno">Inferno</option>
+                <option value="coolwarm">Cool-Warm</option>
+                <option value="purplegreen">Purple-Green</option>
+                <option value="greyscale">Greyscale</option>
+              </select>
+              <span id="schemePreview" class="scheme-preview">
+                <span class="swatch swatch-pos"></span>
+                <span class="swatch swatch-neg"></span>
+              </span>
+            </div>
+
+            <div class="viewer-controls__group" id="grpOrbitalSelect" hidden>
+              <label class="viewer-controls__label">Orbital</label>
+              <select class="viewer-select" id="selectOrbital"></select>
+            </div>
+            <div class="viewer-controls__group">
+              <label class="viewer-controls__label">Labels</label>
+              <button class="toggle-btn" id="btnToggleLabels" data-active="true" aria-pressed="true">On</button>
+            </div>
+          </div>
+          <div class="viewer-legend" id="viewerLegend" hidden></div>
+        </div>
+      </section>
+
+      <!-- Chat Panel -->
+      <section class="panel panel--chat" id="panelChat" aria-label="Chat Assistant">
+        <div class="panel__header">
+          <h2 class="panel__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Assistant
+          </h2>
+          <div class="panel__actions">
+            <div class="ws-status" id="wsStatus">
+              <span class="ws-status__dot" data-connected="false"></span>
+              <span class="ws-status__label">Disconnected</span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-scroll" id="chatScroll">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg chat-msg--system">
+              <div class="chat-msg__avatar chat-msg__avatar--system">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+              </div>
+              <div class="chat-msg__body">
+                <p class="chat-msg__text">Welcome to <strong>QCViz-MCP v5</strong>. I can run quantum chemistry calculations using PySCF. Ask me to compute energies, optimize geometries, or visualize orbitals and ESP maps.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-area" id="chatInputArea">
+          <div class="chat-suggestions" id="chatSuggestions">
+            <button class="suggestion-chip" data-prompt="Calculate the energy of water using STO-3G basis">Water energy</button>
+            <button class="suggestion-chip" data-prompt="Optimize the geometry of methane with 6-31G basis">Methane geometry</button>
+            <button class="suggestion-chip" data-prompt="Show the HOMO orbital of formaldehyde">Formaldehyde HOMO</button>
+          </div>
+          <form class="chat-form" id="chatForm" autocomplete="off">
+            <div class="chat-form__input-wrap">
+              <textarea class="chat-form__input" id="chatInput" placeholder="Ask about quantum chemistry..." rows="1" maxlength="4000"></textarea>
+              <button class="chat-form__send" id="chatSend" type="submit" aria-label="Send" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+            <p class="chat-form__hint">Press <kbd>Enter</kbd> to send, <kbd>Shift+Enter</kbd> for new line</p>
+          </form>
+        </div>
+      </section>
+
+      <!-- Results Panel -->
+      <section class="panel panel--results" id="panelResults" aria-label="Computation Results">
+        <div class="panel__header">
+          <h2 class="panel__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Results
+          </h2>
+        </div>
+        <div class="results-tabs" id="resultsTabs" role="tablist"></div>
+        <div class="results-content" id="resultsContent">
+          <div class="results-empty" id="resultsEmpty">
+            <p>No results yet. Submit a computation from the chat.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- History Panel -->
+      <section class="panel panel--history" id="panelHistory" aria-label="Job History">
+        <div class="panel__header">
+          <h2 class="panel__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            History
+          </h2>
+          <div class="panel__actions">
+            <button class="icon-btn icon-btn--sm" id="btnRefreshHistory" title="Refresh">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="history-search-wrap">
+          <svg class="history-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" class="history-search" id="historySearch" placeholder="Search jobs..." />
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty" id="historyEmpty">
+            <p>No previous computations</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <dialog class="modal" id="modalShortcuts">
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3>Keyboard Shortcuts</h3>
+        <button class="icon-btn icon-btn--sm" data-close aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal__body shortcuts-grid">
+        <div class="shortcut-row"><span class="shortcut-keys"><kbd>Ctrl</kbd><span class="shortcut-plus">+</span><kbd>/</kbd></span><span>Focus chat input</span></div>
+        <div class="shortcut-row"><span class="shortcut-keys"><kbd>Ctrl</kbd><span class="shortcut-plus">+</span><kbd>K</kbd></span><span>Search history</span></div>
+        <div class="shortcut-row"><span class="shortcut-keys"><kbd>Ctrl</kbd><span class="shortcut-plus">+</span><kbd>\</kbd></span><span>Toggle theme</span></div>
+        <div class="shortcut-row"><span class="shortcut-keys"><kbd>Esc</kbd></span><span>Close modals / blur</span></div>
+        <div class="shortcut-row"><span class="shortcut-keys"><kbd>1</kbd><span class="shortcut-dash">&ndash;</span><kbd>6</kbd></span><span>Switch result tabs</span></div>
+        <div class="shortcut-row"><span class="shortcut-keys"><kbd>?</kbd></span><span>Show this dialog</span></div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/static/chat.js" defer></script>
+  <script src="/static/results.js" defer></script>
+  <script src="/static/viewer.js" defer></script>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

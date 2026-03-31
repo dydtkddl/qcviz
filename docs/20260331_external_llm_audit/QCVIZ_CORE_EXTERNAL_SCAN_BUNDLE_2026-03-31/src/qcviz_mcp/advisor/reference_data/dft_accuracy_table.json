@@ -1,0 +1,129 @@
+{
+  "_metadata": {
+    "description": "Typical DFT method accuracy from GMTKN55 and related benchmarks",
+    "sources": [
+      {
+        "short": "Goerigk et al. PCCP 2017, 19, 32184",
+        "doi": "10.1039/C7CP04913G"
+      },
+      {
+        "short": "Mardirossian & Head-Gordon, Mol. Phys. 2017, 115, 2315",
+        "doi": "10.1080/00268976.2017.1333644"
+      },
+      {
+        "short": "Bursch et al. Angew. Chem. Int. Ed. 2022, 61, e202205735",
+        "doi": "10.1002/anie.202205735"
+      },
+      {
+        "short": "Bonn GMTKN55 WTMAD-2 table (with D3, def2-QZVP)",
+        "url": "http://www.thch.uni-bonn.de/tc.old/downloads/GMTKN/GMTKN55/WTMAD-2-D3.html"
+      }
+    ],
+    "units": {
+      "wtmad2_kcal": "kcal/mol (GMTKN55, with dispersion, def2-QZVP basis)",
+      "bond_length_mae_angstrom": "Angstrom",
+      "reaction_energy_mae_kcal": "kcal/mol",
+      "barrier_height_mae_kcal": "kcal/mol"
+    },
+    "last_modified": "2026-03-08"
+  },
+  "B3LYP": {
+    "wtmad2_kcal": 6.42,
+    "bond_length_mae_angstrom": 0.008,
+    "reaction_energy_mae_kcal": 3.5,
+    "barrier_height_mae_kcal": 4.5,
+    "nci_mae_kcal": 1.2,
+    "rung": "hybrid",
+    "hf_exchange_pct": 20,
+    "notes": "Most popular functional. Good for geometry, moderate for energetics. Requires dispersion correction. WTMAD-2 = 6.42 with D3(BJ)/def2-QZVP from official Bonn table.",
+    "source": "GMTKN55 Bonn table, Goerigk et al. 2017"
+  },
+  "PBE0": {
+    "wtmad2_kcal": 6.61,
+    "bond_length_mae_angstrom": 0.007,
+    "reaction_energy_mae_kcal": 3.2,
+    "barrier_height_mae_kcal": 4.9,
+    "nci_mae_kcal": 1.3,
+    "rung": "hybrid",
+    "hf_exchange_pct": 25,
+    "notes": "Non-empirical hybrid. WTMAD-2 = 6.61 with D3(BJ)/def2-QZVP.",
+    "source": "GMTKN55 Bonn table"
+  },
+  "PBE": {
+    "wtmad2_kcal": 10.32,
+    "bond_length_mae_angstrom": 0.015,
+    "reaction_energy_mae_kcal": 6.0,
+    "barrier_height_mae_kcal": 9.2,
+    "nci_mae_kcal": 2.5,
+    "rung": "GGA",
+    "hf_exchange_pct": 0,
+    "notes": "Widely used GGA. WTMAD-2 = 10.32 with D3(BJ)/def2-QZVP.",
+    "source": "GMTKN55 Bonn table"
+  },
+  "TPSS": {
+    "wtmad2_kcal": 9.1,
+    "bond_length_mae_angstrom": 0.01,
+    "reaction_energy_mae_kcal": 4.5,
+    "barrier_height_mae_kcal": 8.3,
+    "nci_mae_kcal": 2.0,
+    "rung": "meta-GGA",
+    "hf_exchange_pct": 0,
+    "notes": "Good meta-GGA for geometry. WTMAD-2 = 9.10 with D3(BJ)/def2-QZVP.",
+    "source": "GMTKN55 Bonn table"
+  },
+  "TPSSH": {
+    "wtmad2_kcal": 7.54,
+    "bond_length_mae_angstrom": 0.008,
+    "reaction_energy_mae_kcal": 3.8,
+    "barrier_height_mae_kcal": 6.4,
+    "nci_mae_kcal": 1.5,
+    "rung": "hybrid-meta-GGA",
+    "hf_exchange_pct": 10,
+    "notes": "Low HF exchange hybrid. Good for transition metals. WTMAD-2 = 7.54 with D3(BJ)/def2-QZVP.",
+    "source": "GMTKN55 Bonn table"
+  },
+  "WB97X": {
+    "wtmad2_kcal": 3.98,
+    "bond_length_mae_angstrom": 0.006,
+    "reaction_energy_mae_kcal": 2.5,
+    "barrier_height_mae_kcal": 2.1,
+    "nci_mae_kcal": 0.6,
+    "rung": "range-separated hybrid",
+    "hf_exchange_pct": "22-100",
+    "notes": "wB97X-V: among the best-performing hybrids. WTMAD-2 = 3.98 with VV10 NLC/def2-QZVP from official Bonn table.",
+    "source": "GMTKN55 Bonn table, Mardirossian & Head-Gordon 2017"
+  },
+  "M062X": {
+    "wtmad2_kcal": 4.94,
+    "bond_length_mae_angstrom": 0.009,
+    "reaction_energy_mae_kcal": 2.8,
+    "barrier_height_mae_kcal": 2.5,
+    "nci_mae_kcal": 0.7,
+    "rung": "hybrid-meta-GGA",
+    "hf_exchange_pct": 54,
+    "notes": "Good for main group, barrier heights. Caution with grid sensitivity and TM. WTMAD-2 = 4.94 with D3(0)/def2-QZVP.",
+    "source": "GMTKN55 Bonn table"
+  },
+  "PW6B95": {
+    "wtmad2_kcal": 5.5,
+    "bond_length_mae_angstrom": 0.007,
+    "reaction_energy_mae_kcal": 2.6,
+    "barrier_height_mae_kcal": 3.4,
+    "nci_mae_kcal": 0.8,
+    "rung": "hybrid-meta-GGA",
+    "hf_exchange_pct": 28,
+    "notes": "Robust global hybrid recommended by Grimme group. WTMAD-2 = 5.50 with D3(BJ)/def2-QZVP.",
+    "source": "GMTKN55 Bonn table, Bursch et al. 2022"
+  },
+  "R2SCAN": {
+    "wtmad2_kcal": 7.86,
+    "bond_length_mae_angstrom": 0.009,
+    "reaction_energy_mae_kcal": 3.8,
+    "barrier_height_mae_kcal": 7.5,
+    "nci_mae_kcal": 1.5,
+    "rung": "meta-GGA",
+    "hf_exchange_pct": 0,
+    "notes": "Improved SCAN functional. SCAN-D3(BJ) WTMAD-2 = 7.86. r2SCAN expected similar or slightly better. Good efficiency for large systems.",
+    "source": "GMTKN55 Bonn table (SCAN-D3BJ value as proxy)"
+  }
+}

@@ -1,0 +1,1505 @@
+/* ═══════════════════════════════════════════
+   QCViz-MCP Enterprise v5 — 3D Viewer Module
+   ═══════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  var App = window.QCVizApp;
+  if (!App) return;
+
+
+  var state = {
+    trajectoryFrames: [],
+    trajectoryPlaying: false,
+    trajectoryFrame: 0,
+    trajectoryTimer: null,
+
+    viewer: null, model: null, ready: false,
+    mode: "none", style: "stick", isovalue: 0.03, opacity: 0.75,
+    showLabels: true, result: null, jobId: null, selectedOrbitalIndex: null,
+  };
+
+  var $viewerDiv = document.getElementById("viewer3d");
+  var $empty = document.getElementById("viewerEmpty");
+  var $controls = document.getElementById("viewerControls");
+  var $legend = document.getElementById("viewerLegend");
+  var $btnReset = document.getElementById("btnViewerReset");
+  var $btnScreenshot = document.getElementById("btnViewerScreenshot");
+  var $btnFullscreen = document.getElementById("btnViewerFullscreen");
+  var $segStyle = document.getElementById("segStyle");
+  var $grpOrbital = document.getElementById("grpOrbital");
+  var $grpOpacity = document.getElementById("grpOpacity");
+  var $grpOrbitalSelect = document.getElementById("grpOrbitalSelect");
+  var $selectOrbital = document.getElementById("selectOrbital");
+  var $sliderIso = document.getElementById("sliderIsovalue");
+  var $lblIso = document.getElementById("lblIsovalue");
+  var $sliderOp = document.getElementById("sliderOpacity");
+  var $lblOp = document.getElementById("lblOpacity");
+  var $btnLabels = document.getElementById("btnToggleLabels");
+
+  /* ─── 3Dmol Loader ─── */
+  var _loadPromise = null;
+  function load3Dmol() {
+    if (window.$3Dmol) return Promise.resolve();
+    if (_loadPromise) return _loadPromise;
+    _loadPromise = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = "https://3dmol.csb.pitt.edu/build/3Dmol-min.js";
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error("3Dmol.js load failed")); };
+      document.head.appendChild(s);
+    });
+    return _loadPromise;
+  }
+
+  function ensureViewer() {
+    if (state.viewer && state.ready) return Promise.resolve(state.viewer);
+    return load3Dmol().then(function () {
+      if (!state.viewer) {
+        var isDark = document.body.classList.contains("dark") || window.matchMedia("(prefers-color-scheme: dark)").matches;
+        state.viewer = window.$3Dmol.createViewer($viewerDiv, {
+          backgroundColor: isDark ? "black" : "white",
+          antialias: true,
+        });
+        
+        try {
+          var canvas = $viewerDiv.querySelector("canvas");
+          if (canvas) {
+            canvas.style.backgroundColor = "transparent";
+          }
+        } catch (_) {}
+        
+        state.ready = true;
+        updateViewerBg();
+      }
+      return state.viewer;
+    }).catch(function (err) {
+      if ($empty) {
+        $empty.hidden = false;
+        var t = $empty.querySelector(".viewer-empty__text");
+        if (t) t.textContent = "Failed to load 3Dmol.js — check your network connection.";
+      }
+      throw err;
+    });
+  }
+
+  function updateViewerBg() {
+    if (!state.viewer) return;
+    var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    state.viewer.setBackgroundColor(isDark ? 0x0c0c0f : 0xfafafa, 1.0);
+  }
+
+  /* ─── Helpers ─── */
+  
+  var COLOR_SCHEMES = {
+    classic: { label: "Classic (Blue/Red)", orbPositive: "#3b82f6", orbNegative: "#ef4444", espGradient: "rwb" },
+    jmol: { label: "Jmol", orbPositive: "#1e40af", orbNegative: "#dc2626", espGradient: "rwb" },
+    rwb: { label: "RWB (Red-White-Blue)", orbPositive: "#2563eb", orbNegative: "#dc2626", espGradient: "rwb" },
+    bwr: { label: "BWR (Blue-White-Red)", orbPositive: "#dc2626", orbNegative: "#2563eb", espGradient: "rwb", reverse: true },
+    spectral: { label: "Spectral", orbPositive: "#2b83ba", orbNegative: "#d7191c", espGradient: "sinebow" },
+    viridis: { label: "Viridis", orbPositive: "#21918c", orbNegative: "#fde725", espGradient: "roygb" },
+    inferno: { label: "Inferno", orbPositive: "#fcffa4", orbNegative: "#420a68", espGradient: "roygb" },
+    coolwarm: { label: "Cool-Warm", orbPositive: "#4575b4", orbNegative: "#d73027", espGradient: "rwb" },
+    purplegreen: { label: "Purple-Green", orbPositive: "#1b7837", orbNegative: "#762a83", espGradient: "rwb" },
+    greyscale: { label: "Greyscale", orbPositive: "#f0f0f0", orbNegative: "#404040", espGradient: "rwb" },
+  };
+
+  function createGradient(type, min, max) {
+      if (!window.$3Dmol) return null;
+      if (type === "sinebow" && window.$3Dmol.Gradient.Sinebow) return new window.$3Dmol.Gradient.Sinebow(min, max);
+      if (type === "roygb" && window.$3Dmol.Gradient.ROYGB) return new window.$3Dmol.Gradient.ROYGB(min, max);
+      return new window.$3Dmol.Gradient.RWB(min, max);
+  }
+
+  function getCurrentColorScheme() {
+    return COLOR_SCHEMES[state.colorScheme] || COLOR_SCHEMES.classic;
+  }
+
+  function updateSchemePreview() {
+    var scheme = getCurrentColorScheme();
+    var $preview = document.getElementById("schemePreview");
+    if (!$preview) return;
+    var $pos = $preview.querySelector(".swatch-pos");
+    var $neg = $preview.querySelector(".swatch-neg");
+    if ($pos) $pos.style.backgroundColor = scheme.orbPositive;
+    if ($neg) $neg.style.backgroundColor = scheme.orbNegative;
+  }
+  
+  
+  // Fallback to dismiss loader if something hangs
+  setTimeout(dismissLoader, 3000);
+
+  function dismissLoader() {
+    var $loader = document.getElementById("appLoader");
+    if (!$loader) return;
+    $loader.classList.add("fade-out");
+    setTimeout(function () {
+      if ($loader.parentNode) $loader.parentNode.removeChild($loader);
+    }, 600);
+  }
+
+  function buildXyzFromAtoms(atoms) {
+    if (!atoms || !atoms.length) return null;
+    var lines = [String(atoms.length), "QCViz"];
+    atoms.forEach(function (a) {
+      var el = a.element || a.symbol || a[0] || "X";
+      var x = Number(a.x != null ? a.x : (a[1] || 0)).toFixed(6);
+      var y = Number(a.y != null ? a.y : (a[2] || 0)).toFixed(6);
+      var z = Number(a.z != null ? a.z : (a[3] || 0)).toFixed(6);
+      lines.push(el + " " + x + " " + y + " " + z);
+    });
+    return lines.join("\n");
+  }
+
+  function getXyz(result) {
+  var viz = result.visualization || {};
+  /* Backend sends viz.xyz and viz.molecule_xyz, NOT viz.xyz_block */
+  var xyz =
+    viz.xyz ||
+    viz.molecule_xyz ||
+    viz.xyz_block ||
+    result.xyz_block ||
+    result.xyz ||
+    null;
+  if (!xyz && result.atoms && result.atoms.length) {
+    xyz = buildXyzFromAtoms(result.atoms);
+  }
+  return xyz;
+}
+
+  function applyStyle(viewer, style) {
+    switch (style) {
+      case "stick":
+        viewer.setStyle({}, {
+          stick: { radius: 0.14, colorscheme: "Jmol" },
+          sphere: { scale: 0.25, colorscheme: "Jmol" },
+        });
+        break;
+      case "sphere":
+        viewer.setStyle({}, {
+          sphere: { scale: 0.6, colorscheme: "Jmol" },
+        });
+        break;
+      case "line":
+        viewer.setStyle({}, {
+          line: { colorscheme: "Jmol" },
+        });
+        break;
+    }
+  }
+
+    function addLabels(viewer, result) {
+    var atoms = result.atoms || [];
+    if (!atoms.length) return;
+
+    var isDark = document.body.classList.contains("dark") || window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    var charges = result.mulliken_charges || result.lowdin_charges || [];
+
+    var maxAbs = 0;
+    for (var k = 0; k < charges.length; k++) {
+      var cv = charges[k];
+      var cval = (cv != null && typeof cv === "object") ? cv.charge : cv;
+      if (cval != null && isFinite(cval)) {
+        var abs = Math.abs(cval);
+        if (abs > maxAbs) maxAbs = abs;
+      }
+    }
+    if (maxAbs < 0.001) maxAbs = 1; 
+
+    atoms.forEach(function (a, i) {
+      var el = a.element || a.symbol || a[0] || "";
+      if (!el) return;
+
+      var rawCharge = charges[i];
+      var chargeVal = null;
+      if (rawCharge != null) {
+        chargeVal = (typeof rawCharge === "object") ? rawCharge.charge : rawCharge;
+        if (chargeVal != null && !isFinite(chargeVal)) chargeVal = null;
+      }
+
+      var labelText = el;
+      if (chargeVal != null) {
+        var sign = chargeVal >= 0 ? "+" : "";
+        labelText += " (" + sign + chargeVal.toFixed(3) + ")";
+      }
+
+      var bgColor, fontColor, borderColor;
+
+      if (chargeVal != null && Math.abs(chargeVal) > 0.005) {
+        var intensity = Math.min(Math.abs(chargeVal) / maxAbs, 1.0);
+        var alpha = 0.25 + intensity * 0.55; 
+
+        if (chargeVal > 0) {
+          bgColor = "rgba(59, 130, 246, " + alpha.toFixed(2) + ")";
+          fontColor = isDark ? "#dbeafe" : "#1e3a5f";
+          borderColor = "rgba(59, 130, 246, 0.4)";
+        } else {
+          bgColor = "rgba(239, 68, 68, " + alpha.toFixed(2) + ")";
+          fontColor = isDark ? "#fee2e2" : "#7f1d1d";
+          borderColor = "rgba(239, 68, 68, 0.4)";
+        }
+      } else {
+        fontColor = isDark ? "white" : "#333";
+        bgColor = isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)";
+        borderColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+      }
+
+      viewer.addLabel(labelText, {
+        position: {
+          x: a.x != null ? a.x : (a[1] || 0),
+          y: a.y != null ? a.y : (a[2] || 0),
+          z: a.z != null ? a.z : (a[3] || 0),
+        },
+        fontSize: 11,
+        fontColor: fontColor,
+        backgroundColor: bgColor,
+        borderColor: borderColor,
+        borderThickness: 1,
+        backgroundOpacity: 0.85,
+        alignment: "center",
+        showBackground: true,
+      });
+    });
+  }
+
+  /* 라벨 새로고침 — On/Off 토글과 테마 변경 시 호출 */
+  function refreshLabels() {
+    if (!state.viewer) return;
+    state.viewer.removeAllLabels();
+    if (state.showLabels && state.result) {
+      addLabels(state.viewer, state.result);
+    }
+    state.viewer.render();
+  }
+
+  /* ─── Clear / Add Model ─── */
+  function clearViewer(viewer) {
+    viewer.removeAllModels();
+    viewer.removeAllSurfaces();
+    viewer.removeAllLabels();
+    viewer.removeAllShapes();
+    state.model = null;
+  }
+
+  function addMoleculeModel(viewer, result) {
+    var xyz = getXyz(result);
+    if (xyz) {
+      state.model = viewer.addModel(xyz, "xyz");
+      applyStyle(viewer, state.style);
+      return true;
+    }
+    return false;
+  }
+
+  /* ─── Render Molecule ─── */
+  function renderMolecule(result) {
+    return ensureViewer().then(function (viewer) {
+      clearViewer(viewer);
+      addMoleculeModel(viewer, result);
+      if (state.showLabels) addLabels(viewer, result);
+      viewer.zoomTo();
+      viewer.render();
+      state.mode = "molecule";
+      showControls("molecule");
+      hideLegend();
+    });
+  }
+
+  /* ─── Render Orbital ─── */
+  function renderOrbital(result) {
+    return ensureViewer().then(function (viewer) {
+      var oldXyz = state.model ? getXyz(state.result) : null;
+      var newXyz = getXyz(result);
+      var isNewMolecule = oldXyz !== newXyz;
+
+      clearViewer(viewer);
+
+      /* 분자 모델 먼저 추가 */
+      addMoleculeModel(viewer, result);
+
+      var viz = result.visualization || {};
+      var cubeB64 = viz.orbital_cube_b64 || result.orbital_cube_b64 || (viz.orbital && viz.orbital.cube_b64) || null;
+
+      if (cubeB64) {
+        try {
+          var cubeData = atob(cubeB64);
+          var vol = new window.$3Dmol.VolumeData(cubeData, "cube");
+
+          /* Positive lobe — indigo */
+          viewer.addIsosurface(vol, {
+            isoval: state.isovalue,
+            color: getCurrentColorScheme().orbPositive,
+            alpha: state.opacity,
+            smoothness: 3,
+            wireframe: false,
+          });
+
+          /* Negative lobe — amber */
+          viewer.addIsosurface(vol, {
+            isoval: -state.isovalue,
+            color: scheme.orbNegative,
+            alpha: state.opacity,
+            smoothness: 3,
+            wireframe: false,
+          });
+
+          /* 분자 모델이 없었다면 큐브 파일에서 추출 */
+          if (!state.model) {
+            state.model = viewer.addModel(cubeData, "cube");
+            applyStyle(viewer, state.style);
+          }
+        } catch (e) {
+          console.error("[Viewer] Orbital render error:", e);
+        }
+      }
+
+      if (state.showLabels && state.model) addLabels(viewer, result);
+      if (isNewMolecule) {
+          viewer.zoomTo();
+      }
+      viewer.render();
+      state.mode = "orbital";
+      showControls("orbital");
+      showOrbitalLegend();
+      populateOrbitalSelector(result);
+    });
+  }
+
+  /* ─── Render ESP ─── */
+  function renderESP(result) {
+    return ensureViewer().then(function (viewer) {
+      var oldXyz = state.model ? getXyz(state.result) : null;
+      var newXyz = getXyz(result);
+      var isNewMolecule = oldXyz !== newXyz;
+
+      clearViewer(viewer);
+      addMoleculeModel(viewer, result);
+
+      var viz = result.visualization || {};
+      var densB64 = viz.density_cube_b64 || result.density_cube_b64 || (viz.density && viz.density.cube_b64) || null;
+      var espB64 = viz.esp_cube_b64 || result.esp_cube_b64 || (viz.esp && viz.esp.cube_b64) || null;
+
+      try {
+        if (densB64 && espB64) {
+          var densVol = new window.$3Dmol.VolumeData(atob(densB64), "cube");
+          var espVol = new window.$3Dmol.VolumeData(atob(espB64), "cube");
+          var range = result.esp_auto_range_au || 0.05;
+          var scheme = getCurrentColorScheme();
+          var minVal = scheme.reverse ? range : -range;
+          var maxVal = scheme.reverse ? -range : range;
+          var grad = createGradient(scheme.espGradient, minVal, maxVal);
+          viewer.addIsosurface(densVol, {
+            isoval: state.espDensityIso || 0.001,
+            color: "white",
+            alpha: state.opacity,
+            smoothness: 1,
+            voldata: espVol,
+            volscheme: grad
+          });
+        } else if (espB64) {
+          var espVol2 = new window.$3Dmol.VolumeData(atob(espB64), "cube");
+          var scheme2 = getCurrentColorScheme();
+          var minVal2 = scheme2.reverse ? 0.05 : -0.05;
+          var maxVal2 = scheme2.reverse ? -0.05 : 0.05;
+          var grad2 = createGradient(scheme2.espGradient, minVal2, maxVal2);
+          viewer.addIsosurface(espVol2, {
+            isoval: state.espDensityIso || 0.001,
+            volscheme: grad2,
+            alpha: state.opacity,
+            smoothness: 3,
+          });
+        }
+      } catch (e) {
+        console.error("[Viewer] ESP render error:", e);
+      }
+
+      if (state.showLabels && state.model) addLabels(viewer, result);
+      if (isNewMolecule) {
+          viewer.zoomTo();
+      }
+      viewer.render();
+      state.mode = "esp";
+      showControls("esp");
+      showESPLegend();
+    });
+  }
+
+  function handleResultSwitched(data) {
+    var result = data.result;
+    if (!result) return;
+    var xyz = result.xyz || result.molecule_xyz || "";
+    if (xyz) loadMoleculeXyz(xyz);
+
+    var hasOrb = !!(result.orbital_cube_b64 || result.orbital_cube);
+    var hasEsp = !!(result.esp_cube_b64 || result.esp_cube);
+
+    if (hasOrb) switchVizMode("orbital");
+    else if (hasEsp) switchVizMode("esp");
+    else {
+      if (state.viewer) {
+        state.viewer.removeAllSurfaces();
+        state.viewer.render();
+      }
+      showControls("molecule");
+    }
+    initTrajectoryPlayer(result);
+  }
+  App.on("result:switched", handleResultSwitched);
+
+
+  /* ─── Controls Visibility ─── */
+  function showControls(mode) {
+    if ($empty) $empty.hidden = true;
+    if ($controls) $controls.hidden = false;
+    
+    var result = state.result || {};
+    var hasOrbital = !!(
+      result.orbital_cube_b64 ||
+      result.orbital_cube ||
+      (result.orbitals && result.orbitals.length) ||
+      (result.mo_energies && result.mo_energies.length)
+    );
+    var hasESP = !!(result.esp_cube_b64 || result.esp_cube);
+    
+    if ($grpOrbital) $grpOrbital.hidden = !hasOrbital;
+    var $grpESP = document.getElementById("grpESP");
+    if ($grpESP) $grpESP.hidden = !hasESP;
+    if ($grpOpacity) $grpOpacity.hidden = !(hasOrbital || hasESP);
+    
+    var $vizModeToggle = document.getElementById("vizModeToggle");
+    if ($vizModeToggle) $vizModeToggle.hidden = !(hasOrbital && hasESP);
+
+    updateToggleHighlight(mode);
+
+    if ($sliderIso) {
+      if (mode === "esp") {
+        $sliderIso.min = "0.0001";
+        $sliderIso.max = "0.01";
+        $sliderIso.step = "0.0001";
+        if (state.isovalue > 0.01) {
+          state.isovalue = 0.002;
+          $sliderIso.value = state.isovalue;
+        }
+      } else {
+        $sliderIso.min = "0.001";
+        $sliderIso.max = "0.1";
+        $sliderIso.step = "0.001";
+        if (state.isovalue < 0.001) {
+          state.isovalue = 0.03;
+          $sliderIso.value = state.isovalue;
+        }
+      }
+      if ($lblIso) $lblIso.textContent = state.isovalue.toFixed(4);
+    }
+
+    if (mode === "orbital") showOrbitalLegend();
+    else if (mode === "esp") showESPLegend();
+    else if ($legend) $legend.hidden = true;
+  }
+
+  function updateToggleHighlight(mode) {
+    var $btnOrb = document.getElementById("btnModeOrbital");
+    var $btnEsp = document.getElementById("btnModeESP");
+    if ($btnOrb) $btnOrb.classList.toggle("active", mode === "orbital");
+    if ($btnEsp) $btnEsp.classList.toggle("active", mode === "esp");
+  }
+
+  var _vizSwitchLock = false;
+
+  var _vizSwitchLock = false;
+
+  function switchVizMode(newMode) {
+    if (!state.result) return;
+    if (_vizSwitchLock) return;
+    
+    _vizSwitchLock = true;
+    state.mode = newMode;
+
+    if (state.viewer) {
+      state.viewer.removeAllSurfaces();
+      if (typeof state.viewer.removeAllShapes === "function") state.viewer.removeAllShapes();
+      state.viewer.render(); // force GPU flush
+    }
+
+    setTimeout(function() {
+      try {
+        var result = state.result;
+        var scheme = getCurrentColorScheme();
+
+        if (newMode === "orbital") {
+          var viz = result.visualization || {};
+          var cubeB64 = viz.orbital_cube_b64 || result.orbital_cube_b64 || (viz.orbital && viz.orbital.cube_b64) || null;
+          if (state.selectedOrbitalIndex != null && tryRenderCachedOrbital(state.selectedOrbitalIndex)) {
+            // Handled by cache
+          } else if (cubeB64) {
+            var vol = new window.$3Dmol.VolumeData(atob(cubeB64), "cube");
+            state.viewer.addIsosurface(vol, { isoval: state.isovalue, color: scheme.orbPositive, alpha: state.opacity, smoothness: 2 });
+            state.viewer.addIsosurface(vol, { isoval: -state.isovalue, color: scheme.orbNegative, alpha: state.opacity, smoothness: 2 });
+          } else if (state.selectedOrbitalIndex != null) {
+              silentFetchOrbital(state.selectedOrbitalIndex);
+          }
+        } else if (newMode === "esp") {
+          var viz = result.visualization || {};
+          var densB64 = viz.density_cube_b64 || result.density_cube_b64 || null;
+          var espB64 = viz.esp_cube_b64 || result.esp_cube_b64 || null;
+          
+          if (espB64) {
+              var espVol = new window.$3Dmol.VolumeData(atob(espB64), "cube");
+              var densVol = densB64 ? new window.$3Dmol.VolumeData(atob(densB64), "cube") : espVol;
+              var range = result.esp_auto_range_au || 0.05;
+              var minVal = scheme.reverse ? range : -range;
+              var maxVal = scheme.reverse ? -range : range;
+              var grad = createGradient(scheme.espGradient, minVal, maxVal);
+              state.viewer.addIsosurface(densVol, {
+                isoval: state.espDensityIso || 0.001,
+                color: "white",
+                alpha: state.opacity,
+                smoothness: 1,
+                voldata: espVol,
+                volscheme: grad
+              });
+          }
+        }
+        
+        if (state.viewer) state.viewer.render();
+      } catch(e) {
+          console.error("[Viewer] Surface render error:", e);
+      } finally {
+          showControls(newMode);
+          saveViewerSnapshot();
+          _vizSwitchLock = false;
+      }
+    }, 30);
+  }
+
+  /* ─── Orbital Selector ─── */
+  function populateOrbitalSelector(result) {
+    if (!$selectOrbital || !result) return;
+    
+    var orbitals = result.orbitals || [];
+    var moE = result.mo_energies || [];
+    var moO = result.mo_occupations || [];
+    
+    $selectOrbital.innerHTML = "";
+    
+    if (orbitals.length > 0) {
+      var info = (result.visualization && result.visualization.orbital_info) || result.orbital_info || {};
+      var currentIdx = info.orbital_index != null ? info.orbital_index : (result.selected_orbital ? result.selected_orbital.zero_based_index : -1);
+
+      orbitals.forEach(function(orb) {
+        var opt = document.createElement("option");
+        opt.value = orb.zero_based_index;
+        opt.textContent = orb.label + " (" + Number(orb.energy_hartree).toFixed(3) + " Ha)";
+        if (orb.zero_based_index === currentIdx) opt.selected = true;
+        $selectOrbital.appendChild(opt);
+      });
+      state.selectedOrbitalIndex = currentIdx;
+      if ($grpOrbitalSelect) $grpOrbitalSelect.hidden = false;
+      return;
+    }
+
+    if (!moE.length) {
+      if ($grpOrbitalSelect) $grpOrbitalSelect.hidden = true;
+      return;
+    }
+
+    var homoIdx = -1;
+    for (var i = 0; i < moE.length; i++) {
+      if (moO[i] != null && moO[i] > 0) homoIdx = i;
+    }
+    var lumoIdx = (homoIdx >= 0 && homoIdx + 1 < moE.length) ? homoIdx + 1 : -1;
+
+    var info = (result.visualization && result.visualization.orbital_info) || result.orbital_info || {};
+    var currentIdx = info.orbital_index != null ? info.orbital_index : homoIdx;
+
+    var startIdx = Math.max(0, homoIdx - 4);
+    var endIdx = Math.min(moE.length, (lumoIdx >= 0 ? lumoIdx : homoIdx) + 5);
+
+    for (var j = startIdx; j < endIdx; j++) {
+      var opt = document.createElement("option");
+      opt.value = j;
+      var label = "MO " + j;
+      if (j === homoIdx) label = "HOMO";
+      else if (j === lumoIdx) label = "LUMO";
+      else if (j === homoIdx - 1) label = "HOMO-1";
+      else if (j === homoIdx - 2) label = "HOMO-2";
+      else if (lumoIdx >= 0 && j === lumoIdx + 1) label = "LUMO+1";
+      else if (lumoIdx >= 0 && j === lumoIdx + 2) label = "LUMO+2";
+      label += " (" + Number(moE[j]).toFixed(3) + " Ha)";
+      opt.textContent = label;
+      if (j === currentIdx) opt.selected = true;
+      $selectOrbital.appendChild(opt);
+    }
+
+    state.selectedOrbitalIndex = currentIdx;
+    if ($grpOrbitalSelect) $grpOrbitalSelect.hidden = false;
+  }
+
+  /* ─── Event Bindings ─── */
+
+  /* ─── Fix #2: 오비탈 셀렉터를 Silent Fetch 방식으로 교체 ── */
+
+  function showMiniSpinner(show) {
+    var spinId = "orbital-mini-spinner";
+    var existing = document.getElementById(spinId);
+    if (!show) {
+      if (existing) existing.remove();
+      return;
+    }
+    if (existing) return;
+    var el = document.createElement("div");
+    el.id = spinId;
+    el.style.cssText =
+      "position:absolute;top:16px;right:16px;z-index:100;" +
+      "width:24px;height:24px;border:3px solid rgba(120,120,120,0.3);" +
+      "border-top-color:#4a90d9;border-radius:50%;" +
+      "animation:qcviz-spin .6s linear infinite;";
+    if (!document.getElementById("qcviz-spin-style")) {
+      var style = document.createElement("style");
+      style.id = "qcviz-spin-style";
+      style.textContent =
+        "@keyframes qcviz-spin{to{transform:rotate(360deg)}}";
+      document.head.appendChild(style);
+    }
+    $viewerDiv.style.position = "relative";
+    $viewerDiv.appendChild(el);
+  }
+
+  function tryRenderCachedOrbital(idx) {
+    var orbitals = (state.result && state.result.orbitals) || [];
+    var orb = null;
+    for (var i=0; i<orbitals.length; i++) {
+        if (orbitals[i].zero_based_index === idx) {
+            orb = orbitals[i];
+            break;
+        }
+    }
+    
+    if (orb && orb.cube_data) {
+      clearViewer(state.viewer);
+      addMoleculeModel(state.viewer, state.result);
+      
+      try {
+        var cubeData = atob(orb.cube_data);
+        var vol = new window.$3Dmol.VolumeData(cubeData, "cube");
+        state.viewer.addIsosurface(vol, { isoval: state.isovalue, color: getCurrentColorScheme().orbPositive, alpha: state.opacity, smoothness: 2 });
+        state.viewer.addIsosurface(vol, { isoval: -state.isovalue, color: getCurrentColorScheme().orbNegative, alpha: state.opacity, smoothness: 2 });
+      } catch(e) {}
+      if (state.showLabels && state.model) addLabels(state.viewer, state.result);
+      state.viewer.render();
+      state.mode = "orbital";
+      showControls("orbital");
+      hideLegend();
+      return true;
+    }
+    return false;
+  }
+
+  function silentFetchOrbital(idx) {
+    var result = state.result;
+    if (!result) return;
+
+    var molName = result.molecule_name || result.structure_name || "molecule";
+    var method = result.method || "RHF";
+    var basis = result.basis || result.basis_set || "sto-3g";
+    
+    var orbitals = result.orbitals || [];
+    var selectedOrb = null;
+    for (var i=0; i<orbitals.length; i++) {
+        if (orbitals[i].zero_based_index === idx) {
+            selectedOrb = orbitals[i];
+            break;
+        }
+    }
+    
+    var orbLabel = (selectedOrb ? selectedOrb.label : "MO " + idx);
+    var charge = result.charge || 0;
+    var mult = result.multiplicity || 1;
+
+    var payload = {
+      structure_query: molName,
+      job_type: "orbital_preview",
+      method: method,
+      basis: basis,
+      charge: charge,
+      multiplicity: mult,
+      orbital: orbLabel,
+    };
+
+    showMiniSpinner(true);
+
+    fetch("/api/compute/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error("Job submit failed: " + resp.status);
+        return resp.json();
+      })
+      .then(function (data) {
+        var jobId = data.job_id || data.id;
+        if (!jobId) throw new Error("No job_id in response");
+        return pollJobResult(jobId);
+      })
+      .then(function (jobResult) {
+        showMiniSpinner(false);
+        var viz = jobResult.visualization || {};
+        var cubeB64 = viz.orbital_cube_b64 || jobResult.orbital_cube_b64 || null;
+        
+        if (cubeB64) {
+          var orbs = (state.result && state.result.orbitals) || [];
+          for (var i=0; i<orbs.length; i++) {
+              if (orbs[i].zero_based_index === idx) {
+                  orbs[i].cube_data = cubeB64;
+                  break;
+              }
+          }
+          
+          clearViewer(state.viewer);
+          addMoleculeModel(state.viewer, state.result);
+          try {
+            var cubeData = atob(cubeB64);
+            var vol = new window.$3Dmol.VolumeData(cubeData, "cube");
+            state.viewer.addIsosurface(vol, { isoval: state.isovalue, color: getCurrentColorScheme().orbPositive, alpha: state.opacity, smoothness: 2 });
+            state.viewer.addIsosurface(vol, { isoval: -state.isovalue, color: getCurrentColorScheme().orbNegative, alpha: state.opacity, smoothness: 2 });
+          } catch(e) {}
+          if (state.showLabels && state.model) addLabels(state.viewer, state.result);
+          state.viewer.render();
+          state.mode = "orbital";
+          showControls("orbital");
+          hideLegend();
+        }
+      })
+      .catch(function (err) {
+        showMiniSpinner(false);
+        console.error("[viewer] Silent orbital fetch failed:", err);
+      });
+  }
+
+  function pollJobResult(jobId) {
+    var MAX_POLL = 60;
+    var INTERVAL = 500;
+    var count = 0;
+
+    return new Promise(function (resolve, reject) {
+      function tick() {
+        fetch("/api/compute/jobs/" + jobId + "?include_result=true")
+          .then(function (r) {
+            return r.json();
+          })
+          .then(function (job) {
+            var status = job.status || "";
+            if (status === "completed" || status === "done") {
+              return resolve(job.result || job);
+            }
+            if (status === "failed" || status === "error") {
+              return reject(new Error(job.error || "Job failed"));
+            }
+            count++;
+            if (count >= MAX_POLL) {
+              return reject(new Error("Poll timeout"));
+            }
+            setTimeout(tick, INTERVAL);
+          })
+          .catch(reject);
+      }
+      tick();
+    });
+  }
+
+  if ($selectOrbital) {
+    $selectOrbital.addEventListener("change", function () {
+      var idx = parseInt($selectOrbital.value, 10);
+      if (isNaN(idx)) return;
+      state.selectedOrbitalIndex = idx;
+      App.emit("orbital:select", { orbital_index: idx });
+
+      if (!tryRenderCachedOrbital(idx)) {
+        silentFetchOrbital(idx);
+      }
+
+      saveViewerSnapshot();
+    });
+  }
+
+  /* Style segmented control */
+  if ($segStyle) {
+    $segStyle.addEventListener("click", function (e) {
+      var btn = e.target.closest(".segmented__btn");
+      if (!btn) return;
+      var val = btn.dataset.value;
+      if (val === state.style) return;
+
+      state.style = val;
+      $segStyle.querySelectorAll(".segmented__btn").forEach(function (b) {
+        b.classList.toggle("segmented__btn--active", b.dataset.value === val);
+      });
+
+      if (state.viewer && state.model) {
+        applyStyle(state.viewer, val);
+        state.viewer.render();
+      }
+      saveViewerSnapshot();
+    });
+  }
+
+  /* Isovalue slider */
+  if ($sliderIso) {
+    $sliderIso.addEventListener("input", function () {
+      state.isovalue = parseFloat($sliderIso.value);
+      if ($lblIso) $lblIso.textContent = state.isovalue.toFixed(3);
+    });
+    $sliderIso.addEventListener("change", function () {
+      if (state.mode === "orbital" && state.result) {
+        renderOrbital(state.result);
+      } else if (state.mode === "esp" && state.result) {
+        renderESP(state.result);
+      }
+      saveViewerSnapshot();
+    });
+  }
+
+  /* Opacity slider */
+  if ($sliderOp) {
+    $sliderOp.addEventListener("input", function () {
+      state.opacity = parseFloat($sliderOp.value);
+      if ($lblOp) $lblOp.textContent = state.opacity.toFixed(2);
+    });
+    $sliderOp.addEventListener("change", function () {
+      if (state.mode === "orbital" && state.result) {
+        renderOrbital(state.result);
+      } else if (state.mode === "esp" && state.result) {
+        renderESP(state.result);
+      }
+      saveViewerSnapshot();
+    });
+  }
+
+  /* Labels toggle — 핵심: 확실하게 라벨 On/Off 동작 */
+  if ($btnLabels) {
+    $btnLabels.addEventListener("click", function () {
+      state.showLabels = !state.showLabels;
+      $btnLabels.setAttribute("data-active", String(state.showLabels));
+      $btnLabels.setAttribute("aria-pressed", String(state.showLabels));
+      $btnLabels.textContent = state.showLabels ? "On" : "Off";
+
+      /* 실제로 3Dmol 라벨을 제거/추가 후 render */
+      refreshLabels();
+      saveViewerSnapshot();
+    });
+  }
+
+  /* Reset view */
+  if ($btnReset) {
+    $btnReset.addEventListener("click", function () {
+      if (state.viewer) {
+        state.viewer.zoomTo();
+        state.viewer.render();
+      }
+    });
+  }
+
+  /* Screenshot */
+  if ($btnScreenshot) {
+    $btnScreenshot.addEventListener("click", function () {
+      if (!state.viewer) return;
+      try {
+        var dataUrl = state.viewer.pngURI();
+        var a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = "qcviz-" + (state.jobId || "capture") + "-" + Date.now() + ".png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (err) {
+        console.error("Screenshot failed:", err);
+      }
+    });
+  }
+
+  /* Fullscreen */
+  if ($btnFullscreen) {
+    $btnFullscreen.addEventListener("click", function () {
+      var panel = document.getElementById("panelViewer");
+      if (!panel) return;
+      panel.classList.toggle("is-fullscreen");
+      setTimeout(function () {
+        if (state.viewer) {
+          state.viewer.resize();
+          state.viewer.render();
+        }
+      }, 150);
+    });
+  }
+
+  /* Escape closes fullscreen */
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      var panel = document.getElementById("panelViewer");
+      if (panel && panel.classList.contains("is-fullscreen")) {
+        panel.classList.remove("is-fullscreen");
+        setTimeout(function () {
+          if (state.viewer) {
+            state.viewer.resize();
+            state.viewer.render();
+          }
+        }, 150);
+      }
+    }
+  });
+
+  /* ─── Legends ─── */
+  
+  function getGradientCSS(schemeObj) {
+    var grad = schemeObj.espGradient;
+    var rev = schemeObj.reverse;
+    if (grad === "rwb") {
+        return rev ? "linear-gradient(90deg, #3b82f6, #ffffff, #ef4444)" : "linear-gradient(90deg, #ef4444, #ffffff, #3b82f6)";
+    }
+    if (grad === "bwr") {
+        return rev ? "linear-gradient(90deg, #ef4444, #ffffff, #3b82f6)" : "linear-gradient(90deg, #3b82f6, #ffffff, #ef4444)";
+    }
+    if (grad === "sinebow") {
+        return rev ? "linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)" : "linear-gradient(90deg, #ff0000, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000)";
+    }
+    if (grad === "roygb") {
+        return rev ? "linear-gradient(90deg, #0000ff, #00ff00, #ffff00, #ff0000)" : "linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #0000ff)";
+    }
+    // fallback
+    return "linear-gradient(90deg, #ef4444, #ffffff, #3b82f6)";
+  }
+
+  function updateLegendColors() {
+    if (!$legend || $legend.hidden) return;
+    var scheme = getCurrentColorScheme();
+    if (state.mode === "orbital") {
+      var swatches = $legend.querySelectorAll(".viewer-legend__swatch");
+      if (swatches[0]) swatches[0].style.background = scheme.orbPositive;
+      if (swatches[1]) swatches[1].style.background = scheme.orbNegative;
+    } else if (state.mode === "esp") {
+      var swatch = $legend.querySelector(".viewer-legend__swatch");
+      if (swatch) {
+          swatch.style.background = getGradientCSS(scheme);
+      }
+    }
+  }
+
+  function showOrbitalLegend() {
+    if (!$legend) return;
+    var scheme = getCurrentColorScheme();
+    $legend.hidden = false;
+    $legend.innerHTML =
+      '<div class="viewer-legend__title">Orbital Lobes</div>' +
+      '<div class="viewer-legend__row">' +
+        '<span class="viewer-legend__swatch" style="background:' + scheme.orbPositive + '"></span>' +
+        '<span>Positive (+' + state.isovalue.toFixed(3) + ')</span>' +
+      '</div>' +
+      '<div class="viewer-legend__row">' +
+        '<span class="viewer-legend__swatch" style="background:' + scheme.orbNegative + '"></span>' +
+        '<span>Negative (−' + state.isovalue.toFixed(3) + ')</span>' +
+      '</div>';
+  }
+  function showESPLegend() {
+    if (!$legend) return;
+    var scheme = getCurrentColorScheme();
+    var gradCSS = getGradientCSS(scheme);
+    $legend.hidden = false;
+    $legend.innerHTML =
+      '<div class="viewer-legend__title">ESP Surface</div>' +
+      '<div class="viewer-legend__row" style="display:flex; justify-content:center; width:100%; margin-top:4px;">' +
+        '<span class="viewer-legend__swatch" style="background:' + gradCSS + ';width:100px;height:12px;border-radius:3px;box-shadow:inset 0 0 2px rgba(0,0,0,0.2);"></span>' +
+      '</div>' +
+      '<div class="viewer-legend__row" style="display:flex; justify-content:space-between; width:100px; margin:2px auto 0 auto;">' +
+        '<span style="font-size:11px;font-weight:600;color:var(--text-3)">−</span>' +
+        '<span style="font-size:10px;font-weight:500;color:var(--text-4)">0</span>' +
+        '<span style="font-size:11px;font-weight:600;color:var(--text-3)">+</span>' +
+      '</div>';
+  }
+
+  function hideLegend() {
+    if (!$legend) return;
+    $legend.hidden = true;
+    $legend.innerHTML = "";
+  }
+
+  /* ─── Snapshot Save/Restore ─── */
+  function saveViewerSnapshot() {
+    if (!state.jobId) return;
+    var existing = App.getUISnapshot(state.jobId) || {};
+    App.saveUISnapshot(state.jobId, Object.assign({}, existing, {
+      viewerStyle: state.style,
+      viewerIsovalue: state.isovalue,
+      viewerOpacity: state.opacity,
+      viewerLabels: state.showLabels,
+      viewerMode: state.mode,
+      viewerOrbitalIndex: state.selectedOrbitalIndex,
+    }));
+  }
+
+  function restoreViewerSnapshot(jobId) {
+    var snap = App.getUISnapshot(jobId);
+    if (!snap) return;
+
+    if (snap.viewerStyle && snap.viewerStyle !== state.style) {
+      state.style = snap.viewerStyle;
+      if ($segStyle) {
+        $segStyle.querySelectorAll(".segmented__btn").forEach(function (b) {
+          b.classList.toggle("segmented__btn--active", b.dataset.value === state.style);
+        });
+      }
+    }
+    if (snap.viewerIsovalue != null) {
+      state.isovalue = snap.viewerIsovalue;
+      if ($sliderIso) $sliderIso.value = state.isovalue;
+      if ($lblIso) $lblIso.textContent = state.isovalue.toFixed(3);
+    }
+    if (snap.viewerOpacity != null) {
+      state.opacity = snap.viewerOpacity;
+      if ($sliderOp) $sliderOp.value = state.opacity;
+      if ($lblOp) $lblOp.textContent = state.opacity.toFixed(2);
+    }
+    if (snap.viewerLabels != null) {
+      state.showLabels = snap.viewerLabels;
+      if ($btnLabels) {
+        $btnLabels.setAttribute("data-active", String(state.showLabels));
+        $btnLabels.setAttribute("aria-pressed", String(state.showLabels));
+        $btnLabels.textContent = state.showLabels ? "On" : "Off";
+      }
+    }
+    if (snap.viewerOrbitalIndex != null) {
+      state.selectedOrbitalIndex = snap.viewerOrbitalIndex;
+    }
+  }
+
+  /* ─── Main Result Handler ─── */
+  function handleResult(detail) {
+    var result = detail.result;
+    var jobId = detail.jobId;
+    var source = detail.source;
+
+    if (!result) {
+      if (state.viewer) {
+        clearViewer(state.viewer);
+        state.viewer.render();
+      }
+      state.result = null;
+      state.jobId = null;
+      state.mode = "none";
+      if ($empty) $empty.hidden = false;
+      if ($controls) $controls.hidden = true;
+      hideLegend();
+      return;
+    }
+
+    state.result = result;
+    state.jobId = jobId;
+
+    /* 히스토리에서 복원 시 뷰어 세팅 복원 */
+    if (source === "history" && jobId) {
+      restoreViewerSnapshot(jobId);
+    }
+
+    var viz = result.visualization || {};
+    var promise;
+
+    if (viz.orbital_cube_b64 || result.orbital_cube_b64) {
+      promise = renderOrbital(result);
+    } else if (viz.esp_cube_b64 || result.esp_cube_b64) {
+      promise = renderESP(result);
+    } else if (getXyz(result)) {
+      promise = renderMolecule(result);
+    } else {
+      /* 시각화 데이터 없음 */
+      state.mode = "none";
+      if ($empty) {
+        $empty.hidden = false;
+        var t = $empty.querySelector(".viewer-empty__text");
+        if (t) t.textContent = "No visualization data for this result";
+      }
+      if ($controls) $controls.hidden = true;
+      hideLegend();
+      return;
+    }
+
+    if (promise) {
+      promise.then(function () {
+        saveViewerSnapshot();
+      }).catch(function (err) {
+        console.error("[Viewer] Render failed:", err);
+      });
+    }
+  }
+
+  /* ─── Theme Change ─── */
+  App.on("theme:changed", function () {
+    updateViewerBg();
+    refreshLabels();
+  });
+
+  /* ─── Window Resize ─── */
+  var resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (state.viewer) {
+        state.viewer.resize();
+        state.viewer.render();
+      }
+    }, 150);
+  });
+
+  /* ─── Listen for Results ─── */
+  App.on("result:changed", handleResult);
+
+  /* ─── Expose API ─── */
+  App.viewer = {
+    getState: function () {
+      return Object.assign({}, state, { viewer: undefined, model: undefined });
+    },
+    reset: function () {
+      if (state.viewer) {
+        state.viewer.zoomTo();
+        state.viewer.render();
+      }
+    },
+    refreshLabels: refreshLabels,
+  };
+
+
+
+
+
+
+  function initTrajectoryPlayer(result) {
+    var $traj = document.getElementById("trajectoryPlayer");
+    if (!$traj) return;
+
+    var trajectory = result.trajectory;
+    var multiXyz = result.trajectory_xyz;
+
+    if (!trajectory || trajectory.length < 2) {
+      $traj.hidden = true;
+      state.trajectoryFrames = [];
+      return;
+    }
+
+    state.trajectoryFrames = trajectory;
+    state.trajectoryFrame = trajectory.length - 1;
+    state.trajectoryPlaying = false;
+    $traj.hidden = false;
+
+    var $slider = document.getElementById("trajSlider");
+    var $btnPlay = document.getElementById("trajPlay");
+    var $btnPause = document.getElementById("trajPause");
+
+    if ($slider) {
+      $slider.min = 0;
+      $slider.max = trajectory.length - 1;
+      $slider.value = $slider.max;
+      $slider.addEventListener("input", function () {
+        goToTrajectoryFrame(parseInt($slider.value, 10));
+      });
+    }
+
+    if ($btnPlay) {
+      $btnPlay.onclick = playTrajectory;
+    }
+    if ($btnPause) {
+      $btnPause.onclick = pauseTrajectory;
+    }
+
+    updateTrajectoryLabel();
+    if (multiXyz && state.viewer) {
+      loadTrajectoryMultiModel(multiXyz);
+    }
+  }
+
+  function loadTrajectoryMultiModel(multiXyz) {
+    if (!state.viewer) return;
+    state.viewer.removeAllModels();
+    state.viewer.addModelsAsFrames(multiXyz, "xyz");
+    state.viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.3 } });
+    state.viewer.zoomTo();
+    state.viewer.render();
+    var nFrames = state.trajectoryFrames.length;
+    if (nFrames > 0) {
+      state.viewer.setFrame(nFrames - 1);
+      state.viewer.render();
+    }
+  }
+
+  function goToTrajectoryFrame(idx) {
+    state.trajectoryFrame = idx;
+    if (state.viewer) {
+      try {
+        state.viewer.setFrame(idx);
+        state.viewer.render();
+      } catch (_) {
+        var frame = state.trajectoryFrames[idx];
+        if (frame && frame.xyz) {
+          state.viewer.removeAllModels();
+          state.viewer.addModel(frame.xyz, "xyz");
+          state.viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.3 } });
+          state.viewer.render();
+        }
+      }
+    }
+    var $slider = document.getElementById("trajSlider");
+    if ($slider) $slider.value = idx;
+    updateTrajectoryLabel();
+  }
+
+  function updateTrajectoryLabel() {
+    var $label = document.getElementById("trajLabel");
+    if (!$label) return;
+    var frames = state.trajectoryFrames;
+    var idx = state.trajectoryFrame;
+    var frame = frames[idx] || {};
+    var text = "Step " + (idx + 1) + " / " + frames.length;
+    if (frame.energy_hartree != null) text += "  |  E = " + frame.energy_hartree.toFixed(8) + " Ha";
+    if (frame.grad_norm != null) text += "  |  |∇| = " + frame.grad_norm.toFixed(6);
+    $label.textContent = text;
+  }
+
+  function playTrajectory() {
+    if (state.trajectoryPlaying) return;
+    state.trajectoryPlaying = true;
+    var frames = state.trajectoryFrames;
+    if (!frames.length) return;
+    if (state.trajectoryFrame >= frames.length - 1) state.trajectoryFrame = 0;
+    
+    var $btnPlay = document.getElementById("trajPlay");
+    var $btnPause = document.getElementById("trajPause");
+    if ($btnPlay) $btnPlay.hidden = true;
+    if ($btnPause) $btnPause.hidden = false;
+
+    function nextFrame() {
+      if (!state.trajectoryPlaying) return;
+      if (state.trajectoryFrame >= frames.length - 1) {
+        pauseTrajectory();
+        return;
+      }
+      state.trajectoryFrame++;
+      goToTrajectoryFrame(state.trajectoryFrame);
+      state.trajectoryTimer = setTimeout(nextFrame, 200);
+    }
+    nextFrame();
+  }
+
+  function pauseTrajectory() {
+    state.trajectoryPlaying = false;
+    if (state.trajectoryTimer) {
+      clearTimeout(state.trajectoryTimer);
+      state.trajectoryTimer = null;
+    }
+    var $btnPlay = document.getElementById("trajPlay");
+    var $btnPause = document.getElementById("trajPause");
+    if ($btnPlay) $btnPlay.hidden = false;
+    if ($btnPause) $btnPause.hidden = true;
+  }
+
+
+
+
+  function bindStyleButtons() {
+    if ($segStyle) {
+      var btns = $segStyle.querySelectorAll(".segmented__btn");
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener("click", function (e) {
+          var t = e.currentTarget;
+          var val = t.getAttribute("data-value");
+          for (var j = 0; j < btns.length; j++) {
+            btns[j].classList.remove("segmented__btn--active");
+          }
+          t.classList.add("segmented__btn--active");
+          state.style = val;
+          if (state.viewer && state.model) {
+            applyStyle(state.viewer, val);
+            state.viewer.render();
+          }
+          saveViewerSnapshot();
+        });
+      }
+    }
+
+    if ($btnLabels) {
+      $btnLabels.addEventListener("click", function () {
+        state.showLabels = !state.showLabels;
+        syncButtonState();
+        if (state.viewer && state.model) {
+          clearLabels();
+          if (state.showLabels) addLabels(state.viewer, state.result);
+          state.viewer.render();
+        }
+        saveViewerSnapshot();
+      });
+    }
+
+    if ($btnReset) {
+      $btnReset.addEventListener("click", function () {
+        if (state.viewer) {
+          state.viewer.zoomTo();
+          state.viewer.render();
+        }
+      });
+    }
+
+    if ($btnScreenshot) {
+      $btnScreenshot.addEventListener("click", function () {
+        if (!state.viewer) return;
+        try {
+          var uri = state.viewer.pngURI();
+          var a = document.createElement("a");
+          a.href = uri;
+          a.download = "qcviz-mcp-" + Date.now() + ".png";
+          a.click();
+        } catch (e) {
+          console.warn("Screenshot failed:", e);
+        }
+      });
+    }
+
+    if ($btnFullscreen) {
+      $btnFullscreen.addEventListener("click", function () {
+        var p = document.getElementById("panelViewer");
+        if (p) {
+          p.classList.toggle("is-fullscreen");
+          if (state.viewer) {
+            setTimeout(function () {
+              state.viewer.resize();
+              state.viewer.render();
+            }, 50);
+          }
+        }
+      });
+    }
+  }
+
+  function bindReactiveControls() {
+    if ($sliderIso) {
+      $sliderIso.addEventListener("input", function () {
+        state.isovalue = parseFloat($sliderIso.value);
+        if ($lblIso) $lblIso.textContent = state.isovalue.toFixed(4);
+      });
+      $sliderIso.addEventListener("change", function () {
+        if (state.mode === "orbital" && state.result) {
+          renderOrbital(state.result);
+        } else if (state.mode === "esp" && state.result) {
+          renderESP(state.result);
+        }
+        saveViewerSnapshot();
+      });
+    }
+
+    if ($sliderOp) {
+      $sliderOp.addEventListener("input", function () {
+        state.opacity = parseFloat($sliderOp.value);
+        if ($lblOp) $lblOp.textContent = state.opacity.toFixed(2);
+      });
+      $sliderOp.addEventListener("change", function () {
+        if (state.mode === "orbital" && state.result) {
+          renderOrbital(state.result);
+        } else if (state.mode === "esp" && state.result) {
+          renderESP(state.result);
+        }
+        saveViewerSnapshot();
+      });
+    }
+  }
+
+  function syncButtonState() {
+    if ($btnLabels) {
+      $btnLabels.setAttribute("data-active", String(state.showLabels));
+      $btnLabels.setAttribute("aria-pressed", String(state.showLabels));
+      $btnLabels.textContent = state.showLabels ? "On" : "Off";
+    }
+  }
+
+  function init() {
+    bindStyleButtons();
+    bindReactiveControls();
+    syncButtonState();
+    
+    var $selectColor = document.getElementById("selectColorScheme");
+    if ($selectColor) {
+      $selectColor.addEventListener("change", function () {
+        if (!COLOR_SCHEMES[$selectColor.value]) return;
+
+        state.colorScheme = $selectColor.value;
+        updateSchemePreview();
+        updateLegendColors();
+
+        if (state.result) {
+          var currentMode = state.mode;
+          if (currentMode === "orbital" || currentMode === "esp") {
+            state.mode = "none";
+            switchVizMode(currentMode);
+          }
+        }
+        saveViewerSnapshot();
+      });
+      updateSchemePreview();
+    }
+
+        var $btnModeOrbital = document.getElementById("btnModeOrbital");
+    var $btnModeESP = document.getElementById("btnModeESP");
+    console.log("[Viewer] init() - $btnModeOrbital:", $btnModeOrbital, "$btnModeESP:", $btnModeESP);
+    if ($btnModeOrbital) {
+      $btnModeOrbital.addEventListener("click", function () {
+        console.log("[Viewer] Orbital clicked");
+        switchVizMode("orbital");
+      });
+    }
+    if ($btnModeESP) {
+      $btnModeESP.addEventListener("click", function () {
+        console.log("[Viewer] ESP clicked");
+        switchVizMode("esp");
+      });
+    }
+
+
+    if ($selectOrbital) {
+      $selectOrbital.addEventListener("change", function () {
+        var idx = parseInt($selectOrbital.value, 10);
+        if (isNaN(idx)) return;
+        state.selectedOrbitalIndex = idx;
+        App.emit("orbital:select", { orbital_index: idx });
+
+        if (!tryRenderCachedOrbital(idx)) {
+          silentFetchOrbital(idx);
+        }
+
+        saveViewerSnapshot();
+      });
+    }
+
+    ensureViewer().then(function () {
+      var activeJobId = App.store.activeJobId;
+      if (activeJobId && App.store.resultsByJobId[activeJobId]) {
+        var r = App.store.resultsByJobId[activeJobId];
+        loadViewerSnapshot(activeJobId);
+        
+        var focus = r.advisor_focus_tab || r.default_tab || "";
+        if (focus === "esp" && (r.esp_cube_b64 || r.esp_cube)) {
+          renderESP(r);
+        } else if ((focus === "orbital" || focus === "orbitals") && (r.orbital_cube_b64 || r.orbital_cube)) {
+          renderOrbital(r);
+        } else {
+          renderMolecule(r);
+        }
+        populateOrbitalSelector(r);
+        initTrajectoryPlayer(r);
+      }
+      dismissLoader();
+    }).catch(function() { dismissLoader(); });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+
+})();

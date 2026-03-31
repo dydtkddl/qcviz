@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420" fill="none">
+  <defs>
+    <marker id="arrowBlue" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M1 1L11 6L1 11V1Z" fill="#2C5FA8"/>
+    </marker>
+    <style>
+      .title { font-family: "Segoe UI", Arial, sans-serif; font-size: 22px; font-weight: 700; fill: #17325C; }
+      .label { font-family: "Segoe UI", Arial, sans-serif; font-size: 16px; font-weight: 700; fill: #17325C; }
+      .body { font-family: "Segoe UI", Arial, sans-serif; font-size: 14px; font-weight: 600; fill: #4B6385; }
+      .small { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #5C6F8D; }
+    </style>
+  </defs>
+
+  <g>
+    <rect x="34" y="124" width="150" height="136" rx="18" fill="#F8FAFD" stroke="#8AA9D6" stroke-width="3"/>
+    <rect x="58" y="148" width="72" height="18" rx="9" fill="#D7E6FA"/>
+    <rect x="58" y="176" width="92" height="18" rx="9" fill="#D7E6FA"/>
+    <rect x="58" y="204" width="78" height="18" rx="9" fill="#D7E6FA"/>
+    <rect x="58" y="232" width="96" height="18" rx="9" fill="#D7E6FA"/>
+    <text x="109" y="290" text-anchor="middle" class="label">Compute Output</text>
+    <text x="109" y="315" text-anchor="middle" class="body">cube · molden · data</text>
+  </g>
+
+  <path d="M184 192H282" stroke="#2C5FA8" stroke-width="6" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+
+  <g>
+    <rect x="304" y="70" width="542" height="250" rx="28" fill="#F7FAFF" stroke="#2C5FA8" stroke-width="4"/>
+    <rect x="334" y="102" width="482" height="44" rx="16" fill="#E7F0FF"/>
+    <text x="575" y="130" text-anchor="middle" class="title">Browser-Native Visualization</text>
+
+    <g>
+      <rect x="356" y="174" width="164" height="102" rx="18" fill="#FFFFFF" stroke="#8AA9D6" stroke-width="3"/>
+      <circle cx="392" cy="210" r="18" fill="#DDEAFE"/>
+      <path d="M378 210C384 198 400 198 406 210C400 222 384 222 378 210Z" fill="#7EA5E3"/>
+      <text x="438" y="216" class="label">Orbitals</text>
+      <text x="438" y="242" class="body">3D rotate · zoom</text>
+    </g>
+
+    <g>
+      <rect x="548" y="174" width="164" height="102" rx="18" fill="#FFFFFF" stroke="#8AA9D6" stroke-width="3"/>
+      <circle cx="584" cy="210" r="18" fill="#FFE3C8"/>
+      <path d="M571 220C580 197 595 197 599 220" stroke="#E59A3F" stroke-width="5" stroke-linecap="round"/>
+      <text x="630" y="216" class="label">ESP Map</text>
+      <text x="630" y="242" class="body">surface in browser</text>
+    </g>
+
+    <g>
+      <rect x="740" y="174" width="78" height="102" rx="18" fill="#FFFFFF" stroke="#8AA9D6" stroke-width="3"/>
+      <rect x="755" y="196" width="46" height="8" rx="4" fill="#D7E6FA"/>
+      <rect x="755" y="214" width="34" height="8" rx="4" fill="#D7E6FA"/>
+      <rect x="755" y="232" width="42" height="8" rx="4" fill="#D7E6FA"/>
+      <text x="779" y="258" text-anchor="middle" class="small">Metrics</text>
+    </g>
+
+    <g>
+      <rect x="396" y="292" width="358" height="20" rx="10" fill="#DCEBFF"/>
+      <text x="575" y="306" text-anchor="middle" class="small">one screen · no installation · no viewer switching</text>
+    </g>
+  </g>
+
+  <path d="M520 16C553 16 580 39 580 68" stroke="#8AA9D6" stroke-width="3" stroke-dasharray="7 7"/>
+  <text x="575" y="34" class="small">same browser window</text>
+</svg>

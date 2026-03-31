@@ -1,0 +1,184 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 3,
+    "clarify_count": 1,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.\n                  \n                \n              \n            Uglycine optimize geometry이전 계산 대상을 확인해 주세요 / Confirm what to continue후속 요청으로 보이지만 이어받을 이전 구조가 없어 계산 대상을 먼저 확인해야 합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--user"
+        ],
+        "text": "Uglycine optimize geometry",
+        "isUser": true,
+        "isClarify": false,
+        "isConfirm": false
+      },
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--clarify"
+        ],
+        "text": "이전 계산 대상을 확인해 주세요 / Confirm what to continue후속 요청으로 보이지만 이어받을 이전 구조가 없어 계산 대상을 먼저 확인해야 합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+        "isUser": false,
+        "isClarify": true,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [
+      {
+        "text": "이전 계산 대상을 확인해 주세요 / Confirm what to continue후속 요청으로 보이지만 이어받을 이전 구조가 없어 계산 대상을 먼저 확인해야 합니다.분자를 선택해 주세요 / Choose a molecule물 — 3 atoms (H2O)메탄 — 5 atoms (CH4)에탄올 — 9 atoms (C2H5OH)메탄올 — 6 atoms (CH3OH)벤젠 — 12 atoms (C6H6)직접 입력 (Custom)추천 목록에서 고르거나 custom을 선택해 직접 입력할 수 있습니다.직접 입력 / Custom molecule name or SMILEScustom을 선택한 경우에만 사용됩니다.확인 / Submit",
+        "labels": [
+          "분자를 선택해 주세요 / Choose a molecule",
+          "직접 입력 / Custom molecule name or SMILES"
+        ],
+        "selects": [
+          [
+            "water",
+            "methane",
+            "ethanol",
+            "methanol",
+            "benzene",
+            "custom"
+          ]
+        ],
+        "textInputs": [
+          {
+            "fieldId": "structure_custom",
+            "value": "",
+            "placeholder": "예: acetone, water, CC(=O)C"
+          }
+        ]
+      }
+    ],
+    "confirms": [],
+    "active_result": null,
+    "active_result_sig": "",
+    "active_job_id": "",
+    "jobs_count": 0,
+    "jobs": [],
+    "session_id": "qcviz-mndfuq3o-5aydhj",
+    "last_user_input": "glycine optimize geometry"
+  },
+  "events": [
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 0 filter: (none)"
+      },
+      "at": 1774890291.9807441
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 🎛 Form submit event"
+      },
+      "at": 1774890292.0251648
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 sendMessage: glycine optimize geometry ..."
+      },
+      "at": 1774890292.025317
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] appendMessage — role: user text length: 25 extra: turnId"
+      },
+      "at": 1774890292.025494
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: chat length: 201"
+      },
+      "at": 1774890292.0262165
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890292.0960693
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774890292.1021495
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 365"
+      },
+      "at": 1774890292.4598155
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,message,payload,turn_id,timestamp"
+      },
+      "at": 1774890292.460048
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: awaiting_ack → idle"
+      },
+      "at": 1774890292.4604573
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 3454"
+      },
+      "at": 1774890292.4605818
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: clarify keys: type,session_id,message,clarification_kind,form,fields,plan,turn_id,timestamp"
+      },
+      "at": 1774890292.4606748
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← clarify, fields: 2"
+      },
+      "at": 1774890292.4607375
+    }
+  ]
+}

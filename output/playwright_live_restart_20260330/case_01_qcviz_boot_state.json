@@ -1,0 +1,246 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 1,
+    "clarify_count": 0,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [],
+    "confirms": [],
+    "active_result": null,
+    "active_result_sig": "",
+    "active_job_id": "",
+    "jobs_count": 0,
+    "jobs": [],
+    "session_id": "qcviz-mne00e7r-ljlzla",
+    "last_user_input": ""
+  },
+  "events": [
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 0 filter: (none)"
+      },
+      "at": 1774924148.7853086
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://127.0.0.1:8817/session/bootstrap",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924148.787261
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] Restoring 0 chat messages from localStorage"
+      },
+      "at": 1774924148.7874827
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] Restoring 0 chat messages from localStorage"
+      },
+      "at": 1774924148.7875824
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] connect() — ws state: null reconnectCount: 0"
+      },
+      "at": 1774924148.7877269
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] connect — opening WebSocket: ws://127.0.0.1:8817/ws/chat?session_id=qcviz-mne00e7r-ljlzla&session_token=V1WmV7er1vnZNzEjS3IbGEA7rsVNZl8Yqu6Ovgfhp3Y"
+      },
+      "at": 1774924148.787807
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — url: /compute/jobs?include_result=true&session_id=qcviz-mne00e7r-ljlzla"
+      },
+      "at": 1774924148.7881541
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://127.0.0.1:8817/session/bootstrap",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924148.793828
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ✔ WebSocket OPEN"
+      },
+      "at": 1774924148.8093498
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] setWsConnected: true"
+      },
+      "at": 1774924148.8094783
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event status:changed — kind: idle text: Connected"
+      },
+      "at": 1774924148.8096502
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] updateStatus — kind: idle text: Connected"
+      },
+      "at": 1774924148.8097684
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] startPing — interval: 20000 ms"
+      },
+      "at": 1774924148.809855
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: hello length: 131"
+      },
+      "at": 1774924148.8099577
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 207"
+      },
+      "at": 1774924148.8100834
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ready keys: type,session_id,session_token,auth_user,message,timestamp"
+      },
+      "at": 1774924148.8101828
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: idle → idle"
+      },
+      "at": 1774924148.8102677
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 116"
+      },
+      "at": 1774924148.9248524
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,status,turn_id,timestamp"
+      },
+      "at": 1774924148.9250114
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: idle → idle"
+      },
+      "at": 1774924148.9251003
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://127.0.0.1:8817/compute/jobs?include_result=true&session_id=qcviz-mne00e7r-ljlzla",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924148.9252212
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — response status: 200"
+      },
+      "at": 1774924148.9252863
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — loaded 0 jobs from server"
+      },
+      "at": 1774924148.9253829
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 0 filter: (none)"
+      },
+      "at": 1774924148.92547
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924148.973912
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774924148.9844763
+    }
+  ]
+}

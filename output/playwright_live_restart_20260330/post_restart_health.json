@@ -1,0 +1,27 @@
+{
+  "elapsed_sec": 507.26,
+  "checks": {
+    "qcviz_health": {
+      "ok": false,
+      "error": "URLError(ConnectionRefusedError(10061, '대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다', None, 10061, None))"
+    },
+    "qcviz_root": {
+      "ok": false,
+      "error": "URLError(ConnectionRefusedError(10061, '대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다', None, 10061, None))"
+    },
+    "molchat_live": {
+      "ok": true,
+      "status": 200,
+      "body": "{\"status\":\"alive\"}"
+    },
+    "molchat_ready": {
+      "ok": true,
+      "status": 200,
+      "body": "{\"status\":\"ready\"}"
+    },
+    "molchat_frontend": {
+      "ok": false,
+      "error": "URLError(ConnectionRefusedError(10061, '대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다', None, 10061, None))"
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "dataset_id": "red_team_benchmark",
+  "version": 1,
+  "cases": [
+    {
+      "id": "redteam_bare_acronym",
+      "input": "MEA",
+      "variants": ["DMA", "ABC"],
+      "language": "mixed",
+      "category": "bare_acronym",
+      "expected_lane": "chat_only",
+      "must_not_happen": ["compute_submit", "generic_fallback"],
+      "notes": "Bare acronyms should not jump directly into compute."
+    },
+    {
+      "id": "redteam_compound_request",
+      "input": "Tell me about acetone and then compute its HOMO",
+      "variants": ["아세톤이 뭔지 설명하고 HOMO도 계산해줘", "Explain benzene, then show its HOMO"],
+      "language": "mixed",
+      "category": "compound_request",
+      "expected_lane": "compute_ready",
+      "must_not_happen": ["lane_flip", "double_submit"],
+      "notes": "Compound requests should pick one stable primary lane without wobbling."
+    },
+    {
+      "id": "redteam_no_molecule_compute",
+      "input": "Run a DFT calculation",
+      "variants": ["계산 돌려줘", "Do a quantum chemistry run"],
+      "language": "mixed",
+      "category": "missing_structure_compute",
+      "expected_lane": "grounding_required",
+      "must_not_happen": ["compute_submit", "generic_fallback"],
+      "notes": "Compute requests without a structure must stop before submission."
+    },
+    {
+      "id": "redteam_followup_without_context",
+      "input": "basis 더 키워",
+      "variants": ["ESP도 해줘", "Now optimize it"],
+      "language": "mixed",
+      "category": "no_context_followup",
+      "expected_lane": "grounding_required",
+      "must_not_happen": ["crash", "compute_submit_without_structure"],
+      "notes": "Context-free follow-ups should fail gracefully."
+    },
+    {
+      "id": "redteam_explanation_of_term",
+      "input": "What is the HOMO-LUMO gap concept?",
+      "variants": ["HOMO-LUMO gap이 뭐야?", "Explain HOMO gap"],
+      "language": "mixed",
+      "category": "concept_question",
+      "expected_lane": "chat_only",
+      "must_not_happen": ["compute_submit", "semantic_grounding"],
+      "notes": "Concept questions must stay in chat even if compute terms appear."
+    },
+    {
+      "id": "redteam_structure_missing_but_fully_specified_method",
+      "input": "Optimize the geometry using B3LYP/6-31G*",
+      "variants": ["B3LYP/6-31G*로 최적화해줘", "Run geometry optimization with B3LYP and 6-31G*"],
+      "language": "mixed",
+      "category": "missing_structure_compute",
+      "expected_lane": "grounding_required",
+      "must_not_happen": ["compute_submit", "generic_fallback"],
+      "notes": "Methods and basis do not substitute for a missing structure."
+    },
+    {
+      "id": "redteam_injection_like_input",
+      "input": "\"; DROP TABLE molecules; --",
+      "variants": ["<script>alert(1)</script>", "%%%%%%%"],
+      "language": "mixed",
+      "category": "garbage_input",
+      "expected_lane": "chat_only",
+      "must_not_happen": ["compute_submit", "crash"],
+      "notes": "Garbage or injection-like input should degrade safely."
+    },
+    {
+      "id": "redteam_long_garbage_unicode",
+      "input": "ㄴㄴㄴㄴ/////????____++++🔥🔥🔥",
+      "variants": ["？？？？？？？？", "𐍈𐍈𐍈 random unicode molecule ???"],
+      "language": "mixed",
+      "category": "garbage_input",
+      "expected_lane": "chat_only",
+      "must_not_happen": ["compute_submit", "crash"],
+      "notes": "Unreadable input should trigger a safe chat-like recovery path."
+    }
+  ]
+}

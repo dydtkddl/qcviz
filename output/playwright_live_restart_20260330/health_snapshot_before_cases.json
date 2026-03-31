@@ -1,0 +1,35 @@
+{
+  "timestamp": 1774924147.667628,
+  "targets": {
+    "qcviz_health": {
+      "url": "http://127.0.0.1:8817/health",
+      "status_code": 200,
+      "ok": true,
+      "text_preview": "{\"ok\":true,\"name\":\"QCViz-MCP\",\"version\":\"v2\",\"timestamp\":1774924148.3128545,\"static_dir\":\"/mnt/d/20260305_양자화학시각화MCP서버구축/version03/src/qcviz_mcp/web/static\",\"templates_dir\":\"/mnt/d/20260305_양자화학시각화MCP서버구축/version03/src/qcviz_mcp/web/templates\",\"has_static\":true,\"has_templates\":true,\"session_auth\":{\"session_count\":0,\"ttl_seconds\":604800,\"max_sessions\":5000},\"auth\":{\"db_path\":\"/tmp/qcviz_auth.sqlite3\",\"user_count\":0,\"admin_count\":0,\"active_token_count\":0,\"token_ttl_seconds\":2592000},\"runtime\":{\"pa"
+    },
+    "qcviz_ui": {
+      "url": "http://127.0.0.1:8817/",
+      "status_code": 200,
+      "ok": true,
+      "text_preview": "<!doctype html>\n<html lang=\"en\" data-theme=\"dark\">\n  <head>\n    <script>\n      (function (g, d) {\n        var path = (g.location && g.location.pathname) || \"/\";\n        var root = path === \"/\" ? \"\" : path.replace(/\\/$/, \"\");\n        if (root === \"/\") root = \"\";\n        g.__ROOT_PATH = root;\n        g.QCVIZ_API_PREFIX = root;\n        d.write('<base href=\"' + (root || \"\") + '/\">');\n      })(window, document);\n    </script>\n    <meta charset=\"utf-8\" />\n    <meta\n      name=\"viewport\"\n      content="
+    },
+    "molchat_live": {
+      "url": "http://127.0.0.1:8333/api/v1/health/live",
+      "status_code": 200,
+      "ok": true,
+      "text_preview": "{\"status\":\"alive\"}"
+    },
+    "molchat_ready": {
+      "url": "http://127.0.0.1:8333/api/v1/health/ready",
+      "status_code": 200,
+      "ok": true,
+      "text_preview": "{\"status\":\"ready\"}"
+    },
+    "molchat_ui": {
+      "url": "http://127.0.0.1:3000/molchat",
+      "status_code": 200,
+      "ok": true,
+      "text_preview": "<!DOCTYPE html><html lang=\"ko\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no\"/><link rel=\"stylesheet\" href=\"/molchat/_next/static/css/c6bcde703f2a7f85.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/molchat/_next/static/chunks/webpack-72a75a88d3b50cf3.js\"/><script src=\"/molchat/_next/static/chunks/fd9d1056-6922f449a204c2cc.js\" async=\"\"></script><script "
+    }
+  }
+}

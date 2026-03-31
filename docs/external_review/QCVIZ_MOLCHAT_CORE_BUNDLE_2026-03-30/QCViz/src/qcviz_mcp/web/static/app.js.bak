@@ -1,0 +1,373 @@
+/* ═══════════════════════════════════════════
+   QCViz-MCP Enterprise v5 — App Orchestrator
+   Theme, shortcuts, history, status sync, init
+   ═══════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  var App = window.QCVizApp;
+  if (!App) return;
+
+  var PREFIX = App.apiPrefix || "/api";
+
+  /* ─── DOM ─── */
+  var $statusDot = document.querySelector("#globalStatus .status-indicator__dot");
+  var $statusText = document.querySelector("#globalStatus .status-indicator__text");
+  var $themeBtn = document.getElementById("btnThemeToggle");
+  var $shortcutsBtn = document.getElementById("btnKeyboardShortcuts");
+  var $shortcutsModal = document.getElementById("modalShortcuts");
+  var $historyList = document.getElementById("historyList");
+  var $historyEmpty = document.getElementById("historyEmpty");
+  var $historySearch = document.getElementById("historySearch");
+  var $btnRefresh = document.getElementById("btnRefreshHistory");
+  var $chatInput = document.getElementById("chatInput");
+
+  /* ─── Global Status ─── */
+  App.on("status:changed", function (s) {
+    if ($statusDot) $statusDot.setAttribute("data-kind", s.kind || "idle");
+    if ($statusText) $statusText.textContent = s.text || "Ready";
+
+    if (s.kind === "success" || s.kind === "completed") {
+      setTimeout(function () {
+        if (App.store.status.kind === s.kind && App.store.status.at === s.at) {
+          App.setStatus("Ready", "idle", "app");
+        }
+      }, 4000);
+    }
+  });
+
+  /* ─── Theme Toggle ─── */
+  if ($themeBtn) {
+    $themeBtn.addEventListener("click", function () {
+      var next = App.store.theme === "dark" ? "light" : "dark";
+      App.setTheme(next);
+    });
+  }
+
+  /* ─── Modal Helpers ─── */
+  function openModal(dialog) {
+    if (!dialog) return;
+    dialog.showModal();
+  }
+  function closeModal(dialog) {
+    if (!dialog) return;
+    dialog.close();
+  }
+
+  if ($shortcutsBtn) {
+    $shortcutsBtn.addEventListener("click", function () { openModal($shortcutsModal); });
+  }
+
+  if ($shortcutsModal) {
+    $shortcutsModal.addEventListener("click", function (e) {
+      if (e.target.hasAttribute("data-close") || e.target.closest("[data-close]")) {
+        closeModal($shortcutsModal);
+      }
+    });
+  }
+
+  /* ─── Keyboard Shortcuts ─── */
+  document.addEventListener("keydown", function (e) {
+    var tag = document.activeElement ? document.activeElement.tagName : "";
+    var isTyping = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+
+    // Ctrl+/ → Focus chat
+    if ((e.ctrlKey || e.metaKey) && e.key === "/") {
+      e.preventDefault();
+      if ($chatInput) $chatInput.focus();
+      return;
+    }
+
+    // Ctrl+K → Focus history search
+    if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) {
+      e.preventDefault();
+      if ($historySearch) $historySearch.focus();
+      return;
+    }
+
+    // Ctrl+\ → Toggle theme
+    if ((e.ctrlKey || e.metaKey) && e.key === "\\") {
+      e.preventDefault();
+      var next = App.store.theme === "dark" ? "light" : "dark";
+      App.setTheme(next);
+      return;
+    }
+
+    // Escape
+    if (e.key === "Escape") {
+      if ($shortcutsModal && $shortcutsModal.open) {
+        closeModal($shortcutsModal);
+        return;
+      }
+      if (isTyping) {
+        document.activeElement.blur();
+        return;
+      }
+    }
+
+    // ? → Show shortcuts
+    if (e.key === "?" && !isTyping) {
+      openModal($shortcutsModal);
+    }
+  });
+
+  /* ─── History Panel ─── */
+  var historyFilter = "";
+
+  function getJobDisplayName(job) {
+    if (job.user_query && typeof job.user_query === "string" && job.user_query.trim()) {
+      var q = job.user_query.trim();
+      return q.length > 40 ? q.substring(0, 40) + "\u2026" : q;
+    }
+    
+    var molName = job.molecule_name || job.molecule || (job.result && (job.result.structure_name || job.result.structure_query)) || (job.payload && (job.payload.structure_query || job.payload.molecule_name || job.payload.molecule));
+    var method = job.method || (job.result && job.result.method) || (job.payload && job.payload.method) || "";
+    var basis = job.basis_set || (job.result && job.result.basis_set) || (job.payload && job.payload.basis_set) || "";
+    var jobType = job.job_type || (job.result && job.result.job_type) || (job.payload && job.payload.job_type) || "computation";
+
+    if (molName) {
+        var name = molName;
+        if (jobType === "orbital_preview" || jobType === "orbital") {
+             var orb = job.orbital || (job.payload && job.payload.orbital);
+             if (orb) name = orb + " of " + name;
+             else name = "Orbital of " + name;
+        } else if (jobType === "esp_map" || jobType === "esp") {
+             name = "ESP of " + name;
+        }
+        return name.length > 40 ? name.substring(0, 40) + "\u2026" : name;
+    }
+    
+    if (method || basis) return [method, basis].filter(Boolean).join(" / ");
+    
+    // Nice fallback instead of ugly ID
+    var prettyType = jobType.replace(/_/g, " ");
+    return prettyType.charAt(0).toUpperCase() + prettyType.slice(1);
+  }
+
+  function getJobDetailLine(job) {
+    var parts = [];
+    var jobType = job.job_type || (job.payload && job.payload.job_type) || "";
+    if (jobType) parts.push(jobType);
+    var method = job.method || job.result && job.result.method || (job.payload && job.payload.method) || "";
+    if (method) parts.push(method);
+    var basis = job.basis_set || job.result && job.result.basis_set || (job.payload && job.payload.basis_set) || "";
+    if (basis) parts.push(basis);
+    if (parts.length > 0) return parts.join(" \u00B7 ");
+
+    // Fallback to timestamp
+    var ts = job.submitted_at || job.created_at || job.updated_at;
+    if (ts) {
+      var d = new Date(typeof ts === "number" && ts < 1e12 ? ts * 1000 : ts);
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " " +
+        d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+    }
+    return "\u2014";
+  }
+
+  function esc(s) {
+    if (s == null) return "";
+    var d = document.createElement("div");
+    d.textContent = String(s);
+    return d.innerHTML;
+  }
+
+  function escAttr(s) {
+    return String(s || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function renderHistory() {
+    if (!$historyList) return;
+
+    var jobs = App.store.jobOrder.map(function (id) { return App.store.jobsById[id]; }).filter(Boolean);
+
+    var filtered = jobs;
+    if (historyFilter) {
+      var q = historyFilter.toLowerCase();
+      filtered = jobs.filter(function (j) {
+        var searchable = [
+          j.user_query || "",
+          j.molecule_name || "",
+          j.molecule || "",
+          j.method || "",
+          j.basis_set || "",
+          j.job_id || "",
+          (j.payload && j.payload.molecule) || "",
+          (j.payload && j.payload.method) || "",
+        ].join(" ").toLowerCase();
+        return searchable.indexOf(q) !== -1;
+      });
+    }
+
+    // Remove old items
+    var oldItems = $historyList.querySelectorAll(".history-item");
+    oldItems.forEach(function (el) { el.remove(); });
+
+    if (filtered.length === 0) {
+      if ($historyEmpty) {
+        $historyEmpty.hidden = false;
+        var p = $historyEmpty.querySelector("p");
+        if (p) p.textContent = historyFilter ? "No matching jobs" : "No previous computations";
+      }
+      return;
+    }
+
+    if ($historyEmpty) $historyEmpty.hidden = true;
+
+    var activeJobId = App.store.activeJobId;
+    var html = "";
+
+    filtered.forEach(function (job) {
+      var id = job.job_id || "";
+      var status = job.status || "queued";
+      var name = getJobDisplayName(job);
+      var detail = getJobDetailLine(job);
+      var energy = job.result ? (job.result.total_energy_hartree != null ? job.result.total_energy_hartree : job.result.energy) : null;
+      var energyStr = energy != null ? Number(energy).toFixed(4) + " Ha" : "";
+      var isActive = id === activeJobId;
+
+      html += '<div class="history-item' + (isActive ? ' history-item--active' : '') + '" data-job-id="' + escAttr(id) + '">' +
+        '<span class="history-item__status history-item__status--' + escAttr(status) + '"></span>' +
+        '<div class="history-item__info">' +
+        '<div class="history-item__title">' + esc(name) + '</div>' +
+        '<div class="history-item__detail">' + esc(detail) + '</div>' +
+        '</div>' +
+        (energyStr ? '<span class="history-item__energy">' + esc(energyStr) + '</span>' : '') +
+        '</div>';
+    });
+
+    if ($historyEmpty) {
+      $historyEmpty.insertAdjacentHTML("beforebegin", html);
+    } else {
+      $historyList.innerHTML = html;
+    }
+  }
+
+  // History click
+  if ($historyList) {
+    $historyList.addEventListener("click", function (e) {
+      var item = e.target.closest(".history-item");
+      if (!item) return;
+      var jobId = item.dataset.jobId;
+      if (!jobId) return;
+      App.setActiveJob(jobId);
+      renderHistory();
+    });
+  }
+
+  // History search
+  if ($historySearch) {
+    $historySearch.addEventListener("input", function () {
+      historyFilter = $historySearch.value.trim();
+      renderHistory();
+    });
+  }
+
+  // Fetch history from server
+  function fetchHistory() {
+    return fetch(PREFIX + "/compute/jobs?include_result=true")
+      .then(function (res) {
+        if (!res.ok) return;
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data) return;
+        var jobs = Array.isArray(data) ? data : (data.items || data.jobs || []);
+        
+        // Reverse array to insert oldest first so that prepend keeps the newest at the top
+        // OR simply call upsertJob which manages sorting internally via store.jobOrder.
+        var sortedJobs = jobs.sort(function(a, b) { return a.created_at - b.created_at; });
+        sortedJobs.forEach(function (j) { App.upsertJob(j); });
+        
+        // Ensure UI catches up
+        renderHistory();
+      })
+      .catch(function (e) {
+        console.error("fetchHistory error:", e);
+      });
+  }
+
+  if ($btnRefresh) {
+    $btnRefresh.addEventListener("click", function () {
+      $btnRefresh.classList.add("is-spinning");
+      fetchHistory().then(function () {
+        setTimeout(function () { $btnRefresh.classList.remove("is-spinning"); }, 600);
+      }).catch(function () {
+        setTimeout(function () { $btnRefresh.classList.remove("is-spinning"); }, 600);
+      });
+    });
+  }
+
+
+  /* ─── Session Tabs ─── */
+  var $sessionTabsContainer = document.getElementById("sessionTabsContainer");
+  var $sessionTabs = document.getElementById("sessionTabs");
+
+  function renderSessionTabs() {
+    if (!$sessionTabs || !$sessionTabsContainer) return;
+    var maxTabs = 15;
+    var order = App.store.jobOrder.slice(0, maxTabs);
+    
+    if (order.length === 0) {
+      $sessionTabsContainer.hidden = true;
+      return;
+    }
+    
+    $sessionTabsContainer.hidden = false;
+    var html = "";
+    
+    order.forEach(function (id) {
+      var job = App.store.jobsById[id];
+      if (!job) return;
+      
+      var isActive = id === App.store.activeJobId;
+      var name = job.molecule_name || job.user_query || id;
+      if (name.length > 20) name = name.substring(0, 20) + "...";
+      
+      var method = job.method || "";
+      var badge = "";
+      if (job.status === "running") badge = " ⏳";
+      else if (job.status === "failed") badge = " ❌";
+      
+      var displayStr = name + (method ? " (" + method + ")" : "") + badge;
+      
+      html += '<div class="session-tab' + (isActive ? ' session-tab--active' : '') + '" data-job-id="' + escAttr(id) + '" title="' + escAttr(job.user_query || "") + '">' +
+              esc(displayStr) +
+              '</div>';
+    });
+    
+    $sessionTabs.innerHTML = html;
+  }
+
+  if ($sessionTabs) {
+    $sessionTabs.addEventListener("click", function(e) {
+      var tab = e.target.closest(".session-tab");
+      if (!tab) return;
+      var jid = tab.getAttribute("data-job-id");
+      if (jid && jid !== App.store.activeJobId) {
+        App.setActiveJob(jid);
+      }
+    });
+  }
+
+  App.on("jobs:changed", function () {
+    renderHistory();
+    renderSessionTabs();
+  });
+
+  App.on("activeJob:changed", function () {
+    renderHistory();
+    renderSessionTabs();
+  });
+
+
+  /* ─── Init ─── */
+  fetchHistory();
+  renderHistory();
+
+  console.log(
+    "%c QCViz-MCP Enterprise v5 %c Loaded ",
+    "background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:bold;padding:3px 8px;border-radius:4px 0 0 4px;",
+    "background:#18181b;color:#a1a1aa;padding:3px 8px;border-radius:0 4px 4px 0;"
+  );
+
+})();

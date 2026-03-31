@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500" viewBox="0 0 1600 500" fill="none">
+  <defs>
+    <linearGradient id="qcvizGrad" x1="520" y1="70" x2="920" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="428" y1="250" x2="1178" y2="250" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C2410C"/>
+      <stop offset="0.5" stop-color="#EA580C"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="softBlue" x1="80" y1="70" x2="360" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D8ECFF"/>
+      <stop offset="1" stop-color="#B3D7FF"/>
+    </linearGradient>
+    <linearGradient id="softOrange" x1="1170" y1="90" x2="1525" y2="390" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD6A5"/>
+      <stop offset="1" stop-color="#FDBA74"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .title { font-family: "Segoe UI", Arial, sans-serif; font-size: 26px; font-weight: 700; }
+      .label { font-family: "Segoe UI", Arial, sans-serif; font-size: 20px; font-weight: 700; }
+      .body { font-family: "Segoe UI", Arial, sans-serif; font-size: 16px; font-weight: 600; }
+      .small { font-family: "Segoe UI", Arial, sans-serif; font-size: 14px; font-weight: 600; }
+      .tiny { font-family: "Segoe UI", Arial, sans-serif; font-size: 12px; font-weight: 600; }
+      .mono { font-family: "Consolas", "Courier New", monospace; font-size: 14px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="500" rx="28" fill="#F8FAFC"/>
+  <rect x="18" y="18" width="1564" height="464" rx="24" stroke="#E2E8F0" stroke-width="2"/>
+
+  <text x="84" y="64" class="title" fill="#6BA6D9">Question</text>
+  <text x="676" y="64" class="title" fill="#5B5FEF">QCViz</text>
+  <text x="1210" y="64" class="title" fill="#EA8A2B">Browser Result</text>
+
+  <g transform="translate(76 102)">
+    <circle cx="62" cy="34" r="30" fill="url(#softBlue)"/>
+    <circle cx="51" cy="29" r="6.5" fill="#EAF4FF" stroke="#334155" stroke-width="3"/>
+    <circle cx="73" cy="29" r="6.5" fill="#EAF4FF" stroke="#334155" stroke-width="3"/>
+    <path d="M57.5 29H66.5" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+    <path d="M46 72H78L87 120H37L46 72Z" fill="url(#softBlue)" stroke="#334155" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M50 88L62 112L74 88" stroke="#334155" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M102 92H118L126 120H98L102 92Z" fill="#FDBA74" stroke="#EA8A2B" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="112" cy="89" r="5" fill="#FDBA74" stroke="#EA8A2B" stroke-width="4"/>
+
+    <rect x="146" y="2" width="232" height="92" rx="24" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="4"/>
+    <text x="166" y="34" class="body" fill="#0F172A">"What is MEA?"</text>
+    <text x="166" y="58" class="body" fill="#0F172A">"Show HOMO for benzene"</text>
+    <text x="166" y="82" class="body" fill="#475569">Natural language + follow-up</text>
+
+    <rect x="146" y="114" width="248" height="120" rx="24" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="4"/>
+    <text x="166" y="146" class="label" fill="#334155">Input Can Be</text>
+    <text x="166" y="176" class="small" fill="#475569">• explanation question</text>
+    <text x="166" y="200" class="small" fill="#475569">• compute request</text>
+    <text x="166" y="224" class="small" fill="#475569">• ambiguous acronym</text>
+    <text x="166" y="248" class="small" fill="#475569">• follow-up on same structure</text>
+  </g>
+
+  <path d="M455 250H1125" stroke="url(#arrowGrad)" stroke-width="16" stroke-linecap="round"/>
+  <path d="M1125 250L1080 220V280L1125 250Z" fill="#F59E0B"/>
+
+  <g transform="translate(534 94)" filter="url(#shadow)">
+    <rect x="0" y="0" width="500" height="312" rx="36" fill="url(#qcvizGrad)"/>
+    <rect x="22" y="22" width="456" height="268" rx="28" fill="#FFFFFF" fill-opacity="0.10" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="2"/>
+
+    <g transform="translate(44 40)">
+      <rect x="0" y="0" width="84" height="84" rx="26" fill="#FFFFFF" fill-opacity="0.14"/>
+      <circle cx="35" cy="35" r="20" fill="#FFFFFF" fill-opacity="0.12"/>
+      <circle cx="35" cy="35" r="18" stroke="#FFFFFF" stroke-width="8" stroke-opacity="0.96"/>
+      <circle cx="35" cy="35" r="10" fill="#FFFFFF" fill-opacity="0.96"/>
+      <path d="M49 49L70 70" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+    </g>
+
+    <text x="148" y="78" class="title" fill="#FFFFFF">QCViz</text>
+    <text x="148" y="110" class="body" fill="#E9E7FF">All-in-one access path in one browser window</text>
+
+    <g transform="translate(44 148)">
+      <rect x="0" y="0" width="150" height="54" rx="18" fill="#FFFFFF"/>
+      <text x="75" y="33" text-anchor="middle" class="body" fill="#4F46E5">Understand</text>
+
+      <rect x="166" y="0" width="150" height="54" rx="18" fill="#FFFFFF"/>
+      <text x="241" y="33" text-anchor="middle" class="body" fill="#4F46E5">Ground</text>
+
+      <rect x="0" y="72" width="150" height="54" rx="18" fill="#FFFFFF"/>
+      <text x="75" y="105" text-anchor="middle" class="body" fill="#4F46E5">Recommend</text>
+
+      <rect x="166" y="72" width="150" height="54" rx="18" fill="#FFFFFF"/>
+      <text x="241" y="105" text-anchor="middle" class="body" fill="#4F46E5">Compute</text>
+
+      <rect x="332" y="36" width="126" height="54" rx="18" fill="#FFFFFF"/>
+      <text x="395" y="69" text-anchor="middle" class="body" fill="#4F46E5">Visualize</text>
+
+      <path d="M150 27H166" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+      <path d="M316 27H332" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+      <path d="M75 54V72" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+      <path d="M241 54V72" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+      <path d="M316 99H332" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+    </g>
+
+    <text x="44" y="268" class="small" fill="#F5F3FF">LLM interprets the request.</text>
+    <text x="260" y="268" class="small" fill="#F5F3FF">Rules lock scientific settings.</text>
+    <text x="44" y="290" class="small" fill="#F5F3FF">Every executable step is guarded before PySCF runs.</text>
+  </g>
+
+  <g transform="translate(1166 96)">
+    <rect x="0" y="0" width="356" height="284" rx="28" fill="#FFFFFF" stroke="#FDBA74" stroke-width="5" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="356" height="40" rx="28" fill="url(#softOrange)"/>
+    <circle cx="28" cy="20" r="5.5" fill="#EA8A2B"/>
+    <circle cx="48" cy="20" r="5.5" fill="#FB923C"/>
+    <circle cx="68" cy="20" r="5.5" fill="#FCD34D"/>
+
+    <rect x="24" y="62" width="178" height="152" rx="20" fill="#23324D"/>
+    <text x="44" y="90" class="mono" fill="#8EC5FF">&gt; 3D View</text>
+    <path d="M63 168L109 119L154 151L118 186Z" fill="none" stroke="#8EC5FF" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M109 119L125 94L174 105L154 151" fill="none" stroke="#8EC5FF" stroke-width="3.5" stroke-linejoin="round"/>
+    <circle cx="63" cy="168" r="7" fill="#F59E0B"/>
+    <circle cx="109" cy="119" r="7" fill="#C084FC"/>
+    <circle cx="154" cy="151" r="7" fill="#8EC5FF"/>
+    <circle cx="118" cy="186" r="7" fill="#F97316"/>
+    <circle cx="125" cy="94" r="7" fill="#E2E8F0"/>
+    <circle cx="174" cy="105" r="7" fill="#FBBF24"/>
+
+    <rect x="220" y="62" width="112" height="54" rx="16" fill="#FFF7ED" stroke="#FDBA74" stroke-width="3"/>
+    <text x="236" y="84" class="tiny" fill="#9A3412">Total energy</text>
+    <text x="236" y="103" class="body" fill="#0F172A">-230.71 Ha</text>
+
+    <rect x="220" y="126" width="112" height="42" rx="16" fill="#FFF7ED" stroke="#FDBA74" stroke-width="3"/>
+    <text x="236" y="152" class="tiny" fill="#9A3412">Convergence OK</text>
+
+    <rect x="220" y="178" width="112" height="36" rx="16" fill="#ECFDF5" stroke="#34D399" stroke-width="3"/>
+    <text x="236" y="201" class="tiny" fill="#047857">PySCF numbers only</text>
+
+    <rect x="24" y="228" width="308" height="34" rx="14" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="3"/>
+    <text x="40" y="250" class="tiny" fill="#1D4ED8">Follow-up reuses the same structure and session.</text>
+  </g>
+
+  <g transform="translate(1174 78)">
+    <circle cx="40" cy="38" r="38" fill="#EA8A2B"/>
+    <rect x="10" y="27" width="24" height="20" fill="none" stroke="#23324D" stroke-width="4"/>
+    <rect x="46" y="27" width="24" height="20" fill="none" stroke="#23324D" stroke-width="4"/>
+    <path d="M34 37H46" stroke="#23324D" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(1210 320)">
+    <rect x="0" y="0" width="294" height="78" rx="24" fill="#FFF7ED" stroke="#FDBA74" stroke-width="4"/>
+    <text x="28" y="32" class="label" fill="#9A3412">This is not one added feature.</text>
+    <text x="28" y="58" class="body" fill="#475569">It redesigns the access path from 7 steps to 1.</text>
+  </g>
+
+  <g transform="translate(566 416)">
+    <rect x="0" y="0" width="470" height="48" rx="24" fill="#FFFFFF" stroke="#D8B4FE" stroke-width="3"/>
+    <text x="235" y="30" text-anchor="middle" class="body" fill="#5B21B6">
+      Question -&gt; Molecule -&gt; Settings -&gt; PySCF -&gt; Result
+    </text>
+  </g>
+</svg>

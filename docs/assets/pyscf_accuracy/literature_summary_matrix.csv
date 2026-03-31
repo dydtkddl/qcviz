@@ -1,0 +1,8 @@
+비교 대상,비교 항목,결과,주요 출처
+PySCF/GPU4PySCF vs Q-Chem 6.1,DFT 에너지 (다양한 XC/basis),수 μHartree 이내 일치,Wu et al. (2024) arXiv:2404.09452
+GPU4PySCF vs ORCA/LSDalton,"Total energy, atomization energy (pc-1,2,3)",수 μHartree 이내 일치,Li et al. (2025) J. Phys. Chem. A
+PySCF vs GAMESS,S22 비공유결합 벤치마크,"정확도 유지, 성능 비교 수행",Pu et al. (2025) APL Comp. Phys.
+PySCF vs SIESTA,38-atom DFT (RPBE/DZP),"Chemical accuracy 유지, 3.7~390× 속도↑",Sahara et al. (2025) SciPy Proc.
+PySCF vs Gaussian/GAMESS/NWChem,PBE/6-31G** 에너지,~2.4 mHartree 차이 (그리드 설정 차이),GitHub #688
+GPU4PySCF CPU vs GPU,r2SCAN/def2-TZVP 등,Density fitting 오차 이하로 일치,Rowan Blog (2025)
+PySCF vs ORCA 직접 비교,DFT 에너지 전용 벤치마크,전용 논문은 아직 미확인,—

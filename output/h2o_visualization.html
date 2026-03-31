@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H2O 분자 시각화 - 양자화학 MCP 서버</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .viewer-wrapper {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .viewer-container {
+            width: 600px;
+            height: 400px;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+        }
+        .info-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .info-panel h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 5px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .data-table th, .data-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1557b0;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>물(H<sub>2</sub>O) 분자 전수 시각화</h1>
+        
+        <div class="viewer-wrapper">
+            <div id="viewer" class="viewer-container"></div>
+            
+            <div class="info-panel">
+                <h2>분자 정보 (Molecule Info)</h2>
+                <p><strong>화학식:</strong> H<sub>2</sub>O</p>
+                <p><strong>분자량:</strong> 18.015 g/mol</p>
+                <p><strong>대칭군:</strong> C<sub>2v</sub></p>
+                
+                <h2>원자 좌표 (XYZ Coordinates)</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Atom</th>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Z</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>O</td><td>0.0000</td><td>0.0000</td><td>0.1178</td></tr>
+                        <tr><td>H</td><td>0.0000</td><td>0.7570</td><td>-0.4693</td></tr>
+                        <tr><td>H</td><td>0.0000</td><td>-0.7570</td><td>-0.4693</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="changeStyle('stick')">Stick</button>
+            <button onclick="changeStyle('sphere')">Sphere (VDW)</button>
+            <button onclick="changeStyle('ballAndStick')">Ball and Stick</button>
+            <button onclick="toggleSurface()">Toggle Surface</button>
+            <button onclick="resetView()">Reset View</button>
+        </div>
+
+        <div class="footer">
+            양자화학 시각화 MCP 서버 - H2O 전수 시각화 출력물
+        </div>
+    </div>
+
+    <script>
+        let viewer;
+        let surface = null;
+        const xyzData = `3
+Water molecule
+O          0.00000        0.00000        0.11779
+H          0.00000        0.75700       -0.46930
+H          0.00000       -0.75700       -0.46930`;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            viewer = $3Dmol.createViewer("viewer", {
+                backgroundColor: "black"
+            });
+            
+            viewer.addModel(xyzData, "xyz");
+            viewer.setStyle({}, {stick: {radius: 0.15}, sphere: {scale: 0.25}});
+            viewer.addLabels({content: "O", position: {x: 0, y: 0, z: 0.1178}, fontColor: "white", fontSize: 14});
+            viewer.addLabels({content: "H", position: {x: 0, y: 0.7570, z: -0.4693}, fontColor: "white", fontSize: 14});
+            viewer.addLabels({content: "H", position: {x: 0, y: -0.7570, z: -0.4693}, fontColor: "white", fontSize: 14});
+            
+            viewer.zoomTo();
+            viewer.render();
+        });
+
+        function changeStyle(style) {
+            viewer.removeAllStyles();
+            if (style === 'stick') {
+                viewer.setStyle({}, {stick: {radius: 0.2}});
+            } else if (style === 'sphere') {
+                viewer.setStyle({}, {sphere: {}});
+            } else if (style === 'ballAndStick') {
+                viewer.setStyle({}, {stick: {radius: 0.15}, sphere: {scale: 0.25}});
+            }
+            viewer.render();
+        }
+
+        function toggleSurface() {
+            if (surface) {
+                viewer.removeSurface(surface);
+                surface = null;
+            } else {
+                surface = viewer.addSurface($3Dmol.SurfaceType.VDW, {
+                    opacity: 0.5,
+                    color: "lightblue"
+                });
+            }
+            viewer.render();
+        }
+
+        function resetView() {
+            viewer.zoomTo();
+            viewer.render();
+        }
+    </script>
+</body>
+</html>

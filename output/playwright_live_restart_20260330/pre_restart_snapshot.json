@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-03-30T20:23:49+0900",
+  "checks": {
+    "qcviz_health": {
+      "ok": true,
+      "status": 200,
+      "body": "{\"ok\":true,\"name\":\"QCViz-MCP\",\"version\":\"v2\",\"timestamp\":1774869829.1290562,\"static_dir\":\"/mnt/d/20260305_양자화학시각화MCP서버구축/version03/src/qcviz_mcp/web/static\",\"templates_dir\":\"/mnt/d/20260305_양자화학시각화MCP서버구축/version03/src/qcviz_mcp/web/templates\",\"has_static\":true,\"has_templates\":true,\"session_auth\":{\"session_count\":3,\"ttl_seconds\":604800,\"max_sessions\":500"
+    },
+    "qcviz_root": {
+      "ok": true,
+      "status": 200,
+      "body": "<!doctype html>\n<html lang=\"en\" data-theme=\"dark\">\n  <head>\n    <script>\n      (function (g, d) {\n        var path = (g.location && g.location.pathname) || \"/\";\n        var root = path === \"/\" ? \"\" : path.replace(/\\/$/, \"\");\n        if (root === \"/\") root = \"\";\n        g.__ROOT_PATH = root;\n        g.QCVIZ_API_PREFIX = root;\n        d.write('<base href=\"' + (root || \"\") + '/\">');\n      })(window, "
+    },
+    "molchat_frontend": {
+      "ok": true,
+      "status": 200,
+      "body": "<!DOCTYPE html><html lang=\"ko\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no\"/><link rel=\"stylesheet\" href=\"/molchat/_next/static/css/c6bcde703f2a7f85.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/molchat/_next/static/chunks/webpack-72a75a88d3b50cf3.js\""
+    },
+    "molchat_live": {
+      "ok": true,
+      "status": 200,
+      "body": "{\"status\":\"alive\"}"
+    },
+    "molchat_ready": {
+      "ok": true,
+      "status": 200,
+      "body": "{\"status\":\"ready\"}"
+    }
+  }
+}

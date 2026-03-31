@@ -1,0 +1,882 @@
+/* ═══════════════════════════════════════════
+   QCViz-MCP Enterprise v5 — Results Module
+   (Fixed: field name alignment with backend)
+   ═══════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  var App = window.QCVizApp;
+  if (!App) return;
+
+  var TAB_ORDER = [
+    ["summary", "Summary"],
+    ["geometry", "Geometry"],
+    ["orbital", "Orbital"],
+    ["esp", "ESP"],
+    ["charges", "Charges"],
+    ["json", "JSON"],
+  ];
+
+  var state = { result: null, jobId: null, activeTab: "summary", tabs: [] };
+
+  var sessionResults = [];
+  var activeSessionIdx = -1;
+
+  function buildResultLabel(result, index) {
+    var mol = result.molecule_name || result.structure_name || "Mol";
+    var type = "";
+
+    if (result.optimization_performed) {
+      type = "Opt";
+    } else if (result.orbital_cube_b64 || result.orbital_cube) {
+      var orbs = result.orbitals || [];
+      var selIdx = 0;
+      for (var i = 0; i < orbs.length; i++) {
+        if (orbs[i] && orbs[i].is_selected) { selIdx = i; break; }
+      }
+      var orbLabel = (orbs[selIdx] && orbs[selIdx].label) || "MO";
+      type = orbLabel;
+    } else if (result.esp_cube_b64 || result.esp_cube) {
+      type = "ESP";
+    } else {
+      type = result.method || "SCF";
+    }
+    return "#" + index + " " + mol + " " + type;
+  }
+
+  function renderSessionTabs() {
+    var $bar = document.getElementById("sessionTabBar");
+    if (!$bar) return;
+    $bar.innerHTML = "";
+    $bar.hidden = sessionResults.length <= 1;
+
+    for (var i = 0; i < sessionResults.length; i++) {
+      (function(idx) {
+        var entry = sessionResults[idx];
+        var $tab = document.createElement("button");
+        $tab.className = "session-tab" + (idx === activeSessionIdx ? " active" : "");
+        $tab.textContent = entry.label;
+        $tab.title = new Date(entry.timestamp).toLocaleTimeString();
+        $tab.setAttribute("data-idx", idx);
+
+        $tab.addEventListener("click", function () {
+          switchToSessionResult(idx);
+        });
+
+        var $close = document.createElement("span");
+        $close.className = "session-tab-close";
+        $close.textContent = "×";
+        $close.title = "이 결과 닫기";
+        $close.addEventListener("click", function (e) {
+          e.stopPropagation();
+          removeSessionResult(idx);
+        });
+
+        $tab.appendChild($close);
+        $bar.appendChild($tab);
+      })(i);
+    }
+  }
+
+  function switchToSessionResult(idx) {
+    if (idx < 0 || idx >= sessionResults.length) return;
+    if (idx === activeSessionIdx) return;
+    activeSessionIdx = idx;
+    var entry = sessionResults[idx];
+    state.result = entry.result;
+    state.jobId = entry.jobId;
+    
+    var available = getAvailableTabs(entry.result);
+    state.tabs = available;
+    if (available.indexOf(state.activeTab) === -1) {
+        state.activeTab = decideFocusTab(entry.result, available);
+    }
+    
+    renderSessionTabs();
+    renderTabs(available, state.activeTab);
+    renderContent(state.activeTab, entry.result);
+    App.emit("result:switched", { result: entry.result, jobId: entry.jobId });
+  }
+
+  function removeSessionResult(idx) {
+    if (idx < 0 || idx >= sessionResults.length) return;
+    sessionResults.splice(idx, 1);
+    if (sessionResults.length === 0) {
+      activeSessionIdx = -1;
+      state.result = null;
+      state.jobId = null;
+      renderSessionTabs();
+      if ($empty) $empty.hidden = false;
+      if ($tabs) $tabs.innerHTML = "";
+      if ($content) $content.innerHTML = "";
+      App.emit("result:cleared");
+      return;
+    }
+    if (idx === activeSessionIdx) {
+      activeSessionIdx = Math.min(idx, sessionResults.length - 1);
+      var entry = sessionResults[activeSessionIdx];
+      state.result = entry.result;
+      state.jobId = entry.jobId;
+      var available = getAvailableTabs(entry.result);
+      state.tabs = available;
+      if (available.indexOf(state.activeTab) === -1) {
+          state.activeTab = decideFocusTab(entry.result, available);
+      }
+      renderTabs(available, state.activeTab);
+      renderContent(state.activeTab, entry.result);
+    } else if (idx < activeSessionIdx) {
+      activeSessionIdx--;
+    }
+    renderSessionTabs();
+  }
+
+
+
+  var $tabs = document.getElementById("resultsTabs");
+  var $content = document.getElementById("resultsContent");
+  var $empty = document.getElementById("resultsEmpty");
+
+  function normalizeResult(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    var r = App.clone(raw);
+
+    /* ── energy aliases ── */
+    if (r.total_energy_hartree == null && r.energy != null)
+      r.total_energy_hartree = r.energy;
+
+    /* ── visualization normalization ── */
+    if (!r.visualization) r.visualization = {};
+    var viz = r.visualization;
+
+    /* Backend sends viz.xyz and viz.molecule_xyz, NOT viz.xyz_block */
+    if (!viz.xyz_block) {
+      viz.xyz_block =
+        viz.xyz || viz.molecule_xyz || r.xyz_block || r.xyz || null;
+    }
+
+    if (!viz.orbital_cube_b64 && r.orbital_cube_b64)
+      viz.orbital_cube_b64 = r.orbital_cube_b64;
+    if (!viz.orbital_info && r.orbital_info) viz.orbital_info = r.orbital_info;
+    if (!viz.esp_cube_b64 && r.esp_cube_b64) viz.esp_cube_b64 = r.esp_cube_b64;
+    if (!viz.density_cube_b64 && r.density_cube_b64)
+      viz.density_cube_b64 = r.density_cube_b64;
+
+    /* ── orbital sub-objects ── */
+    if (!viz.orbital_cube_b64 && viz.orbital && viz.orbital.cube_b64) {
+      viz.orbital_cube_b64 = viz.orbital.cube_b64;
+    }
+    if (!viz.esp_cube_b64 && viz.esp && viz.esp.cube_b64) {
+      viz.esp_cube_b64 = viz.esp.cube_b64;
+    }
+    if (!viz.density_cube_b64 && viz.density && viz.density.cube_b64) {
+      viz.density_cube_b64 = viz.density.cube_b64;
+    }
+
+    /* ── selected_orbital → orbital_info ── */
+    if (!viz.orbital_info && r.selected_orbital) {
+      viz.orbital_info = r.selected_orbital;
+    }
+
+    /* ── charges: backend returns [{atom_index, symbol, charge}, ...] ── */
+    /* Normalize to parallel arrays for easy rendering */
+    if (
+      r.mulliken_charges &&
+      r.mulliken_charges.length &&
+      typeof r.mulliken_charges[0] === "object"
+    ) {
+      r._mulliken_raw = r.mulliken_charges;
+      r.mulliken_charges = r.mulliken_charges.map(function (c) {
+        return c.charge != null ? c.charge : c;
+      });
+    }
+    if (
+      r.lowdin_charges &&
+      r.lowdin_charges.length &&
+      typeof r.lowdin_charges[0] === "object"
+    ) {
+      r._lowdin_raw = r.lowdin_charges;
+      r.lowdin_charges = r.lowdin_charges.map(function (c) {
+        return c.charge != null ? c.charge : c;
+      });
+    }
+    if (
+      r.partial_charges &&
+      r.partial_charges.length &&
+      typeof r.partial_charges[0] === "object"
+    ) {
+      r.partial_charges = r.partial_charges.map(function (c) {
+        return c.charge != null ? c.charge : c;
+      });
+    }
+
+    /* ── fallback aliases for old-style keys ── */
+    if (!r.mulliken_charges && r.charges) r.mulliken_charges = r.charges;
+    if (!r.atoms && r.geometry) r.atoms = r.geometry;
+
+    /* ── Build mo_energies / mo_occupations from orbitals array ── */
+    if (
+      (!r.mo_energies || !r.mo_energies.length) &&
+      r.orbitals &&
+      r.orbitals.length
+    ) {
+      var sorted = r.orbitals.slice().sort(function (a, b) {
+        return a.zero_based_index - b.zero_based_index;
+      });
+      r.mo_energies = sorted.map(function (o) {
+        return o.energy_hartree;
+      });
+      r.mo_occupations = sorted.map(function (o) {
+        return o.occupancy;
+      });
+      r._orbital_index_offset = sorted[0] ? sorted[0].zero_based_index : 0;
+      r._orbital_labels = sorted.map(function (o) {
+        return o.label;
+      });
+    }
+
+    return r;
+  }
+
+  function getAvailableTabs(r) {
+    if (!r) return [];
+    var a = ["summary"];
+    if (r.visualization.xyz_block || (r.atoms && r.atoms.length))
+      a.push("geometry");
+    if (
+      r.visualization.orbital_cube_b64 ||
+      (r.mo_energies && r.mo_energies.length) ||
+      (r.orbitals && r.orbitals.length)
+    )
+      a.push("orbital");
+    if (r.visualization.esp_cube_b64) a.push("esp");
+    if (
+      (r.mulliken_charges && r.mulliken_charges.length) ||
+      (r.lowdin_charges && r.lowdin_charges.length)
+    )
+      a.push("charges");
+    a.push("json");
+    return a;
+  }
+
+  function decideFocusTab(r, a) {
+    /* Use backend's advisor_focus_tab if valid */
+    var advised =
+      r.advisor_focus_tab ||
+      r.default_tab ||
+      (r.visualization &&
+        r.visualization.defaults &&
+        r.visualization.defaults.focus_tab);
+    if (advised && a.indexOf(advised) !== -1) return advised;
+    if (a.indexOf("orbital") !== -1) return "orbital";
+    if (a.indexOf("esp") !== -1) return "esp";
+    if (a.indexOf("geometry") !== -1) return "geometry";
+    return "summary";
+  }
+
+  function renderTabs(available, active) {
+    if (!$tabs) return;
+    $tabs.innerHTML = "";
+    TAB_ORDER.forEach(function (pair) {
+      if (available.indexOf(pair[0]) === -1) return;
+      var btn = document.createElement("button");
+      btn.className =
+        "tab-btn" + (pair[0] === active ? " tab-btn--active" : "");
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("data-tab", pair[0]);
+      btn.textContent = pair[1];
+      btn.addEventListener("click", function () {
+        switchTab(pair[0]);
+      });
+      $tabs.appendChild(btn);
+    });
+  }
+
+  function switchTab(key) {
+    if (key === state.activeTab) return;
+    state.activeTab = key;
+    if ($tabs)
+      $tabs.querySelectorAll(".tab-btn").forEach(function (b) {
+        b.classList.toggle("tab-btn--active", b.dataset.tab === key);
+      });
+    renderContent(key, state.result);
+    saveSnapshot();
+  }
+
+  function esc(s) {
+    if (s == null) return "";
+    var d = document.createElement("div");
+    d.textContent = String(s);
+    return d.innerHTML;
+  }
+
+  function metric(label, value, unit) {
+    return (
+      '<div class="result-metric"><span class="result-metric__label">' +
+      esc(label) +
+      '</span><span class="result-metric__value">' +
+      esc(String(value)) +
+      (unit
+        ? '<span class="result-metric__unit"> ' + esc(unit) + "</span>"
+        : "") +
+      "</span></div>"
+    );
+  }
+
+  function renderContent(tab, r) {
+    if (!r || !$content) {
+      if ($content) $content.innerHTML = "";
+      return;
+    }
+    var html = '<div class="result-card">';
+    switch (tab) {
+      case "summary":
+        html += renderSummary(r);
+        break;
+      case "geometry":
+        html += renderGeometry(r);
+        break;
+      case "orbital":
+        html += renderOrbital(r);
+        break;
+      case "esp":
+        html += renderESP(r);
+        break;
+      case "charges":
+        html += renderCharges(r);
+        break;
+      case "json":
+        html += renderJSON(r);
+        break;
+    }
+    html += "</div>";
+    $content.innerHTML = html;
+  }
+
+    function renderSummary(r) {
+    var html = '<div class="metrics-grid">';
+    var has = false;
+    var m = [];
+
+    if (r.structure_name || r.molecule_name || r.molecule)
+      m.push([
+        "Molecule",
+        r.structure_name || r.molecule_name || r.molecule,
+        "",
+      ]);
+    if (r.formula) m.push(["Formula", r.formula, ""]);
+    if (r.method) m.push(["Method", r.method, ""]);
+    /* Backend sends "basis", not "basis_set" */
+    if (r.basis || r.basis_set)
+      m.push(["Basis Set", r.basis || r.basis_set, ""]);
+    if (r.n_atoms != null) m.push(["Atoms", r.n_atoms, ""]);
+    if (r.scf_converged != null)
+      m.push(["SCF Converged", r.scf_converged ? "Yes" : "No", ""]);
+
+    if (r.total_energy_hartree != null)
+      m.push(["Total Energy", Number(r.total_energy_hartree).toFixed(8), "Ha"]);
+    if (r.total_energy_ev != null)
+      m.push(["Energy", Number(r.total_energy_ev).toFixed(4), "eV"]);
+
+    /* Backend sends homo_energy_hartree / homo_energy_ev, NOT homo_energy */
+    if (r.homo_energy_hartree != null)
+      m.push(["HOMO", Number(r.homo_energy_hartree).toFixed(6), "Ha"]);
+    else if (r.homo_energy != null)
+      m.push(["HOMO", Number(r.homo_energy).toFixed(6), "Ha"]);
+
+    if (r.lumo_energy_hartree != null)
+      m.push(["LUMO", Number(r.lumo_energy_hartree).toFixed(6), "Ha"]);
+    else if (r.lumo_energy != null)
+      m.push(["LUMO", Number(r.lumo_energy).toFixed(6), "Ha"]);
+
+    /* Backend sends orbital_gap_hartree / orbital_gap_ev, NOT homo_lumo_gap */
+    if (r.orbital_gap_hartree != null)
+      m.push(["HOMO-LUMO Gap", Number(r.orbital_gap_hartree).toFixed(6), "Ha"]);
+    else if (r.homo_lumo_gap != null)
+      m.push(["HOMO-LUMO Gap", Number(r.homo_lumo_gap).toFixed(6), "Ha"]);
+
+    if (r.orbital_gap_ev != null)
+      m.push(["H-L Gap", Number(r.orbital_gap_ev).toFixed(4), "eV"]);
+    else if (r.homo_lumo_gap_ev != null)
+      m.push(["H-L Gap", Number(r.homo_lumo_gap_ev).toFixed(4), "eV"]);
+
+    if (r.dipole_moment != null) {
+      var dm;
+      if (
+        typeof r.dipole_moment === "object" &&
+        r.dipole_moment.magnitude != null
+      ) {
+        dm = Number(r.dipole_moment.magnitude).toFixed(4);
+      } else if (Array.isArray(r.dipole_moment)) {
+        dm = r.dipole_moment
+          .map(function (v) {
+            return Number(v).toFixed(4);
+          })
+          .join(", ");
+      } else {
+        dm = Number(r.dipole_moment).toFixed(4);
+      }
+      m.push(["Dipole Moment", dm, "Debye"]);
+    }
+
+    m.forEach(function (x) {
+      html += metric(x[0], x[1], x[2]);
+      has = true;
+    });
+    html += "</div>";
+    if (!has)
+      html =
+        '<p class="result-note">No summary data available. Check the JSON tab.</p>';
+    return html;
+  }
+
+  function renderGeometry(r) {
+    var atoms = r.atoms || [];
+    if (!atoms.length && !r.visualization.xyz_block)
+      return '<p class="result-note">No geometry data.</p>';
+    var html = "";
+
+    /* Geometry summary from backend */
+    var gs = r.geometry_summary;
+    if (gs) {
+      html += '<div class="metrics-grid" style="margin-bottom:var(--sp-4)">';
+      if (gs.formula) html += metric("Formula", gs.formula, "");
+      if (gs.n_atoms != null) html += metric("Atoms", gs.n_atoms, "");
+      if (gs.bond_count != null) html += metric("Bonds", gs.bond_count, "");
+      if (gs.bond_length_mean_angstrom != null)
+        html += metric(
+          "Avg Bond",
+          Number(gs.bond_length_mean_angstrom).toFixed(4),
+          "\u00C5",
+        );
+      html += "</div>";
+    }
+
+    if (atoms.length) {
+      html +=
+        '<table class="result-table"><thead><tr><th>#</th><th>Element</th><th>X (\u00C5)</th><th>Y (\u00C5)</th><th>Z (\u00C5)</th></tr></thead><tbody>';
+      atoms.forEach(function (a, i) {
+        var el = a.element || a.symbol || a[0] || "?";
+        html +=
+          "<tr><td>" +
+          (i + 1) +
+          "</td><td>" +
+          esc(el) +
+          "</td><td>" +
+          Number(a.x != null ? a.x : a[1] || 0).toFixed(6) +
+          "</td><td>" +
+          Number(a.y != null ? a.y : a[2] || 0).toFixed(6) +
+          "</td><td>" +
+          Number(a.z != null ? a.z : a[3] || 0).toFixed(6) +
+          "</td></tr>";
+      });
+      html += "</tbody></table>";
+    }
+    if (r.visualization.xyz_block) {
+      html +=
+        '<details style="margin-top:var(--sp-4)"><summary>Raw XYZ Block</summary><pre class="result-json" style="margin-top:var(--sp-2)">' +
+        esc(r.visualization.xyz_block) +
+        "</pre></details>";
+    }
+    return html;
+  }
+
+  function renderOrbital(r) {
+    var info =
+      (r.visualization && r.visualization.orbital_info) ||
+      r.selected_orbital ||
+      r.orbital_info ||
+      {};
+    var html = '<div class="metrics-grid">';
+    if (info.label) html += metric("Selected", info.label, "");
+    if (info.energy_hartree != null)
+      html += metric("Energy", Number(info.energy_hartree).toFixed(6), "Ha");
+    if (info.energy_ev != null)
+      html += metric("Energy", Number(info.energy_ev).toFixed(4), "eV");
+    if (info.occupancy != null) html += metric("Occupancy", info.occupancy, "");
+    if (info.spin) html += metric("Spin", info.spin, "");
+    html += "</div>";
+
+    /* Use orbitals array from backend if available */
+    var orbitals = r.orbitals || [];
+    var moE = r.mo_energies || [];
+    var moO = r.mo_occupations || [];
+    var offset = r._orbital_index_offset || 0;
+    var labels = r._orbital_labels || [];
+
+    if (orbitals.length > 0 || moE.length > 0) {
+      html +=
+        '<div class="energy-diagram"><div class="energy-diagram__title">MO Energy Levels</div>';
+
+      if (orbitals.length > 0 && moE.length === 0) {
+        /* Render directly from orbitals array */
+        orbitals.forEach(function (orb) {
+          var occ = orb.occupancy || 0;
+          var cls = "energy-level";
+          var lbl = orb.label || "MO " + orb.index;
+          if (lbl === "HOMO") cls += " energy-level--homo";
+          else if (lbl === "LUMO") cls += " energy-level--lumo";
+          else if (occ > 0) cls += " energy-level--occupied";
+          else cls += " energy-level--virtual";
+          html +=
+            '<div class="' +
+            cls +
+            '"><span class="energy-level__bar"></span><span class="energy-level__label">' +
+            esc(lbl) +
+            '</span><span class="energy-level__energy">' +
+            Number(orb.energy_hartree).toFixed(4) +
+            ' Ha</span><span class="energy-level__occ">' +
+            (occ > 0
+              ? "\u2191\u2193".substring(0, Math.min(2, Math.round(occ)))
+              : "\u00B7") +
+            "</span></div>";
+        });
+      } else {
+        /* Legacy path: mo_energies + mo_occupations arrays */
+        var homoIdx = -1;
+        for (var i = 0; i < moE.length; i++) {
+          if (moO[i] != null && moO[i] > 0) homoIdx = i;
+        }
+        var lumoIdx =
+          homoIdx >= 0 && homoIdx + 1 < moE.length ? homoIdx + 1 : -1;
+        var start = moE.length > 16 ? Math.max(0, homoIdx - 5) : 0;
+        var end =
+          moE.length > 16
+            ? Math.min(moE.length, (lumoIdx >= 0 ? lumoIdx : homoIdx) + 6)
+            : moE.length;
+        for (var j = start; j < end; j++) {
+          var realIdx = j + offset;
+          var occ = moO[j] != null ? moO[j] : 0;
+          var cls = "energy-level";
+          var lbl = labels[j] || "MO " + realIdx;
+          if (lbl === "HOMO") {
+            cls += " energy-level--homo";
+          } else if (lbl === "LUMO") {
+            cls += " energy-level--lumo";
+          } else if (lbl.indexOf("HOMO") === 0) {
+            cls += " energy-level--occupied";
+          } else if (lbl.indexOf("LUMO") === 0) {
+            cls += " energy-level--virtual";
+          } else if (occ > 0) {
+            cls += " energy-level--occupied";
+          } else {
+            cls += " energy-level--virtual";
+          }
+          html +=
+            '<div class="' +
+            cls +
+            '"><span class="energy-level__bar"></span><span class="energy-level__label">' +
+            esc(lbl) +
+            '</span><span class="energy-level__energy">' +
+            Number(moE[j]).toFixed(4) +
+            ' Ha</span><span class="energy-level__occ">' +
+            (occ > 0
+              ? "\u2191\u2193".substring(0, Math.min(2, Math.round(occ)))
+              : "\u00B7") +
+            "</span></div>";
+        }
+      }
+      html += "</div>";
+    }
+    html +=
+      '<p class="result-note">The orbital is rendered in the 3D viewer. Use the controls to adjust isosurface and select orbitals.</p>';
+    return html;
+  }
+
+  function renderESP(r) {
+    var html = '<div class="metrics-grid">';
+    if (r.esp_auto_range_au != null) {
+      html += metric(
+        "ESP Range",
+        "\u00B1" + Number(r.esp_auto_range_au).toFixed(4),
+        "a.u.",
+      );
+    }
+    if (r.esp_auto_range_kcal != null) {
+      html += metric(
+        "ESP Range",
+        "\u00B1" + Number(r.esp_auto_range_kcal).toFixed(2),
+        "kcal/mol",
+      );
+    }
+    if (r.esp_preset) {
+      html += metric("Color Scheme", r.esp_preset, "");
+    }
+    /* Legacy */
+    if (r.esp_range && !r.esp_auto_range_au) {
+      html +=
+        metric("ESP Min", Number(r.esp_range[0]).toFixed(4), "a.u.") +
+        metric("ESP Max", Number(r.esp_range[1]).toFixed(4), "a.u.");
+    }
+    html += "</div>";
+    html +=
+      '<p class="result-note">The ESP surface is rendered in the 3D viewer. Use opacity slider to adjust.</p>';
+    return html;
+  }
+
+  function renderCharges(r) {
+  var mull = r.mulliken_charges || [];
+  var lowd = r.lowdin_charges || [];
+  var atoms = r.atoms || [];
+  if (!mull.length && !lowd.length)
+    return '<p class="result-note">No charge data.</p>';
+
+  var primary = mull.length ? mull : lowd;
+  var secondary = mull.length && lowd.length ? lowd : null;
+  var primaryLabel = mull.length ? "Mulliken" : "Löwdin";
+  var secondaryLabel = secondary ? "Löwdin" : null;
+
+  function chargeVal(arr, i) {
+    var v = arr[i];
+    if (v == null) return null;
+    if (typeof v === "object") return v.charge != null ? Number(v.charge) : null;
+    return Number(v);
+  }
+
+  var maxAbs = 0;
+  var n = Math.max(primary.length, secondary ? secondary.length : 0);
+  for (var i = 0; i < n; i++) {
+    var pv = chargeVal(primary, i);
+    if (pv != null && Math.abs(pv) > maxAbs) maxAbs = Math.abs(pv);
+    if (secondary) {
+      var sv = chargeVal(secondary, i);
+      if (sv != null && Math.abs(sv) > maxAbs) maxAbs = Math.abs(sv);
+    }
+  }
+  if (maxAbs < 0.0001) maxAbs = 0.5;
+
+  var html = '';
+
+  html += '<div class="butterfly-legend">';
+  html += '<span class="butterfly-legend__item">' +
+    '<span class="butterfly-legend__swatch butterfly-legend__swatch--neg"></span>' +
+    'Negative (−)</span>';
+  html += '<span class="butterfly-legend__item">' +
+    '<span class="butterfly-legend__swatch butterfly-legend__swatch--pos"></span>' +
+    'Positive (+)</span>';
+  if (secondary) {
+    html += '<span class="butterfly-legend__item" style="margin-left:auto;">' +
+      '<span style="font-size:11px;color:var(--text-3);">' +
+      '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:4px;"></span>' +
+      primaryLabel +
+      ' &nbsp; <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-2);margin-right:4px;"></span>' +
+      secondaryLabel +
+      '</span></span>';
+  }
+  html += '</div>';
+
+  html += '<div class="butterfly-chart">';
+
+  for (var i = 0; i < n; i++) {
+    var el = atoms[i]
+      ? (atoms[i].element || atoms[i].symbol || atoms[i][0] || "?")
+      : "?";
+
+    var pv = chargeVal(primary, i);
+    var sv = secondary ? chargeVal(secondary, i) : null;
+
+    html += '<div class="butterfly-row">';
+
+    html += '<div class="butterfly-bar-area butterfly-bar-area--neg">';
+    if (pv != null && pv < 0) {
+      var pctP = (Math.abs(pv) / plotMax * 100).toFixed(1);
+      html += '<div class="butterfly-bar butterfly-bar--neg-primary" ' +
+        'style="width:' + pctP + '%" ' +
+        'title="' + primaryLabel + ': ' + pv.toFixed(6) + '">' +
+        '<span class="butterfly-bar__val">' + pv.toFixed(4) + '</span>' +
+        '</div>';
+    }
+    if (sv != null && sv < 0) {
+      var pctS = (Math.abs(sv) / plotMax * 100).toFixed(1);
+      html += '<div class="butterfly-bar butterfly-bar--neg-secondary" ' +
+        'style="width:' + pctS + '%" ' +
+        'title="' + secondaryLabel + ': ' + sv.toFixed(6) + '"></div>';
+    }
+    html += '</div>';
+
+    html += '<div class="butterfly-label">' +
+      '<span class="butterfly-label__idx">' + (i + 1) + '</span>' +
+      '<span class="butterfly-label__el">' + esc(el) + '</span>' +
+      '</div>';
+
+    html += '<div class="butterfly-bar-area butterfly-bar-area--pos">';
+    if (pv != null && pv >= 0) {
+      var pctP = (Math.abs(pv) / plotMax * 100).toFixed(1);
+      html += '<div class="butterfly-bar butterfly-bar--pos-primary" ' +
+        'style="width:' + pctP + '%" ' +
+        'title="' + primaryLabel + ': ' + (pv >= 0 ? "+" : "") + pv.toFixed(6) + '">' +
+        '<span class="butterfly-bar__val">+' + pv.toFixed(4) + '</span>' +
+        '</div>';
+    }
+    if (sv != null && sv >= 0) {
+      var pctS = (Math.abs(sv) / plotMax * 100).toFixed(1);
+      html += '<div class="butterfly-bar butterfly-bar--pos-secondary" ' +
+        'style="width:' + pctS + '%" ' +
+        'title="' + secondaryLabel + ': +' + sv.toFixed(6) + '"></div>';
+    }
+    html += '</div>';
+
+    html += '</div>'; 
+  }
+
+  html += '</div>'; 
+
+  html += '<details style="margin-top:var(--sp-4)">';
+  html += '<summary>Detailed Charge Table</summary>';
+  html += '<table class="result-table" style="margin-top:var(--sp-2)"><thead><tr>' +
+    '<th>#</th><th>Element</th>';
+  if (mull.length) html += '<th>Mulliken</th>';
+  if (lowd.length) html += '<th>Löwdin</th>';
+  html += '</tr></thead><tbody>';
+  for (var i = 0; i < n; i++) {
+    var el = atoms[i]
+      ? (atoms[i].element || atoms[i].symbol || atoms[i][0] || "?")
+      : "?";
+    html += '<tr><td>' + (i + 1) + '</td><td>' + esc(el) + '</td>';
+    if (mull.length) {
+      var mv = chargeVal(mull, i);
+      html += '<td>' + (mv != null ? mv.toFixed(6) : '—') + '</td>';
+    }
+    if (lowd.length) {
+      var lv = chargeVal(lowd, i);
+      html += '<td>' + (lv != null ? lv.toFixed(6) : '—') + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></details>';
+
+  return html;
+}
+
+  function renderJSON(r) {
+    var json;
+    /* Remove huge base64 fields for readability */
+    var cleaned = App.clone(r);
+    var viz = cleaned.visualization || {};
+    if (viz.orbital_cube_b64)
+      viz.orbital_cube_b64 =
+        "[base64 data omitted, " + viz.orbital_cube_b64.length + " chars]";
+    if (viz.esp_cube_b64)
+      viz.esp_cube_b64 =
+        "[base64 data omitted, " + viz.esp_cube_b64.length + " chars]";
+    if (viz.density_cube_b64)
+      viz.density_cube_b64 =
+        "[base64 data omitted, " + viz.density_cube_b64.length + " chars]";
+    if (cleaned.orbital_cube_b64) cleaned.orbital_cube_b64 = "[omitted]";
+    if (cleaned.esp_cube_b64) cleaned.esp_cube_b64 = "[omitted]";
+    if (cleaned.density_cube_b64) cleaned.density_cube_b64 = "[omitted]";
+    if (viz.orbital && viz.orbital.cube_b64) viz.orbital.cube_b64 = "[omitted]";
+    if (viz.esp && viz.esp.cube_b64) viz.esp.cube_b64 = "[omitted]";
+    if (viz.density && viz.density.cube_b64) viz.density.cube_b64 = "[omitted]";
+    delete cleaned._mulliken_raw;
+    delete cleaned._lowdin_raw;
+    delete cleaned._orbital_index_offset;
+    delete cleaned._orbital_labels;
+    try {
+      json = JSON.stringify(cleaned, null, 2);
+    } catch (_) {
+      json = String(r);
+    }
+    return '<pre class="result-json">' + esc(json) + "</pre>";
+  }
+
+  function saveSnapshot() {
+    if (!state.jobId) return;
+    var existing = App.getUISnapshot(state.jobId) || {};
+    App.saveUISnapshot(
+      state.jobId,
+      Object.assign({}, existing, {
+        activeTab: state.activeTab,
+        timestamp: Date.now(),
+      }),
+    );
+  }
+
+  function restoreSnapshot(jobId) {
+    var snap = App.getUISnapshot(jobId);
+    if (snap && snap.activeTab) state.activeTab = snap.activeTab;
+  }
+
+  function update(result, jobId, source) {
+    var normalized = normalizeResult(result);
+    
+    if (normalized) {
+      var label = buildResultLabel(normalized, sessionResults.length + 1);
+      var entry = {
+        id: jobId || ("local-" + Date.now()),
+        label: label,
+        result: normalized,
+        jobId: jobId,
+        timestamp: Date.now(),
+      };
+      
+      // Check if it's an update to an existing job in the session
+      var existingIdx = -1;
+      if (jobId) {
+          for(var i=0; i<sessionResults.length; i++){
+              if (sessionResults[i].jobId === jobId) { existingIdx = i; break; }
+          }
+      }
+      
+      if (existingIdx >= 0) {
+          sessionResults[existingIdx] = entry;
+          if (activeSessionIdx === existingIdx) {
+              state.result = normalized;
+          }
+      } else {
+          sessionResults.push(entry);
+          activeSessionIdx = sessionResults.length - 1;
+          state.result = normalized;
+          state.jobId = jobId || null;
+      }
+    } else {
+        state.result = null;
+        state.jobId = null;
+    }
+    
+    renderSessionTabs();
+    if (!normalized) {
+      if ($empty) $empty.hidden = false;
+      if ($tabs) $tabs.innerHTML = "";
+      if ($content) $content.innerHTML = "";
+      return;
+    }
+    if ($empty) $empty.hidden = true;
+    var available = getAvailableTabs(normalized);
+    state.tabs = available;
+    if (source === "history" && jobId) {
+      restoreSnapshot(jobId);
+      if (available.indexOf(state.activeTab) === -1)
+        state.activeTab = decideFocusTab(normalized, available);
+    } else {
+      state.activeTab = decideFocusTab(normalized, available);
+    }
+    renderTabs(available, state.activeTab);
+    renderContent(state.activeTab, normalized);
+    saveSnapshot();
+  }
+
+  App.on("result:changed", function (d) {
+    update(d.result, d.jobId, d.source);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var tag = document.activeElement ? document.activeElement.tagName : "";
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    var num = parseInt(e.key, 10);
+    if (
+      num >= 1 &&
+      num <= 6 &&
+      state.tabs.length > 0 &&
+      num - 1 < state.tabs.length
+    ) {
+      switchTab(state.tabs[num - 1]);
+    }
+  });
+
+  App.results = {
+    getState: function () {
+      return Object.assign({}, state);
+    },
+    switchTab: switchTab,
+  };
+})();

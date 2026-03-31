@@ -1,0 +1,4422 @@
+{
+  "_metadata": {
+    "description": "Rule-based DFT functional recommendation decision tree with backward-compatible advisory metadata",
+    "sources": [
+      {
+        "doi": "10.1002/anie.202205735",
+        "short": "Bursch et al. 2022 (best-practice DFT)"
+      },
+      {
+        "doi": "10.1039/C7CP04913G",
+        "short": "Goerigk et al. 2017 (GMTKN55)"
+      },
+      {
+        "doi": "10.1080/00268976.2017.1333644",
+        "short": "Mardirossian and Head-Gordon 2017"
+      },
+      {
+        "doi": "10.1039/D4SC05471G",
+        "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+      },
+      {
+        "doi": "10.1039/D4OB00532E",
+        "short": "2024 organic-radicals review/benchmark"
+      },
+      {
+        "doi": "10.1021/acs.jpca.5c02406",
+        "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+      },
+      {
+        "doi": "10.1063/5.0040021",
+        "short": "Grimme et al. 2021 (r2SCAN-3c)"
+      },
+      {
+        "doi": "10.1021/acs.jctc.4c01783",
+        "short": "2025 lanthanide structure benchmark"
+      }
+    ],
+    "version": "1.2.1",
+    "last_modified": "2026-03-30",
+    "research_executed_on": "2026-03-30",
+    "research_window": {
+      "journals_and_reviews": "2017-01-01 to 2026-03-30",
+      "community_and_runtime_docs": "2024-01-01 to 2026-03-30"
+    },
+    "upgrade_notes": "Cross-validated two proposal sets. Shipped defaults kept conservative; metadata and missing purpose coverage upgraded; unsupported high-end options remain alternatives only. Patch 3 alignment: patch_2 adopted as the safer baseline; wB97X-D downgraded to caution/future-candidate status pending live PySCF validation; 3d_tm.single_point confidence aligned to the stricter SSE17 reading."
+  },
+  "organic_small": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "B3LYP-D3(BJ)/def2-SVP is a robust, well-benchmarked combination for small organic molecules. B3LYP is the most widely validated hybrid functional with 20% Hartree-Fock exchange. The D3(BJ) dispersion correction (Grimme 2011) eliminates the known over-repulsiveness of uncorrected B3LYP. def2-SVP provides a balanced double-zeta description with polarization functions on all atoms. GMTKN55 WTMAD-2 for B3LYP-D3(BJ) is 6.42 kcal/mol.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022 (best-practice DFT)"
+        },
+        {
+          "doi": "10.1002/jcc.21759",
+          "short": "Grimme et al. 2011 (D3BJ)"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005 (def2)"
+        }
+      ],
+      "confidence": 0.9,
+      "applicability": "general-purpose baseline for neutral closed-shell small organic molecules.",
+      "avoid_when": [
+        "charged species",
+        "open-shell radicals",
+        "transition-metal systems"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus for geometry-first B3LYP/PBE0-style workflows.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "g",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Advisory composite-method screening option only; keep outside shipped defaults until composite support is productized.",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ],
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated cross-check for long-range charge-transfer or ion-pair-sensitive organic energetics. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "For geometry optimization of small organic molecules, B3LYP-D3(BJ)/def2-SVP provides an excellent cost-accuracy balance. Bond length MAE is typically 0.008 Angstrom. The double-zeta basis is sufficient for geometry, though single-point energies should use a larger basis.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1002/jcc.21759",
+          "short": "Grimme et al. 2011 (D3BJ)"
+        }
+      ],
+      "confidence": 0.92,
+      "applicability": "geometry optimization for neutral closed-shell small organic molecules.",
+      "avoid_when": [
+        "charged species",
+        "open-shell radicals",
+        "transition-metal systems"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus for geometry-first B3LYP/PBE0-style workflows.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "g",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Advisory composite-method screening option only; keep outside shipped defaults until composite support is productized.",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ],
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated cross-check for long-range charge-transfer or ion-pair-sensitive organic energetics. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Single-point energy calculations require a larger basis set to minimize basis set incompleteness error. def2-TZVP provides triple-zeta quality with polarization, reducing BSSE significantly compared to def2-SVP.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.9,
+      "applicability": "single-point energetic follow-up for neutral closed-shell small organic molecules.",
+      "avoid_when": [
+        "charged species",
+        "open-shell radicals",
+        "transition-metal systems"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus for geometry-first B3LYP/PBE0-style workflows.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "g",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Advisory composite-method screening option only; keep outside shipped defaults until composite support is productized.",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ],
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated cross-check for long-range charge-transfer or ion-pair-sensitive organic energetics. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO/IAO bonding analysis is relatively insensitive to the basis set beyond double-zeta quality. The intrinsic atomic orbital construction is designed to be robust across basis sets. B3LYP provides a good balance of exchange-correlation for orbital localization.",
+      "references": [
+        {
+          "doi": "10.1021/ct400687b",
+          "short": "Knizia 2013 (IAO/IBO)"
+        },
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.88,
+      "applicability": "qualitative bonding/orbital analysis for neutral closed-shell small organic molecules.",
+      "avoid_when": [
+        "charged species",
+        "open-shell radicals",
+        "transition-metal systems"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus for geometry-first B3LYP/PBE0-style workflows.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "g",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Advisory composite-method screening option only; keep outside shipped defaults until composite support is productized.",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ],
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated cross-check for long-range charge-transfer or ion-pair-sensitive organic energetics. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "reaction_energy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Reaction energies are sensitive to basis set size and dispersion. def2-TZVP is recommended for energy differences. B3LYP-D3(BJ) has a reaction energy MAE of approximately 3.5 kcal/mol.",
+      "references": [
+        {
+          "doi": "10.1039/C7CP04913G",
+          "short": "Goerigk et al. 2017 (GMTKN55)"
+        },
+        {
+          "doi": "10.1002/jcc.21759",
+          "short": "Grimme et al. 2011"
+        }
+      ],
+      "confidence": 0.82,
+      "applicability": "reaction-energy or relative-stability analysis for neutral closed-shell small organic molecules.",
+      "avoid_when": [
+        "charged species",
+        "open-shell radicals",
+        "transition-metal systems"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus for geometry-first B3LYP/PBE0-style workflows.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "g",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Advisory composite-method screening option only; keep outside shipped defaults until composite support is productized.",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ],
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated cross-check for long-range charge-transfer or ion-pair-sensitive organic energetics. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "spectroscopy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Vibrational frequency calculations benefit from a triple-zeta basis. Scale factors for B3LYP/def2-TZVP are well established. Harmonic frequencies should be scaled by approximately 0.965.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.85,
+      "applicability": "broad spectroscopy placeholder workflow for neutral closed-shell small organic molecules.",
+      "avoid_when": [
+        "charged species",
+        "open-shell radicals",
+        "transition-metal systems"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus for geometry-first B3LYP/PBE0-style workflows.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "g",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Advisory composite-method screening option only; keep outside shipped defaults until composite support is productized.",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ],
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated cross-check for long-range charge-transfer or ion-pair-sensitive organic energetics. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "esp_mapping": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "ESP mapping is primarily sensitive to the quality of the electron density, which is well-described even at double-zeta level for organic molecules. The electron density converges faster with basis set than the energy.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.88,
+      "applicability": "qualitative electrostatic potential mapping for neutral closed-shell small organic molecules.",
+      "avoid_when": [
+        "charged species",
+        "open-shell radicals",
+        "transition-metal systems",
+        "quantitative charge fitting without an upgraded basis"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus for geometry-first B3LYP/PBE0-style workflows.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "g",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Advisory composite-method screening option only; keep outside shipped defaults until composite support is productized.",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ],
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated cross-check for long-range charge-transfer or ion-pair-sensitive organic energetics. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "alternatives": [
+      {
+        "functional": "PBE0-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "Non-empirical alternative with 25% HF exchange. Slightly better for some properties but similar overall performance to B3LYP.",
+        "pyscf_supported": true,
+        "future_candidate": false,
+        "evidence_strength": "medium",
+        "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1002/anie.202205735",
+            "short": "Bursch et al. 2022"
+          },
+          {
+            "doi": "10.1039/C7CP04913G",
+            "short": "Goerigk et al. 2017 (GMTKN55)"
+          }
+        ]
+      },
+      {
+        "functional": "r2SCAN-3c",
+        "basis": "mTZVPP (built-in)",
+        "rationale": "Advisory composite-method screening option only; keep outside shipped defaults until composite support is productized.",
+        "references": [
+          {
+            "doi": "10.1063/5.0040021",
+            "short": "Grimme et al. 2021 (r2SCAN-3c)"
+          },
+          {
+            "doi": "10.1002/anie.202205735",
+            "short": "Bursch et al. 2022"
+          }
+        ],
+        "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+        "pyscf_supported": false,
+        "future_candidate": true,
+        "evidence_strength": "medium",
+        "last_reviewed": "2026-03-30"
+      },
+      {
+        "functional": "wB97X-D",
+        "basis": "def2-TZVP",
+        "rationale": "Range-separated cross-check for long-range charge-transfer or ion-pair-sensitive organic energetics. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+        "references": [
+          {
+            "doi": "10.1080/00268976.2017.1333644",
+            "short": "Mardirossian and Head-Gordon 2017"
+          },
+          {
+            "doi": "10.1021/acs.jpca.5c02406",
+            "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+          }
+        ],
+        "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+        "pyscf_supported": false,
+        "future_candidate": true,
+        "evidence_strength": "medium",
+        "last_reviewed": "2026-03-30"
+      }
+    ]
+  },
+  "organic_large": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "For large organic systems (>50 atoms), B3LYP-D3(BJ)/def2-SVP provides the best cost-accuracy tradeoff. Hybrid DFT scales as N^4, which becomes the bottleneck. Consider r2SCAN-3c as a faster alternative.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.82,
+      "applicability": "general-purpose baseline for larger neutral organic molecules under cost pressure.",
+      "avoid_when": [
+        "highly ionic states",
+        "cases where hybrid cost is prohibitive"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus favors dual-level workflows and composite screening.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "r23c"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ]
+        }
+      ]
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Same as default. For very large systems (>200 atoms), consider PBE-D3(BJ)/def2-SVP as a GGA alternative.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.78,
+      "applicability": "geometry optimization for larger neutral organic molecules under cost pressure.",
+      "avoid_when": [
+        "highly ionic states",
+        "cases where hybrid cost is prohibitive"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus favors dual-level workflows and composite screening.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "r23c"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ]
+        }
+      ]
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single-point energies at the optimized geometry. For systems >100 atoms with hybrid DFT, this may be computationally demanding.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.78,
+      "applicability": "single-point energetic follow-up for larger neutral organic molecules under cost pressure.",
+      "avoid_when": [
+        "highly ionic states",
+        "cases where hybrid cost is prohibitive"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus favors dual-level workflows and composite screening.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "r23c"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ]
+        }
+      ]
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO/IAO analysis at double-zeta level is adequate for large organic systems. Computational cost is dominated by the SCF step.",
+      "references": [
+        {
+          "doi": "10.1021/ct400687b",
+          "short": "Knizia 2013 (IAO/IBO)"
+        }
+      ],
+      "confidence": 0.8,
+      "applicability": "qualitative bonding/orbital analysis for larger neutral organic molecules under cost pressure.",
+      "avoid_when": [
+        "highly ionic states",
+        "cases where hybrid cost is prohibitive"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus favors dual-level workflows and composite screening.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "r23c"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ]
+        }
+      ]
+    },
+    "alternatives": [
+      {
+        "functional": "PBE-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points.",
+        "pyscf_supported": true,
+        "future_candidate": false,
+        "evidence_strength": "medium",
+        "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1002/anie.202205735",
+            "short": "Bursch et al. 2022"
+          },
+          {
+            "doi": "10.1039/C7CP04913G",
+            "short": "Goerigk et al. 2017 (GMTKN55)"
+          }
+        ]
+      },
+      {
+        "functional": "r2SCAN-3c",
+        "basis": "mTZVPP (built-in)",
+        "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive.",
+        "pyscf_supported": false,
+        "future_candidate": true,
+        "evidence_strength": "medium",
+        "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1063/5.0040021",
+            "short": "Grimme et al. 2021 (r2SCAN-3c)"
+          },
+          {
+            "doi": "10.1002/anie.202205735",
+            "short": "Bursch et al. 2022"
+          }
+        ]
+      }
+    ],
+    "reaction_energy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single-point energies at the optimized geometry. For systems >100 atoms with hybrid DFT, this may be computationally demanding. Use this as a dual-level energetic compromise for larger systems rather than a one-shot benchmark claim.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.76,
+      "applicability": "reaction-energy or relative-stability analysis for larger neutral organic molecules under cost pressure.",
+      "avoid_when": [
+        "highly ionic states",
+        "cases where hybrid cost is prohibitive"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus favors dual-level workflows and composite screening.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "r23c"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ]
+        }
+      ]
+    },
+    "spectroscopy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single-point energies at the optimized geometry. For systems >100 atoms with hybrid DFT, this may be computationally demanding. This broad spectroscopy bucket is retained as a vibrationally oriented placeholder for large organics.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.76,
+      "applicability": "broad spectroscopy placeholder workflow for larger neutral organic molecules under cost pressure.",
+      "avoid_when": [
+        "highly ionic states",
+        "cases where hybrid cost is prohibitive"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus favors dual-level workflows and composite screening.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "r23c"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ]
+        }
+      ]
+    },
+    "esp_mapping": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "For large organic systems (>50 atoms), B3LYP-D3(BJ)/def2-SVP provides the best cost-accuracy tradeoff. Hybrid DFT scales as N^4, which becomes the bottleneck. Consider r2SCAN-3c as a faster alternative. Use qualitatively unless an upgraded basis is available for quantitative electrostatics.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.78,
+      "applicability": "qualitative electrostatic potential mapping for larger neutral organic molecules under cost pressure.",
+      "avoid_when": [
+        "highly ionic states",
+        "cases where hybrid cost is prohibitive",
+        "quantitative charge fitting without an upgraded basis"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus favors dual-level workflows and composite screening.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "r23c"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "GGA functional: much faster (N^3 scaling) but less accurate. Suitable for pre-screening geometries before higher-level single points.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "r2SCAN-3c",
+          "basis": "mTZVPP (built-in)",
+          "rationale": "Efficient composite method. Recommended for large systems where hybrid DFT is too expensive.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Composite-method candidate only; plain r2SCAN alias support does not imply r2SCAN-3c support. Requires explicit 3c support rather than plain r2SCAN aliasing.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1063/5.0040021",
+              "short": "Grimme et al. 2021 (r2SCAN-3c)"
+            },
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "3d_tm": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "B3LYP remains the most widely used and validated functional for 3d transition metal complexes. The 20% HF exchange provides a reasonable balance for geometry optimization. However, spin-state energetics are highly sensitive to the HF exchange fraction. ECPs for elements beyond Kr are built into the def2 basis sets. SSE17 (10.1039/D4SC05471G) shows that legacy TM defaults such as B3LYP and TPSSh are not universal spin-state choices; this shipped rule should be treated as a pragmatic baseline rather than a final energetic authority.",
+      "references": [
+        {
+          "doi": "10.1039/D4SC05471G",
+          "short": "TM spin-state benchmark 2024"
+        },
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.7,
+      "applicability": "general-purpose baseline for mononuclear first-row transition-metal complexes.",
+      "avoid_when": [
+        "unvalidated spin-state decisions",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Recent benchmarking weakens claims of universality for legacy TM defaults.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "sse"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PWPB95-D3(BJ)",
+          "basis": "def2-TZVP",
+          "rationale": "Future-candidate double-hybrid cross-check because SSE17 ranks double hybrids highest for spin-state energetics.",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep out of production defaults until double-hybrid execution and validation paths are added.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "B3LYP-D3(BJ)/def2-SVP is the standard choice for 3d TM geometry optimization. Bond length errors are typically 0.01-0.03 Angstrom for metal-ligand bonds.",
+      "references": [
+        {
+          "doi": "10.1039/D4SC05471G",
+          "short": "TM benchmark 2024"
+        }
+      ],
+      "confidence": 0.75,
+      "applicability": "geometry optimization for mononuclear first-row transition-metal complexes.",
+      "avoid_when": [
+        "unvalidated spin-state decisions",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Recent benchmarking weakens claims of universality for legacy TM defaults.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "sse"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PWPB95-D3(BJ)",
+          "basis": "def2-TZVP",
+          "rationale": "Future-candidate double-hybrid cross-check because SSE17 ranks double hybrids highest for spin-state energetics.",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep out of production defaults until double-hybrid execution and validation paths are added.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta basis is important for reliable TM energetics, but SSE17 shows that B3LYP-based spin-state splittings remain only moderately reliable even at this level. Use explicit spin-state cross-checks and do not trust close energetic gaps to one DFA alone.",
+      "references": [
+        {
+          "doi": "10.1039/D4SC05471G",
+          "short": "TM benchmark 2024"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.62,
+      "applicability": "single-point energetic follow-up for mononuclear first-row transition-metal complexes.",
+      "avoid_when": [
+        "spin-state ordering is the primary scientific question",
+        "close energetic gaps are being interpreted without cross-checks",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Recent benchmarking weakens claims of universality for legacy TM defaults.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "sse"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PWPB95-D3(BJ)",
+          "basis": "def2-TZVP",
+          "rationale": "Future-candidate double-hybrid cross-check because SSE17 ranks double hybrids highest for spin-state energetics.",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep out of production defaults until double-hybrid execution and validation paths are added.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO analysis of TM complexes can reveal metal-ligand bonding character. Results should be interpreted with care for systems with significant multireference character.",
+      "references": [
+        {
+          "doi": "10.1021/ct400687b",
+          "short": "Knizia 2013 (IAO/IBO)"
+        }
+      ],
+      "confidence": 0.68,
+      "applicability": "qualitative bonding/orbital analysis for mononuclear first-row transition-metal complexes.",
+      "avoid_when": [
+        "unvalidated spin-state decisions",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Recent benchmarking weakens claims of universality for legacy TM defaults.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "sse"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PWPB95-D3(BJ)",
+          "basis": "def2-TZVP",
+          "rationale": "Future-candidate double-hybrid cross-check because SSE17 ranks double hybrids highest for spin-state energetics.",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep out of production defaults until double-hybrid execution and validation paths are added.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "alternatives": [
+      {
+        "functional": "TPSSh-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP.",
+        "pyscf_supported": true,
+        "future_candidate": false,
+        "evidence_strength": "medium",
+        "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1039/D4SC05471G",
+            "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+          },
+          {
+            "doi": "10.1039/C7CP04913G",
+            "short": "Goerigk et al. 2017 (GMTKN55)"
+          }
+        ]
+      },
+      {
+        "functional": "PBE0-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry.",
+        "pyscf_supported": true,
+        "future_candidate": false,
+        "evidence_strength": "medium",
+        "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1002/anie.202205735",
+            "short": "Bursch et al. 2022"
+          },
+          {
+            "doi": "10.1039/C7CP04913G",
+            "short": "Goerigk et al. 2017 (GMTKN55)"
+          }
+        ]
+      },
+      {
+        "functional": "PWPB95-D3(BJ)",
+        "basis": "def2-TZVP",
+        "rationale": "Future-candidate double-hybrid cross-check because SSE17 ranks double hybrids highest for spin-state energetics.",
+        "references": [
+          {
+            "doi": "10.1039/D4SC05471G",
+            "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+          }
+        ],
+        "implementation_notes": "Keep out of production defaults until double-hybrid execution and validation paths are added.",
+        "pyscf_supported": false,
+        "future_candidate": true,
+        "evidence_strength": "medium",
+        "last_reviewed": "2026-03-30"
+      }
+    ],
+    "reaction_energy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta basis is important for reliable energetics of TM complexes. Consider checking multiple spin states. SSE17 reinforces that close spin-state and reaction-energy claims should be cross-checked rather than trusted to one DFA alone.",
+      "references": [
+        {
+          "doi": "10.1039/D4SC05471G",
+          "short": "TM benchmark 2024"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.66,
+      "applicability": "reaction-energy or relative-stability analysis for mononuclear first-row transition-metal complexes.",
+      "avoid_when": [
+        "unvalidated spin-state decisions",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Recent benchmarking weakens claims of universality for legacy TM defaults.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "sse"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PWPB95-D3(BJ)",
+          "basis": "def2-TZVP",
+          "rationale": "Future-candidate double-hybrid cross-check because SSE17 ranks double hybrids highest for spin-state energetics.",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep out of production defaults until double-hybrid execution and validation paths are added.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "spectroscopy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta basis is important for reliable energetics of TM complexes. Consider checking multiple spin states. Treat this as a placeholder rule only; spectroscopy-specialized workflows may be required.",
+      "references": [
+        {
+          "doi": "10.1039/D4SC05471G",
+          "short": "TM benchmark 2024"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.64,
+      "applicability": "broad spectroscopy placeholder workflow for mononuclear first-row transition-metal complexes.",
+      "avoid_when": [
+        "unvalidated spin-state decisions",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Recent benchmarking weakens claims of universality for legacy TM defaults.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "sse"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PWPB95-D3(BJ)",
+          "basis": "def2-TZVP",
+          "rationale": "Future-candidate double-hybrid cross-check because SSE17 ranks double hybrids highest for spin-state energetics.",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep out of production defaults until double-hybrid execution and validation paths are added.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "esp_mapping": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "B3LYP remains the most widely used and validated functional for 3d transition metal complexes. The 20% HF exchange provides a reasonable balance for geometry optimization. However, spin-state energetics are highly sensitive to the HF exchange fraction. ECPs for elements beyond Kr are built into the def2 basis sets. Use qualitatively and only after checking the relevant spin/electronic states.",
+      "references": [
+        {
+          "doi": "10.1039/D4SC05471G",
+          "short": "TM spin-state benchmark 2024"
+        },
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.67,
+      "applicability": "qualitative electrostatic potential mapping for mononuclear first-row transition-metal complexes.",
+      "avoid_when": [
+        "unvalidated spin-state decisions",
+        "strong multireference character",
+        "quantitative charge fitting without an upgraded basis"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Recent benchmarking weakens claims of universality for legacy TM defaults.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "sse"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "TPSSh has only 10% HF exchange, which may be more appropriate for spin-state energetics of 3d metals. Less bias toward high-spin states than B3LYP.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "25% HF exchange. Middle ground between B3LYP and TPSSh for TM chemistry.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "PWPB95-D3(BJ)",
+          "basis": "def2-TZVP",
+          "rationale": "Future-candidate double-hybrid cross-check because SSE17 ranks double hybrids highest for spin-state energetics.",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep out of production defaults until double-hybrid execution and validation paths are added.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    }
+  },
+  "heavy_tm": {
+    "default": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "PBE0-D3(BJ) is recommended for 4d/5d transition metal complexes. The def2 basis sets include scalar relativistic effective core potentials (ECPs) for elements beyond Kr, which account for the dominant relativistic effects. PBE0 provides robust performance across the periodic table.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005 (def2 + ECP)"
+        }
+      ],
+      "confidence": 0.68,
+      "applicability": "general-purpose baseline for 4d/5d transition-metal complexes under scalar-relativistic ECP assumptions.",
+      "avoid_when": [
+        "spin-orbit dominated observables",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Pragmatic PBE0-class hybrid defaults remain common.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "B3LYP-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "geometry_opt": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "PBE0-D3(BJ)/def2-SVP for geometry optimization of 4d/5d TM complexes. ECPs handle scalar relativistic effects.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.7,
+      "applicability": "geometry optimization for 4d/5d transition-metal complexes under scalar-relativistic ECP assumptions.",
+      "avoid_when": [
+        "spin-orbit dominated observables",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Pragmatic PBE0-class hybrid defaults remain common.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "B3LYP-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "single_point": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for accurate energetics. ECPs remain the same; only valence basis functions increase.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.65,
+      "applicability": "single-point energetic follow-up for 4d/5d transition-metal complexes under scalar-relativistic ECP assumptions.",
+      "avoid_when": [
+        "spin-orbit dominated observables",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Pragmatic PBE0-class hybrid defaults remain common.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "B3LYP-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "bonding_analysis": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO analysis for heavy TM complexes. Interpretation should account for relativistic effects on orbital energies.",
+      "references": [
+        {
+          "doi": "10.1021/ct400687b",
+          "short": "Knizia 2013 (IAO/IBO)"
+        }
+      ],
+      "confidence": 0.62,
+      "applicability": "qualitative bonding/orbital analysis for 4d/5d transition-metal complexes under scalar-relativistic ECP assumptions.",
+      "avoid_when": [
+        "spin-orbit dominated observables",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Pragmatic PBE0-class hybrid defaults remain common.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "B3LYP-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "alternatives": [
+      {
+        "functional": "B3LYP-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases.",
+        "pyscf_supported": true,
+        "future_candidate": false,
+        "evidence_strength": "medium",
+        "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1002/anie.202205735",
+            "short": "Bursch et al. 2022"
+          },
+          {
+            "doi": "10.1039/C7CP04913G",
+            "short": "Goerigk et al. 2017 (GMTKN55)"
+          }
+        ]
+      }
+    ],
+    "reaction_energy": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for accurate energetics. ECPs remain the same; only valence basis functions increase. Interpret as a scalar-relativistic screening result unless relativistic effects are known to be minor.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.64,
+      "applicability": "reaction-energy or relative-stability analysis for 4d/5d transition-metal complexes under scalar-relativistic ECP assumptions.",
+      "avoid_when": [
+        "spin-orbit dominated observables",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Pragmatic PBE0-class hybrid defaults remain common.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "B3LYP-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "spectroscopy": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for accurate energetics. ECPs remain the same; only valence basis functions increase. Relativistic spectroscopy often needs a more specialized treatment than this broad bucket provides.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.6,
+      "applicability": "broad spectroscopy placeholder workflow for 4d/5d transition-metal complexes under scalar-relativistic ECP assumptions.",
+      "avoid_when": [
+        "spin-orbit dominated observables",
+        "strong multireference character"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Pragmatic PBE0-class hybrid defaults remain common.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "B3LYP-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "esp_mapping": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "PBE0-D3(BJ) is recommended for 4d/5d transition metal complexes. The def2 basis sets include scalar relativistic effective core potentials (ECPs) for elements beyond Kr, which account for the dominant relativistic effects. PBE0 provides robust performance across the periodic table. Qualitative use only unless the electronic state and relativistic treatment are already well validated.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005 (def2 + ECP)"
+        }
+      ],
+      "confidence": 0.63,
+      "applicability": "qualitative electrostatic potential mapping for 4d/5d transition-metal complexes under scalar-relativistic ECP assumptions.",
+      "avoid_when": [
+        "spin-orbit dominated observables",
+        "strong multireference character",
+        "quantitative charge fitting without an upgraded basis"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Pragmatic PBE0-class hybrid defaults remain common.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "B3LYP-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Widely used alternative. Performance for 4d/5d metals is comparable to PBE0 in many cases.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "lanthanide": {
+    "default": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Lanthanide (4f) complexes are challenging for single-reference DFT. PBE0-D3(BJ)/def2-SVP with scalar relativistic ECPs from the def2 family is the most practical starting point. However, multiconfigurational effects may be important for open-shell lanthanides, and results should be treated with extra caution. A recent lanthanide-specific assessment reinforces that confidence should remain capped in this class.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005 (def2 + ECP)"
+        },
+        {
+          "doi": "10.1021/acs.jctc.4c01783",
+          "short": "2025 lanthanide structure benchmark"
+        }
+      ],
+      "confidence": 0.55,
+      "applicability": "general-purpose baseline for lanthanide complexes treated in a single-reference DFT workflow.",
+      "avoid_when": [
+        "multiconfigurationally delicate claims",
+        "publication-critical state ordering"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus is stronger on caution than on one universal functional.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "ln",
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "geometry_opt": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Geometry optimization for lanthanide complexes. Metal-ligand bond lengths may have errors of 0.03-0.05 Angstrom. Consider checking multiple spin states for open-shell Ln ions.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.55,
+      "applicability": "geometry optimization for lanthanide complexes treated in a single-reference DFT workflow.",
+      "avoid_when": [
+        "multiconfigurationally delicate claims",
+        "publication-critical state ordering"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus is stronger on caution than on one universal functional.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "ln",
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "single_point": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for lanthanide energetics. Results should be verified with multireference methods if spin-state ordering is critical.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.5,
+      "applicability": "single-point energetic follow-up for lanthanide complexes treated in a single-reference DFT workflow.",
+      "avoid_when": [
+        "multiconfigurationally delicate claims",
+        "publication-critical state ordering"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus is stronger on caution than on one universal functional.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "ln",
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "alternatives": [
+      {
+        "functional": "TPSSh-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations.",
+        "pyscf_supported": true,
+        "future_candidate": false,
+        "evidence_strength": "medium",
+        "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1039/D4SC05471G",
+            "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+          },
+          {
+            "doi": "10.1039/C7CP04913G",
+            "short": "Goerigk et al. 2017 (GMTKN55)"
+          }
+        ]
+      }
+    ],
+    "bonding_analysis": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Lanthanide (4f) complexes are challenging for single-reference DFT. PBE0-D3(BJ)/def2-SVP with scalar relativistic ECPs from the def2 family is the most practical starting point. However, multiconfigurational effects may be important for open-shell lanthanides, and results should be treated with extra caution. Treat orbital pictures as supportive only; single-reference DFT remains fragile for many f-element bonding questions.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005 (def2 + ECP)"
+        }
+      ],
+      "confidence": 0.48,
+      "applicability": "qualitative bonding/orbital analysis for lanthanide complexes treated in a single-reference DFT workflow.",
+      "avoid_when": [
+        "multiconfigurationally delicate claims",
+        "publication-critical state ordering"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus is stronger on caution than on one universal functional.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "ln",
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "reaction_energy": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for lanthanide energetics. Results should be verified with multireference methods if spin-state ordering is critical. This rule is intentionally low-confidence and should not be treated as a definitive f-element energetic model.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.45,
+      "applicability": "reaction-energy or relative-stability analysis for lanthanide complexes treated in a single-reference DFT workflow.",
+      "avoid_when": [
+        "multiconfigurationally delicate claims",
+        "publication-critical state ordering"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus is stronger on caution than on one universal functional.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "ln",
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "spectroscopy": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for lanthanide energetics. Results should be verified with multireference methods if spin-state ordering is critical. Dedicated relativistic and multireference methods are often needed for serious lanthanide spectroscopy.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.44,
+      "applicability": "broad spectroscopy placeholder workflow for lanthanide complexes treated in a single-reference DFT workflow.",
+      "avoid_when": [
+        "multiconfigurationally delicate claims",
+        "publication-critical state ordering"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus is stronger on caution than on one universal functional.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "ln",
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "esp_mapping": {
+      "functional": "PBE0-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Lanthanide (4f) complexes are challenging for single-reference DFT. PBE0-D3(BJ)/def2-SVP with scalar relativistic ECPs from the def2 family is the most practical starting point. However, multiconfigurational effects may be important for open-shell lanthanides, and results should be treated with extra caution. Qualitative visualization aid only under high uncertainty.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005 (def2 + ECP)"
+        }
+      ],
+      "confidence": 0.47,
+      "applicability": "qualitative electrostatic potential mapping for lanthanide complexes treated in a single-reference DFT workflow.",
+      "avoid_when": [
+        "multiconfigurationally delicate claims",
+        "publication-critical state ordering",
+        "quantitative charge fitting without an upgraded basis"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Consensus is stronger on caution than on one universal functional.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Check multiple spin/electronic states before treating one DFA result as definitive."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "ln",
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "TPSSh-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Low HF exchange (10%) may reduce artifacts for open-shell lanthanide configurations.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4SC05471G",
+              "short": "Bistoni et al. 2024 (SSE17 spin-state benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "radical": {
+    "default": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Unrestricted B3LYP (UB3LYP) is the standard approach for radical species. Spin contamination should always be monitored via the <S^2> expectation value. If <S^2> deviates more than 10% from the expected value, the results may be unreliable. Recent radical-focused benchmarking supports M06-2X and range-separated cross-checks, so UB3LYP is kept as a stable baseline rather than a one-method answer.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/D4OB00532E",
+          "short": "2024 organic-radicals review/benchmark"
+        }
+      ],
+      "confidence": 0.75,
+      "applicability": "general-purpose baseline for open-shell main-group radicals treated with unrestricted DFT.",
+      "avoid_when": [
+        "severe spin contamination",
+        "strongly multireference radicals"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Strong consensus on unrestricted workflows and spin monitoring.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Monitor <S^2> and treat large spin contamination as a validation blocker.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "rad",
+        "b"
+      ],
+      "alternatives": [
+        {
+          "functional": "UM06-2X-D3(0)",
+          "basis": "def2-TZVP",
+          "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4OB00532E",
+              "short": "Renningholtz et al. 2024 (organic radicals review/benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated radical cross-check when charge-transfer or redox character matters. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "geometry_opt": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Geometry optimization for radical species using unrestricted DFT. Always check <S^2> after convergence. For doublets, expected <S^2> = 0.75; deviations > 0.82 indicate significant spin contamination.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.8,
+      "applicability": "geometry optimization for open-shell main-group radicals treated with unrestricted DFT.",
+      "avoid_when": [
+        "severe spin contamination",
+        "strongly multireference radicals"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Strong consensus on unrestricted workflows and spin monitoring.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Monitor <S^2> and treat large spin contamination as a validation blocker.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "rad",
+        "b"
+      ],
+      "alternatives": [
+        {
+          "functional": "UM06-2X-D3(0)",
+          "basis": "def2-TZVP",
+          "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4OB00532E",
+              "short": "Renningholtz et al. 2024 (organic radicals review/benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated radical cross-check when charge-transfer or redox character matters. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "single_point": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single-point energy for radical species. Larger basis reduces BSSE. Check <S^2> at this level as well.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.78,
+      "applicability": "single-point energetic follow-up for open-shell main-group radicals treated with unrestricted DFT.",
+      "avoid_when": [
+        "severe spin contamination",
+        "strongly multireference radicals"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Strong consensus on unrestricted workflows and spin monitoring.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Monitor <S^2> and treat large spin contamination as a validation blocker.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "rad",
+        "b"
+      ],
+      "alternatives": [
+        {
+          "functional": "UM06-2X-D3(0)",
+          "basis": "def2-TZVP",
+          "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4OB00532E",
+              "short": "Renningholtz et al. 2024 (organic radicals review/benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated radical cross-check when charge-transfer or redox character matters. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "bonding_analysis": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO analysis for open-shell systems requires unrestricted orbitals. Alpha and beta IBO sets should be analyzed separately. Singly-occupied molecular orbitals (SOMOs) are of particular chemical interest.",
+      "references": [
+        {
+          "doi": "10.1021/ct400687b",
+          "short": "Knizia 2013 (IAO/IBO)"
+        },
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.72,
+      "applicability": "qualitative bonding/orbital analysis for open-shell main-group radicals treated with unrestricted DFT.",
+      "avoid_when": [
+        "severe spin contamination",
+        "strongly multireference radicals"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Strong consensus on unrestricted workflows and spin monitoring.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Monitor <S^2> and treat large spin contamination as a validation blocker."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "rad",
+        "b"
+      ],
+      "alternatives": [
+        {
+          "functional": "UM06-2X-D3(0)",
+          "basis": "def2-TZVP",
+          "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4OB00532E",
+              "short": "Renningholtz et al. 2024 (organic radicals review/benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated radical cross-check when charge-transfer or redox character matters. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "alternatives": [
+      {
+        "functional": "UM06-2X-D3(0)",
+        "basis": "def2-TZVP",
+        "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk.",
+        "pyscf_supported": true,
+        "future_candidate": false,
+        "evidence_strength": "medium",
+        "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1039/D4OB00532E",
+            "short": "Renningholtz et al. 2024 (organic radicals review/benchmark)"
+          },
+          {
+            "doi": "10.1039/C7CP04913G",
+            "short": "Goerigk et al. 2017 (GMTKN55)"
+          }
+        ]
+      },
+      {
+        "functional": "wB97X-D",
+        "basis": "def2-TZVP",
+        "rationale": "Range-separated radical cross-check when charge-transfer or redox character matters. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+        "references": [
+          {
+            "doi": "10.1080/00268976.2017.1333644",
+            "short": "Mardirossian and Head-Gordon 2017"
+          },
+          {
+            "doi": "10.1021/acs.jpca.5c02406",
+            "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+          }
+        ],
+        "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+        "pyscf_supported": false,
+        "future_candidate": true,
+        "evidence_strength": "medium",
+        "last_reviewed": "2026-03-30"
+      }
+    ],
+    "reaction_energy": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single-point energy for radical species. Larger basis reduces BSSE. Check <S^2> at this level as well. Recent radical benchmarking supports explicit functional cross-checks for thermochemistry and barriers.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.74,
+      "applicability": "reaction-energy or relative-stability analysis for open-shell main-group radicals treated with unrestricted DFT.",
+      "avoid_when": [
+        "severe spin contamination",
+        "strongly multireference radicals"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Strong consensus on unrestricted workflows and spin monitoring.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Monitor <S^2> and treat large spin contamination as a validation blocker.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "rad",
+        "b"
+      ],
+      "alternatives": [
+        {
+          "functional": "UM06-2X-D3(0)",
+          "basis": "def2-TZVP",
+          "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4OB00532E",
+              "short": "Renningholtz et al. 2024 (organic radicals review/benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated radical cross-check when charge-transfer or redox character matters. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "spectroscopy": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single-point energy for radical species. Larger basis reduces BSSE. Check <S^2> at this level as well. This broad bucket should be replaced by a dedicated open-shell spectroscopy workflow when the signal is central.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.72,
+      "applicability": "broad spectroscopy placeholder workflow for open-shell main-group radicals treated with unrestricted DFT.",
+      "avoid_when": [
+        "severe spin contamination",
+        "strongly multireference radicals"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Strong consensus on unrestricted workflows and spin monitoring.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Monitor <S^2> and treat large spin contamination as a validation blocker."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "rad",
+        "b"
+      ],
+      "alternatives": [
+        {
+          "functional": "UM06-2X-D3(0)",
+          "basis": "def2-TZVP",
+          "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4OB00532E",
+              "short": "Renningholtz et al. 2024 (organic radicals review/benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated radical cross-check when charge-transfer or redox character matters. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    },
+    "esp_mapping": {
+      "functional": "UB3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Unrestricted B3LYP (UB3LYP) is the standard approach for radical species. Spin contamination should always be monitored via the <S^2> expectation value. If <S^2> deviates more than 10% from the expected value, the results may be unreliable. Use qualitatively and re-check spin contamination before drawing strong electrostatic conclusions.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.76,
+      "applicability": "qualitative electrostatic potential mapping for open-shell main-group radicals treated with unrestricted DFT.",
+      "avoid_when": [
+        "severe spin contamination",
+        "strongly multireference radicals",
+        "quantitative charge fitting without an upgraded basis"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Strong consensus on unrestricted workflows and spin monitoring.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Monitor <S^2> and treat large spin contamination as a validation blocker."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "rad",
+        "b"
+      ],
+      "alternatives": [
+        {
+          "functional": "UM06-2X-D3(0)",
+          "basis": "def2-TZVP",
+          "rationale": "M06-2X with 54% HF exchange may give better reaction barriers for radical processes. Higher spin contamination risk.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1039/D4OB00532E",
+              "short": "Renningholtz et al. 2024 (organic radicals review/benchmark)"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        },
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated radical cross-check when charge-transfer or redox character matters. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ],
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "last_reviewed": "2026-03-30"
+        }
+      ]
+    }
+  },
+  "charged_organic": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Charged species require a larger basis set (at least triple-zeta) to adequately describe the diffuse electron density of anions or the compact density of cations. For anions, consider adding diffuse functions (def2-TZVPD). Dispersion correction is essential for ion-pair interaction energies. Range-separated hybrids such as wB97X-D remain preferred cross-checks for long-range self-interaction-sensitive cases.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        },
+        {
+          "doi": "10.1021/acs.jpca.5c02406",
+          "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+        },
+        {
+          "doi": "10.1080/00268976.2017.1333644",
+          "short": "Mardirossian and Head-Gordon 2017"
+        }
+      ],
+      "confidence": 0.8,
+      "applicability": "general-purpose baseline for organic cations, anions, and ion-pair-like systems.",
+      "avoid_when": [
+        "hard anions without diffuse basis support"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus on triple-zeta minimum and long-range checks.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Diffuse-basis escalation remains the most important missing upgrade for hard anions.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "photo",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ]
+        }
+      ]
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Charged species geometry optimization benefits from triple-zeta basis even at the optimization stage, particularly for anions where diffuse charge distributions require adequate basis function coverage.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.82,
+      "applicability": "geometry optimization for organic cations, anions, and ion-pair-like systems.",
+      "avoid_when": [
+        "hard anions without diffuse basis support"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus on triple-zeta minimum and long-range checks.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Diffuse-basis escalation remains the most important missing upgrade for hard anions.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "photo",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ]
+        }
+      ]
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Same basis as geometry optimization for charged species. Consider def2-TZVPD (with diffuse functions) for anions.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.8,
+      "applicability": "single-point energetic follow-up for organic cations, anions, and ion-pair-like systems.",
+      "avoid_when": [
+        "hard anions without diffuse basis support"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus on triple-zeta minimum and long-range checks.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Diffuse-basis escalation remains the most important missing upgrade for hard anions.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "photo",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ]
+        }
+      ]
+    },
+    "alternatives": [
+      {
+        "functional": "wB97X-D",
+        "basis": "def2-TZVP",
+        "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+        "pyscf_supported": false,
+        "future_candidate": true,
+        "evidence_strength": "medium",
+        "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1080/00268976.2017.1333644",
+            "short": "Mardirossian and Head-Gordon 2017"
+          },
+          {
+            "doi": "10.1021/acs.jpca.5c02406",
+            "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+          }
+        ]
+      }
+    ],
+    "reaction_energy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Same basis as geometry optimization for charged species. Consider def2-TZVPD (with diffuse functions) for anions. Range-separated cross-checks are recommended whenever long-range self-interaction error is suspected.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.8,
+      "applicability": "reaction-energy or relative-stability analysis for organic cations, anions, and ion-pair-like systems.",
+      "avoid_when": [
+        "hard anions without diffuse basis support"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus on triple-zeta minimum and long-range checks.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Diffuse-basis escalation remains the most important missing upgrade for hard anions.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "photo",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ]
+        }
+      ]
+    },
+    "spectroscopy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Same basis as geometry optimization for charged species. Consider def2-TZVPD (with diffuse functions) for anions. Treat this as a broad placeholder and move to a dedicated charged/excited-state workflow when needed.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.78,
+      "applicability": "broad spectroscopy placeholder workflow for organic cations, anions, and ion-pair-like systems.",
+      "avoid_when": [
+        "hard anions without diffuse basis support"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus on triple-zeta minimum and long-range checks.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Diffuse-basis escalation remains the most important missing upgrade for hard anions."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "photo",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ]
+        }
+      ]
+    },
+    "esp_mapping": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Charged species geometry optimization benefits from triple-zeta basis even at the optimization stage, particularly for anions where diffuse charge distributions require adequate basis function coverage. Diffuse-basis escalation remains especially important for anionic ESP work.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.79,
+      "applicability": "qualitative electrostatic potential mapping for organic cations, anions, and ion-pair-like systems.",
+      "avoid_when": [
+        "hard anions without diffuse basis support",
+        "quantitative charge fitting without an upgraded basis"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "high",
+      "community_consensus": "Strong consensus on triple-zeta minimum and long-range checks.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Diffuse-basis escalation remains the most important missing upgrade for hard anions."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "photo",
+        "m"
+      ],
+      "alternatives": [
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ]
+        }
+      ]
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "For bonding analysis of charged organic systems, B3LYP-D3(BJ)/def2-TZVP is kept as the conservative default because the larger triple-zeta basis reduces density distortion for cationic or anionic states while remaining compatible with the current PySCF/QCViz runtime. Diffuse-augmented checks should be considered for highly delocalized anions.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        },
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        },
+        {
+          "doi": "10.1021/acs.jpca.5c02406",
+          "short": "Gomes & Lopez 2025"
+        }
+      ],
+      "confidence": 0.79,
+      "applicability": "Charged main-group molecules where IBO/IAO-style bonding analysis is desired after SCF convergence.",
+      "avoid_when": "Highly diffuse anions, strong charge-transfer states, or clear multireference character.",
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Triple-zeta is a safer floor for charged species; diffuse augmentation may still be needed.",
+      "implementation_notes": "Keep the production default on def2-TZVP. Escalate manually to diffuse basis sets when the density is visibly over-delocalized.",
+      "basis_upgrade_path": "def2-TZVPP or diffuse-augmented basis in a manual expert workflow.",
+      "validation_notes": "Check orbital localization stability against a diffuse-basis single-point for anions.",
+      "last_reviewed": "2026-03-30",
+      "source_bucket": "journal+best_practice",
+      "alternatives": [
+        {
+          "functional": "wB97X-D",
+          "basis": "def2-TZVP",
+          "rationale": "Range-separated hybrid with built-in dispersion. Excellent for charged species and ion pairs. Reduces self-interaction error at long range. Treat as a cautionary future candidate rather than a production-safe alternative until live PySCF validation is completed.",
+          "pyscf_supported": false,
+          "future_candidate": true,
+          "evidence_strength": "medium",
+          "implementation_notes": "Keep only as a cautionary future-candidate cross-check. Upstream PySCF name-resolution and dispersion integration caveats remain open (see issue #2069); do not treat as production-safe until revalidated in a live PySCF environment.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1080/00268976.2017.1333644",
+              "short": "Mardirossian and Head-Gordon 2017"
+            },
+            {
+              "doi": "10.1021/acs.jpca.5c02406",
+              "short": "Gomes and Lopez 2025 (photoredox redox benchmark)"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "main_group_metal": {
+    "default": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Main-group metal compounds (Li, Na, Mg, Al, etc.) are generally well-described by standard hybrid DFT. The def2 basis sets cover the entire periodic table and include ECPs where appropriate.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.82,
+      "applicability": "general-purpose baseline for main-group metal compounds in a single-reference DFT workflow.",
+      "avoid_when": [
+        "very ionic cases that behave like charged-organic systems"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Routine hybrid defaults remain broadly acceptable.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Alternative hybrid with slightly different exchange-correlation balance.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "geometry_opt": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Standard geometry optimization for main-group metal compounds.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.82,
+      "applicability": "geometry optimization for main-group metal compounds in a single-reference DFT workflow.",
+      "avoid_when": [
+        "very ionic cases that behave like charged-organic systems"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Routine hybrid defaults remain broadly acceptable.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Alternative hybrid with slightly different exchange-correlation balance.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "single_point": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for main-group metal compound energetics.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.82,
+      "applicability": "single-point energetic follow-up for main-group metal compounds in a single-reference DFT workflow.",
+      "avoid_when": [
+        "very ionic cases that behave like charged-organic systems"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Routine hybrid defaults remain broadly acceptable.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Alternative hybrid with slightly different exchange-correlation balance.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "bonding_analysis": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "IBO analysis reveals ionic vs. covalent character in main-group metal bonds. Particularly useful for organolithium and Grignard reagents.",
+      "references": [
+        {
+          "doi": "10.1021/ct400687b",
+          "short": "Knizia 2013 (IAO/IBO)"
+        }
+      ],
+      "confidence": 0.8,
+      "applicability": "qualitative bonding/orbital analysis for main-group metal compounds in a single-reference DFT workflow.",
+      "avoid_when": [
+        "very ionic cases that behave like charged-organic systems"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Routine hybrid defaults remain broadly acceptable.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Alternative hybrid with slightly different exchange-correlation balance.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "alternatives": [
+      {
+        "functional": "PBE0-D3(BJ)",
+        "basis": "def2-SVP",
+        "rationale": "Alternative hybrid with slightly different exchange-correlation balance.",
+        "pyscf_supported": true,
+        "future_candidate": false,
+        "evidence_strength": "medium",
+        "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+        "last_reviewed": "2026-03-30",
+        "references": [
+          {
+            "doi": "10.1002/anie.202205735",
+            "short": "Bursch et al. 2022"
+          },
+          {
+            "doi": "10.1039/C7CP04913G",
+            "short": "Goerigk et al. 2017 (GMTKN55)"
+          }
+        ]
+      }
+    ],
+    "reaction_energy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for main-group metal compound energetics. A stronger energetic follow-up remains advisable even in this less fragile class.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.8,
+      "applicability": "reaction-energy or relative-stability analysis for main-group metal compounds in a single-reference DFT workflow.",
+      "avoid_when": [
+        "very ionic cases that behave like charged-organic systems"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Routine hybrid defaults remain broadly acceptable.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30.",
+        "Standalone D3/D4 labels remain advisory in the compute runner unless an explicit dispersion extension is enabled."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Alternative hybrid with slightly different exchange-correlation balance.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "spectroscopy": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-TZVP",
+      "dispersion": "d3bj",
+      "rationale": "Triple-zeta single point for main-group metal compound energetics. This remains a broad placeholder rather than a spectroscopy-specialized rule.",
+      "references": [
+        {
+          "doi": "10.1039/B508541A",
+          "short": "Weigend & Ahlrichs 2005"
+        }
+      ],
+      "confidence": 0.77,
+      "applicability": "broad spectroscopy placeholder workflow for main-group metal compounds in a single-reference DFT workflow.",
+      "avoid_when": [
+        "very ionic cases that behave like charged-organic systems"
+      ],
+      "cost_tier": "moderate-high",
+      "evidence_strength": "medium",
+      "community_consensus": "Routine hybrid defaults remain broadly acceptable.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Alternative hybrid with slightly different exchange-correlation balance.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    },
+    "esp_mapping": {
+      "functional": "B3LYP-D3(BJ)",
+      "basis": "def2-SVP",
+      "dispersion": "d3bj",
+      "rationale": "Main-group metal compounds (Li, Na, Mg, Al, etc.) are generally well-described by standard hybrid DFT. The def2 basis sets cover the entire periodic table and include ECPs where appropriate. Use qualitatively unless the system behaves more like a charged-organic case.",
+      "references": [
+        {
+          "doi": "10.1002/anie.202205735",
+          "short": "Bursch et al. 2022"
+        }
+      ],
+      "confidence": 0.8,
+      "applicability": "qualitative electrostatic potential mapping for main-group metal compounds in a single-reference DFT workflow.",
+      "avoid_when": [
+        "very ionic cases that behave like charged-organic systems",
+        "quantitative charge fitting without an upgraded basis"
+      ],
+      "cost_tier": "moderate",
+      "evidence_strength": "medium",
+      "community_consensus": "Routine hybrid defaults remain broadly acceptable.",
+      "implementation_notes": [
+        "Last literature review and runtime-support check completed on 2026-03-30."
+      ],
+      "basis_upgrade_path": "Use a triple-zeta or diffuse-augmented follow-up when moving from structure generation to quantitative energetics.",
+      "validation_notes": [
+        "Confidence is heuristic and should be cross-checked against convergence quality, chemistry type, and benchmark fit."
+      ],
+      "last_reviewed": "2026-03-30",
+      "source_bucket": [
+        "b",
+        "d2"
+      ],
+      "alternatives": [
+        {
+          "functional": "PBE0-D3(BJ)",
+          "basis": "def2-SVP",
+          "rationale": "Alternative hybrid with slightly different exchange-correlation balance.",
+          "pyscf_supported": true,
+          "future_candidate": false,
+          "evidence_strength": "medium",
+          "implementation_notes": "Use as an alternative/cross-check, not an automatic replacement for the shipped default.",
+          "last_reviewed": "2026-03-30",
+          "references": [
+            {
+              "doi": "10.1002/anie.202205735",
+              "short": "Bursch et al. 2022"
+            },
+            {
+              "doi": "10.1039/C7CP04913G",
+              "short": "Goerigk et al. 2017 (GMTKN55)"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

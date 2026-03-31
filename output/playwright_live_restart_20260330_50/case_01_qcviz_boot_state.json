@@ -1,0 +1,246 @@
+{
+  "state": {
+    "title": "QCViz-MCP v3",
+    "ws_label": "Connected",
+    "dom_count": 1,
+    "clarify_count": 0,
+    "confirm_count": 0,
+    "chat_text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+    "messages": [
+      {
+        "classes": [
+          "chat-msg",
+          "chat-msg--system"
+        ],
+        "text": "Welcome to QCViz-MCP v3. I can run quantum\n                    chemistry calculations using PySCF with Gemini AI planning.\n                    Ask me to compute energies, optimize geometries, visualize\n                    orbitals and ESP maps. Supports Korean input and ion pairs.",
+        "isUser": false,
+        "isClarify": false,
+        "isConfirm": false
+      }
+    ],
+    "clarifies": [],
+    "confirms": [],
+    "active_result": null,
+    "active_result_sig": "",
+    "active_job_id": "",
+    "jobs_count": 0,
+    "jobs": [],
+    "session_id": "qcviz-mndfezxf-t0ewym",
+    "last_user_input": ""
+  },
+  "events": [
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 0 filter: (none)"
+      },
+      "at": 1774889558.170858
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:8817/session/bootstrap",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.1726537
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] Restoring 0 chat messages from localStorage"
+      },
+      "at": 1774889558.1728518
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] Restoring 0 chat messages from localStorage"
+      },
+      "at": 1774889558.1729596
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] connect() — ws state: null reconnectCount: 0"
+      },
+      "at": 1774889558.1730766
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] connect — opening WebSocket: ws://172.27.109.85:8817/ws/chat?session_id=qcviz-mndfezxf-t0ewym&session_token=Fyn5Bjg1QRyOcLfv52nWYF63vBbYN5WfiHzm0TMWOjg"
+      },
+      "at": 1774889558.1731453
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — url: /compute/jobs?include_result=true&session_id=qcviz-mndfezxf-t0ewym"
+      },
+      "at": 1774889558.1732078
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:8817/session/bootstrap",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.1790924
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ✔ WebSocket OPEN"
+      },
+      "at": 1774889558.1925464
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] setWsConnected: true"
+      },
+      "at": 1774889558.192693
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] 📡 Event status:changed — kind: idle text: Connected"
+      },
+      "at": 1774889558.192828
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] updateStatus — kind: idle text: Connected"
+      },
+      "at": 1774889558.1929312
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] startPing — interval: 20000 ms"
+      },
+      "at": 1774889558.193013
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📤 wsSend: hello length: 131"
+      },
+      "at": 1774889558.1931062
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 207"
+      },
+      "at": 1774889558.1947525
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ready keys: type,session_id,session_token,auth_user,message,timestamp"
+      },
+      "at": 1774889558.195002
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: idle → idle"
+      },
+      "at": 1774889558.1951108
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] 📨 WS message received, length: 116"
+      },
+      "at": 1774889558.291908
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] handleMessage — type: ack keys: type,session_id,status,turn_id,timestamp"
+      },
+      "at": 1774889558.292076
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[chat.js] ← ACK/ready, chatState: idle → idle"
+      },
+      "at": 1774889558.2921755
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "http://172.27.109.85:8817/compute/jobs?include_result=true&session_id=qcviz-mndfezxf-t0ewym",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.2923048
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — response status: 200"
+      },
+      "at": 1774889558.2923748
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] fetchHistory — loaded 0 jobs from server"
+      },
+      "at": 1774889558.29248
+    },
+    {
+      "kind": "console",
+      "payload": {
+        "type": "log",
+        "text": "[app.js] renderHistory — total jobs: 0 filter: (none)"
+      },
+      "at": 1774889558.2925773
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.3536677
+    },
+    {
+      "kind": "response",
+      "payload": {
+        "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+        "status": 200,
+        "ok": true
+      },
+      "at": 1774889558.3629184
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+source_id,authors,title,journal_or_venue,year,doi_or_url,peer_reviewed,comparison_codes,comparison_type,key_finding
+GPU4PySCF_v1,"Wu, X.; Sun, Q. et al.",Enhancing GPU-acceleration in the Python-based Simulations of Chemistry Framework,WIREs Comput. Mol. Sci.,2024,10.1002/wcms.70008 | arXiv:2404.09452,yes,Q-Chem 6.1,energy+gradient+solvation,Single-digit μHartree agreement across multiple functionals and basis sets
+Li2025_JPCA,"Li, R.; Sun, Q.; Zhang, X.; Chan, G. K.-L.",Introducing GPU Acceleration into PySCF,J. Phys. Chem. A,2025,10.1021/acs.jpca.4c05876,yes,"GAMESS, ORCA, LSDalton",energy+atomization,μHartree agreement; most direct PySCF-ORCA comparison available
+Pu2025_APL,"Pu, Z.; Sun, Q. et al.",Enhancing PySCF-based QC Simulations with Modern Hardware,APL Computational Physics,2025,10.1063/5.XXXXXX | arXiv:2506.06661,yes,GAMESS,S22 benchmark,Accuracy maintained with performance enhancements
+SciPy2025,"Sahara et al.",Comparative Performance Analysis of Modern DFT Implementations,Proc. SciPy 2025,2025,proceedings.scipy.org/articles/dvta2583,yes,SIESTA,energy+speed+cost,Chemical accuracy maintained; 390x speedup with GPU4PySCF
+JoltQC2025,various,Designing QC algorithms with JIT compilation,arXiv,2025,arXiv:2507.09772,preprint,GPU4PySCF,energy,GPU4PySCF used as accuracy reference baseline
+Rowan2025,"Vandezande, J.",GPU-Accelerated DFT with GPU4PySCF,Rowan Scientific Blog,2025,rowansci.com/blog/gpu4pyscf,no,"Psi4, PySCF CPU",energy+speed,Energy diff smaller than density fitting error; 10-50x faster than Psi4
+GH688,community,Total energy differences among pyscf and other codes,GitHub Issue #688,2024,github.com/pyscf/pyscf/issues/688,no,"Gaussian, GAMESS, NWChem",energy,~2.4 mHartree gap with default grid; resolved by grid refinement
+GH2334,community,PySCF Hessian much slower than ORCA and Gaussian,GitHub Issue #2334,2024,github.com/pyscf/pyscf/issues/2334,no,"ORCA, Gaussian",speed (Hessian),CPU PySCF Hessian slower; GPU4PySCF addresses this
+r2bench,r2compchem,benchmark-qm,GitHub,2020,github.com/r2compchem/benchmark-qm,no,"Gaussian 09, ORCA 4, Turbomole 7, NWChem, Psi4, etc.",speed,PySCF 1.7 slower on CPU; old version with tight defaults
+PySCF_orig,"Sun, Q. et al.",PySCF: the Python-based simulations of chemistry framework,WIREs Comput. Mol. Sci.,2018,10.1002/wcms.1340,yes,,foundational,Original PySCF paper; ~1400 citations
+PySCF_update,"Sun, Q. et al.",Recent developments in the PySCF program package,J. Chem. Phys.,2020,10.1063/5.0006074,yes,,foundational,PySCF update paper; standard reference

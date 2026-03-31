@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="560" viewBox="0 0 1800 560" fill="none">
+  <defs>
+    <linearGradient id="headerGrad" x1="0" y1="0" x2="1800" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF2FF"/>
+      <stop offset="1" stop-color="#F8FAFC"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowDark" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M1 1L11 6L1 11V1Z" fill="#475569"/>
+    </marker>
+    <marker id="arrowAccent" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M1 1L11 6L1 11V1Z" fill="#6366F1"/>
+    </marker>
+    <marker id="arrowSafe" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M1 1L11 6L1 11V1Z" fill="#059669"/>
+    </marker>
+    <style>
+      .h1 { font-family: "Segoe UI", Arial, sans-serif; font-size: 28px; font-weight: 700; fill: #0F172A; }
+      .h2 { font-family: "Segoe UI", Arial, sans-serif; font-size: 16px; font-weight: 700; fill: #1E293B; letter-spacing: 1px; }
+      .tag { font-family: "Consolas", "Courier New", monospace; font-size: 12px; font-weight: 700; fill: #475569; }
+      .title { font-family: "Segoe UI", Arial, sans-serif; font-size: 22px; font-weight: 700; fill: #111827; }
+      .body { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; font-weight: 600; fill: #475569; }
+      .small { font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; font-weight: 600; fill: #64748B; }
+      .tiny { font-family: "Segoe UI", Arial, sans-serif; font-size: 12px; font-weight: 700; fill: #475569; }
+      .callout { font-family: "Segoe UI", Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #334155; }
+      .mono { font-family: "Consolas", "Courier New", monospace; font-size: 13px; font-weight: 700; fill: #0F172A; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="560" fill="#FFFFFF"/>
+  <rect x="20" y="20" width="1760" height="520" rx="24" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+
+  <rect x="20" y="20" width="1760" height="70" rx="24" fill="url(#headerGrad)"/>
+  <text x="54" y="62" class="h1">QCViz Full Runtime Architecture</text>
+  <text x="1390" y="62" class="body">Web-first, all-in-one path from question to result</text>
+
+  <line x1="48" y1="228" x2="1746" y2="228" stroke="#475569" stroke-width="7" marker-end="url(#arrowDark)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="50" y="160" width="200" height="120" rx="8" fill="#F8FAFC" stroke="#475569" stroke-width="4"/>
+    <rect x="50" y="160" width="200" height="24" fill="#E2E8F0"/>
+    <text x="66" y="176" class="tag">FEED-101</text>
+    <text x="150" y="217" text-anchor="middle" class="title">User Question</text>
+    <text x="150" y="246" text-anchor="middle" class="body">Natural language</text>
+    <text x="150" y="268" text-anchor="middle" class="small">fresh query or follow-up</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="300" y="148" width="230" height="144" rx="8" fill="#F5F3FF" stroke="#6366F1" stroke-width="4"/>
+    <rect x="300" y="148" width="230" height="24" fill="#DDD6FE"/>
+    <text x="316" y="164" class="tag">AI-201</text>
+    <text x="415" y="205" text-anchor="middle" class="title">LLM Orchestration</text>
+    <text x="415" y="232" text-anchor="middle" class="body">intent parsing · routing</text>
+    <text x="415" y="256" text-anchor="middle" class="small">Ingress Normalize + Router-Planner</text>
+    <text x="415" y="278" text-anchor="middle" class="small">shadow mode / heuristic fallback</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="590" y="148" width="230" height="144" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="4"/>
+    <rect x="590" y="148" width="230" height="24" fill="#DBEAFE"/>
+    <text x="606" y="164" class="tag">MC-301</text>
+    <text x="705" y="205" text-anchor="middle" class="title">MolChat</text>
+    <text x="705" y="232" text-anchor="middle" class="body">structure grounding</text>
+    <text x="705" y="256" text-anchor="middle" class="body">3D retrieval</text>
+    <text x="705" y="278" text-anchor="middle" class="small">semantic candidate generation</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="880" y="148" width="240" height="144" rx="8" fill="#ECFDF5" stroke="#059669" stroke-width="4"/>
+    <rect x="880" y="148" width="240" height="24" fill="#D1FAE5"/>
+    <text x="896" y="164" class="tag">AD-401</text>
+    <text x="1000" y="205" text-anchor="middle" class="title">Setup Recommender</text>
+    <text x="1000" y="232" text-anchor="middle" class="body">functional · basis · preset</text>
+    <text x="1000" y="256" text-anchor="middle" class="small">literature-backed rule / lookup</text>
+    <text x="1000" y="278" text-anchor="middle" class="small">not LLM-only scientific authority</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="1180" y="148" width="220" height="144" rx="8" fill="#FFF7ED" stroke="#EA580C" stroke-width="4"/>
+    <rect x="1180" y="148" width="220" height="24" fill="#FED7AA"/>
+    <text x="1196" y="164" class="tag">QC-501</text>
+    <text x="1290" y="205" text-anchor="middle" class="title">PySCF Engine</text>
+    <text x="1290" y="232" text-anchor="middle" class="body">real DFT / HF execution</text>
+    <text x="1290" y="256" text-anchor="middle" class="small">energy · SCF · convergence</text>
+    <text x="1290" y="278" text-anchor="middle" class="small">every number comes from PySCF</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="1460" y="148" width="230" height="144" rx="8" fill="#FFF1F2" stroke="#E11D48" stroke-width="4"/>
+    <rect x="1460" y="148" width="230" height="24" fill="#FFE4E6"/>
+    <text x="1476" y="164" class="tag">PKG-601</text>
+    <text x="1575" y="205" text-anchor="middle" class="title">Result Package</text>
+    <text x="1575" y="232" text-anchor="middle" class="body">energy · convergence</text>
+    <text x="1575" y="256" text-anchor="middle" class="body">interpretation · visualization data</text>
+    <text x="1575" y="278" text-anchor="middle" class="small">browser-ready result envelope</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="1520" y="344" width="210" height="120" rx="8" fill="#F8FAFC" stroke="#475569" stroke-width="4"/>
+    <rect x="1520" y="344" width="210" height="24" fill="#E2E8F0"/>
+    <text x="1536" y="360" class="tag">UI-701</text>
+    <text x="1625" y="401" text-anchor="middle" class="title">Browser UI</text>
+    <text x="1625" y="428" text-anchor="middle" class="body">3D visualization</text>
+    <text x="1625" y="450" text-anchor="middle" class="body">follow-up session</text>
+  </g>
+
+  <line x1="1575" y1="292" x2="1625" y2="344" stroke="#475569" stroke-width="6" marker-end="url(#arrowDark)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="310" y="370" width="220" height="92" rx="8" fill="#F8FAFC" stroke="#94A3B8" stroke-width="3" stroke-dasharray="8 8"/>
+    <text x="326" y="395" class="tag">FB-202</text>
+    <text x="420" y="426" text-anchor="middle" class="callout">Heuristic Fallback</text>
+    <text x="420" y="448" text-anchor="middle" class="small">safe deterministic backup path</text>
+  </g>
+  <line x1="420" y1="370" x2="420" y2="292" stroke="#94A3B8" stroke-width="4" stroke-dasharray="8 8" marker-end="url(#arrowDark)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="598" y="344" width="214" height="120" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="3"/>
+    <text x="620" y="374" class="tag">CTRL-311</text>
+    <text x="705" y="405" text-anchor="middle" class="callout">Grounding Merge</text>
+    <text x="705" y="428" text-anchor="middle" class="small">direct answer / clarification</text>
+    <text x="705" y="450" text-anchor="middle" class="small">compute-ready decision</text>
+  </g>
+  <line x1="705" y1="292" x2="705" y2="344" stroke="#6366F1" stroke-width="5" marker-end="url(#arrowAccent)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="892" y="344" width="216" height="120" rx="8" fill="#ECFDF5" stroke="#059669" stroke-width="3"/>
+    <text x="914" y="374" class="tag">CTRL-411</text>
+    <text x="1000" y="405" text-anchor="middle" class="callout">Execution Guard</text>
+    <text x="1000" y="428" text-anchor="middle" class="small">no unresolved structure</text>
+    <text x="1000" y="450" text-anchor="middle" class="small">no clarification leakage to compute</text>
+  </g>
+  <line x1="1000" y1="292" x2="1000" y2="344" stroke="#059669" stroke-width="5" marker-end="url(#arrowSafe)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="1148" y="354" width="284" height="100" rx="8" fill="#FFF7ED" stroke="#F59E0B" stroke-width="3"/>
+    <text x="1170" y="382" class="tag">QA-510</text>
+    <text x="1290" y="413" text-anchor="middle" class="callout">Scientific Trust Boundary</text>
+    <text x="1290" y="437" text-anchor="middle" class="small">LLM interprets. Rules choose settings. PySCF computes.</text>
+  </g>
+  <line x1="1290" y1="354" x2="1290" y2="292" stroke="#F59E0B" stroke-width="4" marker-end="url(#arrowDark)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="50" y="348" width="200" height="116" rx="8" fill="#F8FAFC" stroke="#94A3B8" stroke-width="3" stroke-dasharray="8 8"/>
+    <text x="66" y="374" class="tag">RECYCLE-102</text>
+    <text x="150" y="406" text-anchor="middle" class="callout">Follow-up Session</text>
+    <text x="150" y="430" text-anchor="middle" class="small">same structure reuse</text>
+    <text x="150" y="452" text-anchor="middle" class="small">parameter refinement</text>
+  </g>
+  <path d="M1625 464V504H150V464" stroke="#475569" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#arrowDark)"/>
+
+  <g transform="translate(54 106)">
+    <text x="0" y="0" class="h2">MAIN PROCESS LINE</text>
+  </g>
+  <g transform="translate(56 332)">
+    <text x="0" y="0" class="h2">CONTROL / SAFETY / SESSION LAYERS</text>
+  </g>
+
+  <g transform="translate(638 500)">
+    <rect x="0" y="0" width="520" height="30" rx="15" fill="#EEF2FF" stroke="#C7D2FE" stroke-width="2"/>
+    <text x="260" y="20" text-anchor="middle" class="mono">Question -&gt; Grounding -&gt; Setup -&gt; PySCF -&gt; Browser Result</text>
+  </g>
+</svg>

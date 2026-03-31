@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <clipPath id="slideClipB">
+      <rect x="0" y="0" width="1920" height="1080"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#slideClipB)">
+    <!-- Base -->
+    <rect x="0" y="0" width="1920" height="1080" fill="#1B3A5C"/>
+    
+    <!-- Diagonal structural block - dark -->
+    <polygon points="1100,0 1920,0 1920,1080 700,1080" fill="#142D4A"/>
+    
+    <!-- Secondary diagonal accent -->
+    <polygon points="1050,0 1150,0 750,1080 650,1080" fill="#24547A"/>
+    
+    <!-- Thin diagonal briefing lines -->
+    <line x1="1200" y1="0" x2="800" y2="1080" stroke="#1E4568" stroke-width="1"/>
+    <line x1="1300" y1="0" x2="900" y2="1080" stroke="#1E4568" stroke-width="0.5"/>
+    <line x1="1400" y1="0" x2="1000" y2="1080" stroke="#1E4568" stroke-width="0.5"/>
+    <line x1="1500" y1="0" x2="1100" y2="1080" stroke="#1E4568" stroke-width="0.5"/>
+    <line x1="1600" y1="0" x2="1200" y2="1080" stroke="#1E4568" stroke-width="0.5"/>
+    <line x1="1700" y1="0" x2="1300" y2="1080" stroke="#1E4568" stroke-width="0.5"/>
+    
+    <!-- Massive section number on right -->
+    <text x="1820" y="750" font-family="Arial, Helvetica, sans-serif" font-size="580" font-weight="900" fill="#1A3350" text-anchor="end" letter-spacing="-20">03</text>
+    
+    <!-- Top accent bar -->
+    <rect x="0" y="0" width="1920" height="5" fill="#E8833A"/>
+    
+    <!-- Left content zone -->
+    <!-- Section label -->
+    <rect x="80" y="280" width="50" height="5" fill="#E8833A"/>
+    <text x="80" y="320" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#E8833A" letter-spacing="5">CHAPTER III</text>
+    
+    <!-- Title -->
+    <text x="80" y="430" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="800" fill="#FFFFFF" letter-spacing="0">Validation &amp;</text>
+    <text x="80" y="505" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="800" fill="#FFFFFF" letter-spacing="0">Benchmarking</text>
+    
+    <!-- Subtitle -->
+    <text x="80" y="580" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#94B8D4">Comparing model predictions against experimental</text>
+    <text x="80" y="610" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#94B8D4">measurements and established computational baselines</text>
+    
+    <!-- Accent line -->
+    <rect x="80" y="640" width="80" height="3" fill="#E8833A"/>
+    
+    <!-- Info tags -->
+    <rect x="80" y="720" width="160" height="32" fill="none" stroke="#3A6A8E" stroke-width="1"/>
+    <text x="160" y="742" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#6B99B8" text-anchor="middle" letter-spacing="2">ACCURACY</text>
+    
+    <rect x="260" y="720" width="160" height="32" fill="none" stroke="#3A6A8E" stroke-width="1"/>
+    <text x="340" y="742" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#6B99B8" text-anchor="middle" letter-spacing="2">COVERAGE</text>
+    
+    <rect x="440" y="720" width="200" height="32" fill="none" stroke="#3A6A8E" stroke-width="1"/>
+    <text x="540" y="742" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#6B99B8" text-anchor="middle" letter-spacing="2">REPRODUCIBILITY</text>
+    
+    <!-- Bottom bar -->
+    <rect x="0" y="1040" width="1920" height="40" fill="#0F2438"/>
+    <text x="80" y="1066" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#4A7A9E" letter-spacing="2">COMPUTATIONAL CHEMISTRY LAB · INTERNAL REVIEW · Q1 2026</text>
+    <text x="1840" y="1066" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#4A7A9E" text-anchor="end" letter-spacing="1">SLIDE 14 / 28</text>
+  </g>
+</svg>

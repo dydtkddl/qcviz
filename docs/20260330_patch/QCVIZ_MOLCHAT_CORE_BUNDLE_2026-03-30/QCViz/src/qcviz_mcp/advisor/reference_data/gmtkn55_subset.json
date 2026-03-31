@@ -1,0 +1,128 @@
+{
+  "_metadata": {
+    "description": "GMTKN55 subset: selected reaction energies from well-established benchmarks",
+    "primary_source": {
+      "short": "Goerigk et al. PCCP 2017, 19, 32184",
+      "doi": "10.1039/C7CP04913G"
+    },
+    "secondary_sources": [
+      {
+        "short": "Karton et al. CPL 2011, 510, 165 (W4-11)",
+        "doi": "10.1016/j.cplett.2011.05.007"
+      },
+      {
+        "short": "Rezac et al. JCTC 2011, 7, 2427 (S66)",
+        "doi": "10.1021/ct2002946"
+      },
+      {
+        "short": "Chase, NIST-JANAF Thermochem. Tables 4th ed. 1998",
+        "doi": "10.18434/T42S31"
+      },
+      {
+        "short": "Ruscic et al. ATcT (Active Thermochem. Tables)",
+        "doi": "10.1021/jp047912y"
+      }
+    ],
+    "units": { "energy": "kcal/mol" },
+    "note": "Positive values indicate endothermic in the forward direction (energy required). Noncovalent interaction energies are negative (stabilizing).",
+    "last_modified": "2026-03-08"
+  },
+  "reactions": {
+    "H2 -> 2H": {
+      "ref_energy_kcal": 109.5,
+      "type": "atomization",
+      "source": "W4-11, Karton et al. 2011 (De value)",
+      "doi": "10.1016/j.cplett.2011.05.007"
+    },
+    "H2O -> H + OH": {
+      "ref_energy_kcal": 118.8,
+      "type": "bond_dissociation",
+      "source": "ATcT, Ruscic et al.; Wikipedia BDE table",
+      "doi": "10.1021/jp047912y"
+    },
+    "CH4 -> CH3 + H": {
+      "ref_energy_kcal": 104.9,
+      "type": "bond_dissociation",
+      "source": "ATcT, NIST-JANAF",
+      "doi": "10.1021/jp047912y"
+    },
+    "C2H6 -> 2CH3": {
+      "ref_energy_kcal": 90.1,
+      "type": "bond_dissociation",
+      "source": "W4-11",
+      "doi": "10.1016/j.cplett.2011.05.007"
+    },
+    "H2 + F2 -> 2HF": {
+      "ref_energy_kcal": -130.6,
+      "type": "reaction",
+      "source": "W4, ATcT",
+      "doi": "10.1016/j.cplett.2011.05.007"
+    },
+    "H2 + Cl2 -> 2HCl": {
+      "ref_energy_kcal": -44.5,
+      "type": "reaction",
+      "source": "W4, ATcT",
+      "doi": "10.1016/j.cplett.2011.05.007"
+    },
+    "CO + H2O -> CO2 + H2 (WGSR)": {
+      "ref_energy_kcal": -6.8,
+      "type": "reaction",
+      "source": "NIST-JANAF Thermochemical Tables, 4th ed., Chase 1998. Computed from standard enthalpies of formation at 298 K.",
+      "doi": "10.18434/T42S31"
+    },
+    "CH4 + 2O2 -> CO2 + 2H2O (combustion)": {
+      "ref_energy_kcal": -212.8,
+      "type": "reaction",
+      "source": "NIST-JANAF Thermochemical Tables, 4th ed., Chase 1998. Standard enthalpy of combustion of methane.",
+      "doi": "10.18434/T42S31"
+    },
+    "N2 + 3H2 -> 2NH3 (Haber-Bosch)": {
+      "ref_energy_kcal": -22.1,
+      "type": "reaction",
+      "source": "NIST-JANAF Thermochemical Tables, 4th ed., Chase 1998. DeltaHf(NH3) = -10.97 kcal/mol.",
+      "doi": "10.18434/T42S31"
+    },
+    "water_dimer_Cs": {
+      "ref_energy_kcal": -5.02,
+      "type": "noncovalent",
+      "source": "S66, Rezac et al. JCTC 2011",
+      "doi": "10.1021/ct2002946"
+    },
+    "formic_acid_dimer": {
+      "ref_energy_kcal": -18.61,
+      "type": "noncovalent",
+      "source": "S66, Rezac et al. JCTC 2011",
+      "doi": "10.1021/ct2002946"
+    },
+    "benzene_dimer_parallel_displaced": {
+      "ref_energy_kcal": -2.73,
+      "type": "noncovalent",
+      "source": "S66, Rezac et al. JCTC 2011",
+      "doi": "10.1021/ct2002946"
+    },
+    "benzene_dimer_T_shaped": {
+      "ref_energy_kcal": -2.74,
+      "type": "noncovalent",
+      "source": "S66, Rezac et al. JCTC 2011",
+      "doi": "10.1021/ct2002946"
+    },
+    "methane_dimer": {
+      "ref_energy_kcal": -0.53,
+      "type": "noncovalent",
+      "source": "S22, Jurecka et al. PCCP 2006",
+      "doi": "10.1039/B600027D"
+    },
+    "NH3_H2O_complex": {
+      "ref_energy_kcal": -6.41,
+      "type": "noncovalent",
+      "source": "S66, Rezac et al. JCTC 2011",
+      "doi": "10.1021/ct2002946"
+    },
+    "ethene_ethyne_complex": {
+      "ref_energy_kcal": -1.53,
+      "type": "noncovalent",
+      "source": "S66, Rezac et al. JCTC 2011",
+      "doi": "10.1021/ct2002946"
+    }
+  }
+}

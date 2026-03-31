@@ -1,0 +1,116 @@
+{
+  "dataset_id": "direct_molecule_compute_benchmark",
+  "version": 1,
+  "cases": [
+    {
+      "id": "direct_benzene_homo",
+      "input": "benzene HOMO 보여줘",
+      "variants": ["Show HOMO for benzene", "벤젠의 HOMO 오비탈 보여줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "orbital_preview",
+      "must_not_happen": ["semantic_grounding", "generic_fallback", "second_clarification"],
+      "notes": "Direct molecule plus orbital request should compute immediately."
+    },
+    {
+      "id": "direct_benzene_lumo",
+      "input": "benzene LUMO 보여줘",
+      "variants": ["Show LUMO for benzene", "벤젠의 LUMO 보여줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "orbital_preview",
+      "must_not_happen": ["semantic_grounding", "generic_fallback"],
+      "notes": "LUMO requests should share the same direct compute path."
+    },
+    {
+      "id": "direct_acetone_esp_acs",
+      "input": "Render ESP map for acetone using ACS preset",
+      "variants": ["acetone ESP map with ACS preset", "아세톤 ESP를 ACS 프리셋으로 보여줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "esp_map",
+      "must_not_happen": ["semantic_grounding", "unknown_acronym_grounding"],
+      "notes": "ACS should stay a preset token, not a structure acronym."
+    },
+    {
+      "id": "direct_water_opt",
+      "input": "water optimize geometry",
+      "variants": ["Optimize the geometry of water", "물 구조 최적화해줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "geometry_optimization",
+      "must_not_happen": ["semantic_grounding", "generic_fallback"],
+      "notes": "Geometry optimization with an explicit molecule should be compute-ready."
+    },
+    {
+      "id": "direct_ethanol_charges",
+      "input": "ethanol partial charges 보여줘",
+      "variants": ["Show Mulliken charges for ethanol", "에탄올 partial charge 계산해줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "partial_charges",
+      "must_not_happen": ["semantic_grounding", "generic_fallback"],
+      "notes": "Charge requests should route to partial charges without semantic clarification."
+    },
+    {
+      "id": "direct_pyridine_energy",
+      "input": "single point energy for pyridine",
+      "variants": ["pyridine single-point energy", "피리딘 single point energy 계산해줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "single_point",
+      "must_not_happen": ["semantic_grounding", "clarification_picker"],
+      "notes": "Explicit energy requests should go straight to compute-ready."
+    },
+    {
+      "id": "direct_naphthalene_homo",
+      "input": "naphthalene HOMO render",
+      "variants": ["Render HOMO for naphthalene", "나프탈렌 HOMO 보여줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "orbital_preview",
+      "must_not_happen": ["semantic_grounding", "second_clarification"],
+      "notes": "Aromatic direct molecules should not regress under the new lane logic."
+    },
+    {
+      "id": "direct_glycine_geometry",
+      "input": "analyze glycine geometry",
+      "variants": ["glycine geometry analysis", "글리신 구조 분석해줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "geometry_analysis",
+      "must_not_happen": ["semantic_grounding", "clarification_picker"],
+      "notes": "Geometry analysis stays on the direct compute path."
+    },
+    {
+      "id": "direct_ammonia_esp",
+      "input": "ammonia ESP map 보여줘",
+      "variants": ["Show ESP map for ammonia", "암모니아의 ESP를 보여줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "esp_map",
+      "must_not_happen": ["semantic_grounding", "generic_fallback"],
+      "notes": "ESP requests on known direct molecules should remain compute-ready."
+    },
+    {
+      "id": "direct_aspirin_opt",
+      "input": "aspirin geometry optimization",
+      "variants": ["Optimize aspirin geometry", "아스피린 구조 최적화해줘"],
+      "language": "mixed",
+      "category": "direct_molecule_compute",
+      "expected_lane": "compute_ready",
+      "expected_job_type": "geometry_optimization",
+      "must_not_happen": ["semantic_grounding", "clarification_picker"],
+      "notes": "Optimization on a direct molecule should not reopen semantic routing."
+    }
+  ]
+}
