@@ -127,6 +127,21 @@ def validate_session_token(session_id: Optional[str], session_token: Optional[st
     return bootstrap_or_validate_session(sid, token, allow_new=False)
 
 
+def invalidate_session(session_id: Optional[str], session_token: Optional[str] = None) -> bool:
+    sid = _safe_str(session_id)
+    token = _safe_str(session_token)
+    if not sid:
+        return False
+    with _LOCK:
+        record = _SESSIONS.get(sid)
+        if record is None:
+            return False
+        if token and token != record.session_token:
+            return False
+        _SESSIONS.pop(sid, None)
+        return True
+
+
 def session_auth_health() -> Dict[str, Any]:
     with _LOCK:
         _prune_locked()
@@ -139,6 +154,7 @@ def session_auth_health() -> Dict[str, Any]:
 
 __all__ = [
     "bootstrap_or_validate_session",
+    "invalidate_session",
     "session_auth_health",
     "validate_session_token",
 ]

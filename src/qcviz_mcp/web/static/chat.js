@@ -387,6 +387,20 @@
     return lines;
   }
 
+  function _resultSummary(result) {
+    if (!result) return "계산이 완료되었습니다. / Job completed.";
+    var explanation = result.explanation || {};
+    if (safeStr(explanation.summary)) return safeStr(explanation.summary);
+    if (safeStr(result.human_summary)) return safeStr(result.human_summary);
+    var structure = safeStr(result.structure_name || result.structure_query, "molecule");
+    var jobType = safeStr(result.job_type, "calculation");
+    var parts = [structure + "의 " + jobType + " 완료"];
+    if (result.total_energy_hartree != null && !Number.isNaN(Number(result.total_energy_hartree))) {
+      parts.push("E=" + Number(result.total_energy_hartree).toFixed(8) + " Ha");
+    }
+    return parts.join(" | ");
+  }
+
   function _updateQueueMeta(container, queue, status) {
     if (!container) return;
     var badge = container.querySelector(".progress-queue");
@@ -1091,6 +1105,8 @@
 
         case "job_update":
           var jobId = safeStr(msg.job_id);
+          var updateTurnId = safeStr(msg.turn_id);
+          var isUpdateForCurrentTurn = !updateTurnId || !currentTurnId || updateTurnId === currentTurnId;
           console.log("[chat.js] ← job_update, jobId:", jobId, "progress:", msg.progress,
             "step:", msg.step, "msg:", msg.message);
           if (jobId) {
@@ -1113,7 +1129,25 @@
             var terminalStatus = safeStr(msg.status || (msg.job && msg.job.status));
             if (terminalResult && terminalStatus === "completed") {
               console.log("[chat.js] ← terminal result attached to job_update for job:", jobId);
-              App.setActiveResult(terminalResult, { jobId: jobId, source: "job_update" });
+              if (isUpdateForCurrentTurn) {
+                App.setActiveResult(terminalResult, { jobId: jobId, source: "job_update" });
+                appendMessage("assistant", _resultSummary(terminalResult), {
+                  jobId: jobId,
+                  turnId: updateTurnId || currentTurnId,
+                  messageId: "job-result-" + jobId,
+                });
+              } else {
+                console.log("[chat.js] FAM-01: terminal result for old turn:", updateTurnId, "current:", currentTurnId, "— progress only");
+                var progressCard = chatMessages
+                  ? chatMessages.querySelector('[data-progress-job="' + jobId + '"]')
+                  : null;
+                if (progressCard) {
+                  var lbl = progressCard.querySelector(".progress-bar__label");
+                  var bar = progressCard.querySelector(".progress-bar__fill");
+                  if (lbl) lbl.textContent = "✔ 계산 완료 (이전 요청)";
+                  if (bar) bar.style.width = "100%";
+                }
+              }
             }
             if (msg.job) App.upsertJob(msg.job);
           }
@@ -1153,12 +1187,14 @@
           var result = msg.result || {};
           var job2 = msg.job || {};
           var jobId2 = safeStr(job2.job_id || msg.job_id);
+          var explicitResultTurnId = safeStr(msg.turn_id);
           var resultTurnId = safeStr(msg.turn_id || currentTurnId || pendingTurnId);
-          if (resultTurnId) {
+          var isResultForCurrentTurn = !explicitResultTurnId || !currentTurnId || explicitResultTurnId === currentTurnId;
+          if (isResultForCurrentTurn && resultTurnId) {
             currentTurnId = resultTurnId;
             pendingTurnId = null;
           }
-          if (jobId2) activeJobIdForChat = jobId2;
+          if (isResultForCurrentTurn && jobId2) activeJobIdForChat = jobId2;
           console.log("[chat.js] result — jobId:", jobId2, "result keys:",
             Object.keys(result).join(","),
             "has visualization:", !!result.visualization);
@@ -1189,14 +1225,22 @@
               status: (job2 && job2.status) || "completed",
             });
           }
-          if (result) {
+          if (result && isResultForCurrentTurn) {
             App.setActiveResult(result, { jobId: jobId2, source: "chat" });
           }
 
-          var summary = safeStr(msg.summary, "Calculation complete.");
-          appendMessage("assistant", summary, { turnId: resultTurnId, jobId: jobId2 });
-          retireAllInteractiveCards("completed");
-          App.setStatus("Ready", "idle", "chat");
+          if (isResultForCurrentTurn) {
+            var summary = safeStr(msg.summary, _resultSummary(result));
+            appendMessage("assistant", summary, {
+              turnId: resultTurnId,
+              jobId: jobId2,
+              messageId: "job-result-" + safeStr(jobId2 || resultTurnId),
+            });
+            retireAllInteractiveCards("completed");
+            App.setStatus("Ready", "idle", "chat");
+          } else {
+            console.log("[chat.js] FAM-01: result for old turn:", explicitResultTurnId, "current:", currentTurnId, "skipping chat render");
+          }
           break;
 
         case "error":
@@ -1544,7 +1588,16 @@
         pendingTurnId = null;
         currentTurnId = null;
         activeJobIdForChat = null;
+        chatState = STATE_IDLE;
         resetChatMessagesToBase();
+        updateSendButton();
+        stopPing();
+        reconnectCount = 0;
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+          ws.close(1000, "session_changed");
+        } else {
+          connect();
+        }
       }
       if (!historyRestored || changed) {
         _restoreChatHistory(true);

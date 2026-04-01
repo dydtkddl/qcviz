@@ -34,12 +34,18 @@ from qcviz_mcp.llm.normalizer import (
     analyze_structure_input,
     build_structure_hypotheses,
     extract_structure_candidate,
+    is_condensed_structural_formula,
     normalize_user_text,
 )
 from qcviz_mcp.observability import metrics, track_operation
 from qcviz_mcp.web.auth_store import get_auth_user
 from qcviz_mcp.web.job_backend import build_job_manager, get_job_backend_runtime
-from qcviz_mcp.web.conversation_state import load_conversation_state, update_conversation_state_from_execution
+from qcviz_mcp.web.conversation_state import (
+    build_canonical_result_key,
+    find_previous_result,
+    load_conversation_state,
+    update_conversation_state_from_execution,
+)
 from qcviz_mcp.web.session_auth import bootstrap_or_validate_session, validate_session_token
 from qcviz_mcp.web.result_explainer import build_result_explanation
 from qcviz_mcp.web.runtime_info import runtime_debug_info
@@ -464,12 +470,16 @@ def _public_plan_dict(plan: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
         "notes": out.get("notes"),
         "reasoning_notes": out.get("reasoning_notes"),
         "structure_query": out.get("structure_query"),
+        "structure_query_raw": out.get("structure_query_raw"),
+        "resolved_structure_name": out.get("resolved_structure_name"),
+        "resolved_smiles": out.get("resolved_smiles"),
         "structure_query_candidates": out.get("structure_query_candidates"),
         "formula_mentions": out.get("formula_mentions"),
         "alias_mentions": out.get("alias_mentions"),
         "canonical_candidates": out.get("canonical_candidates"),
         "raw_input": out.get("raw_input"),
         "mixed_input": out.get("mixed_input"),
+        "condensed_formula": out.get("condensed_formula"),
         "composition_kind": out.get("composition_kind"),
         "charge_hint": out.get("charge_hint"),
         "structures": out.get("structures"),
@@ -772,8 +782,13 @@ async def _resolve_structure_async(query: str) -> Dict[str, Any]:
             out = {
                 "xyz": result.xyz,
                 "smiles": result.smiles,
+                "resolved_smiles": getattr(result, "smiles", None),
                 "cid": result.cid,
                 "name": result.name or query,
+                "resolved_structure_name": result.name or query,
+                "structure_query_raw": (
+                    getattr(result, "query_plan", {}) or {}
+                ).get("raw_query"),
                 "source": result.source,
                 "sdf": result.sdf,
                 "molecular_weight": result.molecular_weight,
@@ -798,6 +813,39 @@ async def _resolve_structure_async(query: str) -> Dict[str, Any]:
                     f"Error during structure resolution: {e}"
                 ),
             )
+
+
+def _merge_resolved_structure_metadata(
+    prepared: Dict[str, Any],
+    resolved: Mapping[str, Any],
+    *,
+    original_query: str,
+) -> Dict[str, Any]:
+    original = _safe_str(original_query)
+    resolved_name = _safe_str(resolved.get("resolved_structure_name") or resolved.get("name"))
+    resolved_smiles = _safe_str(resolved.get("resolved_smiles") or resolved.get("smiles"))
+    structure_query_raw = _safe_str(prepared.get("structure_query_raw")) or _safe_str(resolved.get("structure_query_raw")) or (
+        original if is_condensed_structural_formula(original) else ""
+    )
+
+    if structure_query_raw:
+        prepared["structure_query_raw"] = structure_query_raw
+        prepared["condensed_formula"] = True
+    if resolved_name:
+        prepared["resolved_structure_name"] = resolved_name
+    if resolved_smiles:
+        prepared["resolved_smiles"] = resolved_smiles
+    if structure_query_raw:
+        prepared["structure_query"] = resolved_name or original or prepared.get("structure_query")
+        prepared["structure_query_candidates"] = [structure_query_raw]
+        prepared["formula_mentions"] = [structure_query_raw]
+        prepared["alias_mentions"] = []
+        prepared["canonical_candidates"] = [structure_query_raw]
+        prepared["mixed_input"] = False
+        prepared["composition_kind"] = None
+        prepared["structures"] = []
+        prepared["charge_hint"] = None
+    return prepared
 
 
 # FIX(M2): async ion pair resolution
@@ -1011,12 +1059,14 @@ def _heuristic_plan(message: str, payload: Optional[Mapping[str, Any]] = None) -
         "unknown_acronyms": list(routing.get("unknown_acronyms") or []),
         "normalized_text": normalization.get("normalized_text", text),
         "structure_query": structure_query,
+        "structure_query_raw": text.strip() if normalization.get("condensed_formula") else None,
         "structure_query_candidates": structure_candidates,
         "formula_mentions": list(normalization.get("formula_mentions") or []),
         "alias_mentions": list(normalization.get("alias_mentions") or []),
         "canonical_candidates": list(normalization.get("canonical_candidates") or []),
         "raw_input": normalization.get("raw_input"),
         "mixed_input": bool(normalization.get("mixed_input")),
+        "condensed_formula": bool(normalization.get("condensed_formula")),
         "mentioned_molecules": mentioned_molecules,
         "target_scope": target_scope,
         "selection_mode": selection_mode,
@@ -1585,6 +1635,21 @@ def _preserve_structure_decomposition(out: Dict[str, Any], *, source_text: str =
     if not query:
         return out
 
+    if bool(out.get("condensed_formula")) or is_condensed_structural_formula(query):
+        out["structure_query"] = query
+        out.setdefault("structure_query_raw", query)
+        out["structure_query_candidates"] = [query]
+        out["formula_mentions"] = [query]
+        out["alias_mentions"] = []
+        out["canonical_candidates"] = [query]
+        out["raw_input"] = query
+        out["mixed_input"] = False
+        out["condensed_formula"] = True
+        out["composition_kind"] = None
+        out["structures"] = []
+        out["charge_hint"] = None
+        return out
+
     analysis = analyze_structure_input(query)
     if not analysis.get("canonical_candidates"):
         return out
@@ -1670,12 +1735,16 @@ def _merge_plan_into_payload(
     if not out.get("structures") and plan.get("structures"):
         out["structures"] = plan.get("structures")
     for key in (
+        "structure_query_raw",
+        "resolved_structure_name",
+        "resolved_smiles",
         "structure_query_candidates",
         "formula_mentions",
         "alias_mentions",
         "canonical_candidates",
         "raw_input",
         "mixed_input",
+        "condensed_formula",
         "composition_kind",
         "charge_hint",
         "component_names",
@@ -1697,6 +1766,15 @@ def _merge_plan_into_payload(
             out["xyz"] = xyz_block
 
     message_normalization = normalize_user_text(raw_message or _extract_message(out))
+    if message_normalization.get("condensed_formula"):
+        raw_formula = _safe_str(raw_message or _extract_message(out) or message_normalization.get("raw_input"))
+        if raw_formula:
+            out.setdefault("structure_query_raw", raw_formula)
+            out.setdefault("structure_query", raw_formula)
+        out["condensed_formula"] = True
+        out["composition_kind"] = None
+        out["structures"] = []
+        out["charge_hint"] = None
     if message_normalization.get("semantic_descriptor") and out.get("structure_query") and not out.get("structures"):
         raw_variants = {
             str(item).strip().lower()
@@ -1788,6 +1866,9 @@ def _normalize_result_contract(result: Any, payload: Optional[Mapping[str, Any]]
     out.setdefault("job_type", _normalize_job_type(payload.get("job_type"), payload.get("planner_intent")))
     out.setdefault("structure_query", payload.get("structure_query"))
     out.setdefault("structure_name", payload.get("structure_query") or payload.get("structure_name"))
+    out.setdefault("structure_query_raw", payload.get("structure_query_raw"))
+    out.setdefault("resolved_structure_name", payload.get("resolved_structure_name") or out.get("structure_name"))
+    out.setdefault("resolved_smiles", payload.get("resolved_smiles") or out.get("smiles"))
     out.setdefault("method", payload.get("method") or getattr(pyscf_runner, "DEFAULT_METHOD", "B3LYP"))
     out.setdefault("basis", payload.get("basis") or getattr(pyscf_runner, "DEFAULT_BASIS", "def2-SVP"))
     out.setdefault("charge", _safe_int(payload.get("charge"), 0) or 0)
@@ -2041,7 +2122,10 @@ async def _run_batch_compute_async(
             structure_entry = {
                 "success": True,
                 "structure_query": molecule,
+                "structure_query_raw": resolved.get("structure_query_raw"),
                 "structure_name": resolved.get("name") or molecule,
+                "resolved_structure_name": resolved.get("resolved_structure_name") or resolved.get("name") or molecule,
+                "resolved_smiles": resolved.get("resolved_smiles") or resolved.get("smiles"),
                 "xyz": resolved.get("xyz"),
                 "source": resolved.get("source"),
             }
@@ -2057,6 +2141,9 @@ async def _run_batch_compute_async(
 
             child_payload = dict(prepared)
             child_payload["structure_query"] = structure_entry["structure_name"]
+            child_payload["structure_query_raw"] = structure_entry.get("structure_query_raw")
+            child_payload["resolved_structure_name"] = structure_entry.get("resolved_structure_name")
+            child_payload["resolved_smiles"] = structure_entry.get("resolved_smiles")
             child_payload["xyz"] = structure_entry["xyz"]
             child_payload["atom_spec"] = resolved.get("atom_spec")
             child_payload["batch_request"] = False
@@ -2149,11 +2236,13 @@ async def _run_direct_compute_async(
                     except Exception as _ion_exc:
                         logger.warning("Ion pair resolution failed, trying as single: %s", _ion_exc)
                         resolved = await _resolve_structure_async(query)
+                        _merge_resolved_structure_metadata(prepared, resolved, original_query=query)
                         prepared["xyz"] = resolved["xyz"]
                         if not prepared.get("structure_query") or prepared["structure_query"] == query:
                             prepared["structure_query"] = resolved.get("name", query)
                 else:
                     resolved = await _resolve_structure_async(query)
+                    _merge_resolved_structure_metadata(prepared, resolved, original_query=query)
                     prepared["xyz"] = resolved["xyz"]
                     if not prepared.get("structure_query") or prepared["structure_query"] == query:
                         prepared["structure_query"] = resolved.get("name", query)
@@ -2821,6 +2910,61 @@ def get_job_manager() -> InMemoryJobManager:
     return JOB_MANAGER
 
 
+def _payload_canonical_result_key(payload: Mapping[str, Any]) -> str:
+    prepared = dict(payload or {})
+    structure_name = _safe_str(
+        prepared.get("structure_name")
+        or prepared.get("structure_query")
+        or prepared.get("molecule_name")
+    )
+    if not structure_name:
+        return ""
+    return build_canonical_result_key(
+        structure_name=structure_name,
+        method=_safe_str(prepared.get("method")) or "B3LYP",
+        basis=_safe_str(prepared.get("basis")) or "def2-SVP",
+        job_type=_safe_str(prepared.get("job_type")) or "analyze",
+        charge=prepared.get("charge", 0),
+        multiplicity=prepared.get("multiplicity", 1),
+    )
+
+
+def _submit_or_reuse_job(
+    payload: Mapping[str, Any],
+    *,
+    manager: Optional[InMemoryJobManager] = None,
+) -> Dict[str, Any]:
+    manager = manager or get_job_manager()
+    prepared = dict(payload or {})
+    session_id = _safe_str(prepared.get("session_id"))
+    canonical_result_key = _payload_canonical_result_key(prepared)
+    previous_job_id = (
+        find_previous_result(session_id, canonical_result_key)
+        if session_id and canonical_result_key
+        else None
+    )
+    if previous_job_id:
+        previous = manager.get(previous_job_id, include_result=True, include_events=True)
+        if previous and previous.get("status") == "completed" and previous.get("result"):
+            reused = dict(previous)
+            reused["reused"] = True
+            reused["original_job_id"] = previous_job_id
+            reused["canonical_result_key"] = canonical_result_key
+            logger.info(
+                "Reusing previous completed result: session=%s key=%s job_id=%s",
+                session_id,
+                canonical_result_key,
+                previous_job_id,
+            )
+            return reused
+
+    submitted = manager.submit(prepared)
+    submitted["reused"] = False
+    if canonical_result_key:
+        submitted["canonical_result_key"] = canonical_result_key
+    return submitted
+
+
 # ── HTTP Endpoints ──────────────────────────────────────────
 
 @router.get("/health")
@@ -2877,11 +3021,16 @@ def submit_job(
         body["owner_username"] = auth_user["username"]
         body["owner_display_name"] = auth_user.get("display_name") or auth_user["username"]
     should_wait = bool(sync or wait or wait_for_result or body.get("sync") or body.get("wait") or body.get("wait_for_result"))
-    snapshot = JOB_MANAGER.submit(body)
+    snapshot = _submit_or_reuse_job(body, manager=JOB_MANAGER)
     if should_wait:
         terminal = JOB_MANAGER.wait(snapshot["job_id"], timeout=timeout)
         if terminal is None:
             raise HTTPException(status_code=404, detail="Job not found.")
+        terminal["reused"] = bool(snapshot.get("reused"))
+        if snapshot.get("original_job_id"):
+            terminal["original_job_id"] = snapshot.get("original_job_id")
+        if snapshot.get("canonical_result_key"):
+            terminal["canonical_result_key"] = snapshot.get("canonical_result_key")
         return {**terminal, "session_token": session_meta["session_token"]}
     return {**snapshot, "session_token": session_meta["session_token"]}
 
@@ -3103,6 +3252,7 @@ __all__ = [
     "_prepare_payload",
     "_public_plan_dict",
     "_safe_plan_message",
+    "_submit_or_reuse_job",
     "TERMINAL_STATES",
     "TERMINAL_FAILURE",
 ]

@@ -9,6 +9,8 @@ Pipeline:
 """
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 import os
 import difflib
@@ -22,6 +24,7 @@ from qcviz_mcp.llm.normalizer import (
     analyze_semantic_structure_query,
     analyze_structure_input,
     build_structure_hypotheses,
+    is_condensed_structural_formula,
     _structure_text_signature,
 )
 
@@ -30,9 +33,16 @@ from .molchat_client import MolChatClient
 from .pubchem_client import PubChemClient
 from .sdf_converter import sdf_to_xyz
 
+try:
+    from qcviz_mcp.llm.agent import QCVizAgent
+except Exception:
+    QCVizAgent = None  # type: ignore
+
 logger = logging.getLogger(__name__)
 
 _CACHE_MAX_SIZE = int(os.getenv("SCF_CACHE_MAX_SIZE", "256"))
+_LLM_AGENT: Optional[Any] = None
+_LLM_AGENT_LOCK = Lock()
 
 # Chemistry abbreviation → PubChem-searchable name
 CHEM_ABBREVIATIONS: Dict[str, str] = {
@@ -124,7 +134,186 @@ EXPECTED_FORMAL_CHARGES: Dict[str, int] = {
 
 LOCAL_QUERY_AUTOCORRECTS: Dict[str, str] = {
     "aminobutylic acid": "gamma-aminobutyric acid",
+    "aminobutyric acid": "gamma-aminobutyric acid",
+    "methyl ethyl aminje": "methylethylamine",
+    "methyl ethyl amine": "methylethylamine",
+    "diethyl aminje": "diethylamine",
+    "triethyl aminje": "triethylamine",
+    "etahnol": "ethanol",
+    "metahnol": "methanol",
+    "benzne": "benzene",
+    "tolueen": "toluene",
+    "aceton": "acetone",
+    "amonia": "ammonia",
+    "ammona": "ammonia",
+    "formaldehyd": "formaldehyde",
+    "aceticacid": "acetic acid",
+    "caffiene": "caffeine",
+    "cafeine": "caffeine",
 }
+
+_KNOWN_MOLECULE_NAMES: List[str] = sorted(
+    set(
+        list(CHEM_ABBREVIATIONS.values())
+        + list(LOCAL_QUERY_AUTOCORRECTS.values())
+        + [
+            "water",
+            "methane",
+            "ethane",
+            "propane",
+            "butane",
+            "methanol",
+            "ethanol",
+            "propanol",
+            "butanol",
+            "methylamine",
+            "ethylamine",
+            "dimethylamine",
+            "trimethylamine",
+            "diethylamine",
+            "triethylamine",
+            "methylethylamine",
+            "benzene",
+            "toluene",
+            "phenol",
+            "aniline",
+            "pyridine",
+            "naphthalene",
+            "styrene",
+            "biphenyl",
+            "acetone",
+            "acetic acid",
+            "formic acid",
+            "benzoic acid",
+            "ammonia",
+            "formaldehyde",
+            "acetaldehyde",
+            "glycine",
+            "urea",
+            "aspirin",
+            "caffeine",
+            "glucose",
+            "hydrogen peroxide",
+            "sulfuric acid",
+            "hydrochloric acid",
+            "acetylene",
+            "butadiene",
+            "glutamic acid",
+            "serotonin",
+            "acetonitrile",
+            "tetrahydrofuran",
+            "dimethyl sulfoxide",
+            "dichloromethane",
+            "chloroform",
+            "carbon dioxide",
+            "carbon monoxide",
+            "nitrobenzene",
+            "2,4,6-trinitrotoluene",
+            "fluorobenzene",
+            "cyclohexane",
+            "cyclopentane",
+            "furan",
+            "thiophene",
+            "imidazole",
+            "gamma-aminobutyric acid",
+        ]
+    )
+)
+_KNOWN_MOLECULE_NAMES_LOWER = [name.lower() for name in _KNOWN_MOLECULE_NAMES]
+_KNOWN_MOLECULE_NAME_MAP = {name.lower(): name for name in _KNOWN_MOLECULE_NAMES}
+_KNOWN_MOLECULE_NAME_COMPACT_MAP = {
+    name.lower().replace(" ", ""): name for name in _KNOWN_MOLECULE_NAMES
+}
+
+
+def _fuzzy_rescue_candidates(query: str, cutoff: float = 0.6, n: int = 5) -> List[str]:
+    """Generate typo-recovery candidates from a known molecule vocabulary."""
+    cleaned = str(query or "").strip().lower()
+    if not cleaned or len(cleaned) < 3:
+        return []
+    if cleaned in _KNOWN_MOLECULE_NAMES_LOWER:
+        return []
+
+    matches: List[str] = []
+    for token in difflib.get_close_matches(cleaned, _KNOWN_MOLECULE_NAMES_LOWER, n=n, cutoff=cutoff):
+        restored = _KNOWN_MOLECULE_NAME_MAP.get(token, token)
+        if restored.lower() not in {item.lower() for item in matches}:
+            matches.append(restored)
+
+    compact = cleaned.replace(" ", "")
+    if compact and compact != cleaned:
+        compact_candidates = difflib.get_close_matches(
+            compact,
+            list(_KNOWN_MOLECULE_NAME_COMPACT_MAP.keys()),
+            n=n,
+            cutoff=cutoff,
+        )
+        for token in compact_candidates:
+            restored = _KNOWN_MOLECULE_NAME_COMPACT_MAP.get(token, token)
+            if restored.lower() not in {item.lower() for item in matches}:
+                matches.append(restored)
+
+    return matches[:n]
+
+
+def _classify_resolution_failure(exc: Exception) -> str:
+    message = str(exc or "").lower()
+    if any(
+        token in message
+        for token in (
+            "connection",
+            "timeout",
+            "timed out",
+            "refused",
+            "event loop",
+            "closed",
+            "dns",
+            "ssl",
+            "network",
+            "transport",
+        )
+    ):
+        return "infrastructure"
+    return "no_match"
+
+
+def _get_llm_agent() -> Optional[Any]:
+    global _LLM_AGENT
+    if _LLM_AGENT is not None:
+        return _LLM_AGENT
+    if QCVizAgent is None:
+        return None
+    with _LLM_AGENT_LOCK:
+        if _LLM_AGENT is not None:
+            return _LLM_AGENT
+        try:
+            agent = QCVizAgent()
+        except Exception as exc:
+            logger.warning("QCVizAgent initialization failed for condensed formula fallback: %s", exc)
+            return None
+        if not getattr(agent, "gemini_api_key", None) and not getattr(agent, "openai_api_key", None):
+            return None
+        _LLM_AGENT = agent
+    return _LLM_AGENT
+
+
+def _extract_json_dict(raw: str) -> Dict[str, Any]:
+    text = str(raw or "").strip()
+    if not text:
+        return {}
+    try:
+        parsed = json.loads(text)
+        return parsed if isinstance(parsed, dict) else {}
+    except Exception:
+        pass
+    match = re.search(r"\{.*\}", text, re.S)
+    if not match:
+        return {}
+    try:
+        parsed = json.loads(match.group(0))
+        return parsed if isinstance(parsed, dict) else {}
+    except Exception:
+        return {}
 
 _BRACKET_ATOM_RE = re.compile(r"\[([^\]]+)\]")
 _CHARGE_TOKEN_RE = re.compile(r"(\+{1,4}|-{1,4}|[+-]\d+|\d+[+-])")
@@ -141,6 +330,9 @@ class StructureResult:
     name: str = ""
     source: str = ""  # "molchat", "pubchem", "builtin", etc.
     molecular_weight: Optional[float] = None
+    structure_query_raw: Optional[str] = None
+    resolved_structure_name: Optional[str] = None
+    resolved_smiles: Optional[str] = None
     query_plan: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -158,6 +350,7 @@ class StructureResolver:
         self._cache: OrderedDict[str, StructureResult] = OrderedDict()
         self._cache_max = cache_max_size
         self._cache_lock = Lock()
+        self._last_failure_class: Optional[str] = None
 
     # ── cache helpers ─────────────────────────────────────────
 
@@ -234,9 +427,11 @@ class StructureResolver:
 
     def _build_query_plan(self, query: str) -> Dict[str, Any]:
         raw_query = str(query or "").translate(_SUBSCRIPT_MAP).strip()
+        raw_query = re.sub(r"[‐‑‒–—−]", "-", raw_query)
         raw_query = re.sub(r"\s*/+\s*$", "", raw_query).strip()
         autocorrected_query = LOCAL_QUERY_AUTOCORRECTS.get(raw_query.lower(), raw_query)
         structure_analysis = analyze_structure_input(raw_query)
+        condensed_formula = bool(structure_analysis.get("condensed_formula")) or is_condensed_structural_formula(raw_query)
         semantic_info = analyze_semantic_structure_query(raw_query, structure_analysis=structure_analysis)
         translated = ko_aliases.translate(autocorrected_query)
         translated = " ".join(translated.split())
@@ -257,6 +452,27 @@ class StructureResolver:
                 return
             if token.lower() not in {item.lower() for item in candidate_queries}:
                 candidate_queries.append(token)
+
+        if condensed_formula:
+            add_candidate(raw_query)
+            return {
+                "raw_query": raw_query,
+                "normalized_query": raw_query,
+                "candidate_queries": candidate_queries or [raw_query],
+                "query_kind": "condensed_formula",
+                "translated_query": translated or raw_query,
+                "expected_charge": None,
+                "formula_mentions": [raw_query],
+                "alias_mentions": [],
+                "canonical_candidates": [raw_query],
+                "mixed_input": False,
+                "condensed_formula": True,
+                "semantic_descriptor": False,
+                "display_query": raw_query,
+                "hypothesis_confidence": 0.95,
+                "hypothesis_needs_clarification": False,
+                "reasoning_notes": ["condensed structural formula locked as single structure query"],
+            }
 
         if autocorrected_query.lower() != raw_query.lower():
             add_candidate(autocorrected_query)
@@ -311,6 +527,17 @@ class StructureResolver:
                 and _structure_text_signature(item) not in raw_signatures
             ]
 
+        existing_lower = {item.lower() for item in candidate_queries}
+        known_lower = set(_KNOWN_MOLECULE_NAMES_LOWER)
+        has_exact_match = bool(existing_lower & known_lower)
+        if not has_exact_match and not semantic_info.get("semantic_descriptor"):
+            fuzzy_candidates = _fuzzy_rescue_candidates(raw_query)
+            for candidate in fuzzy_candidates:
+                add_candidate(candidate)
+            if not fuzzy_candidates and translated and translated.lower() != raw_query.lower():
+                for candidate in _fuzzy_rescue_candidates(translated):
+                    add_candidate(candidate)
+
         fallback_candidates = candidate_queries
         if not fallback_candidates and not semantic_info.get("semantic_descriptor"):
             fallback_candidates = [raw_query]
@@ -347,6 +574,7 @@ class StructureResolver:
             "alias_mentions": list(structure_analysis.get("alias_mentions") or []),
             "canonical_candidates": list(structure_analysis.get("canonical_candidates") or []),
             "mixed_input": bool(structure_analysis.get("mixed_input")),
+            "condensed_formula": condensed_formula,
             "semantic_descriptor": bool(semantic_info.get("semantic_descriptor")),
             "display_query": display_query_value,
             "hypothesis_confidence": float(hypothesis_bundle.get("confidence") or 0.0),
@@ -367,6 +595,7 @@ class StructureResolver:
         try:
             search_payload = await self.molchat.search(cleaned, limit=5)
         except Exception as exc:
+            self._last_failure_class = _classify_resolution_failure(exc)
             logger.info("MolChat search fallback failed for %s: %s", cleaned, exc)
             return None
 
@@ -416,6 +645,7 @@ class StructureResolver:
 
         xyz = sdf_to_xyz(sdf, comment=resolved_name)
         logger.info("MolChat search fallback corrected %s -> %s (cid=%s)", cleaned, resolved_name, cid)
+        self._last_failure_class = None
         return StructureResult(
             xyz=xyz,
             sdf=sdf,
@@ -424,6 +654,8 @@ class StructureResolver:
             name=resolved_name,
             source="molchat_search_autocorrect",
             molecular_weight=molecular_weight,
+            resolved_structure_name=resolved_name,
+            resolved_smiles=smiles,
         )
 
     def suggest_candidate_queries(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
@@ -508,6 +740,88 @@ class StructureResolver:
         ranked.sort(key=_rank_key)
         return ranked[: max(1, int(limit or 5))]
 
+    async def _llm_condensed_formula_to_smiles(self, formula: str) -> Dict[str, Any]:
+        agent = _get_llm_agent()
+        if agent is None:
+            return {}
+
+        prompt = (
+            "You convert a condensed structural formula into a single-molecule canonical SMILES.\n"
+            "Return strict JSON only with keys \"smiles\" and optional \"resolved_name\".\n"
+            "Do not split substituents in parentheses into separate ions or components.\n"
+            "Do not invent salts, charge separation, or mixtures.\n"
+            "If uncertain, return {\"smiles\":\"\",\"resolved_name\":\"\"}.\n\n"
+            f"Input formula: {formula}\n"
+        )
+
+        raw = ""
+        if getattr(agent, "gemini_api_key", None) and hasattr(agent, "_gemini_generate"):
+            raw = await asyncio.to_thread(agent._gemini_generate, prompt, True)
+
+        if not raw and getattr(agent, "openai_api_key", None):
+            try:
+                from openai import OpenAI
+
+                def _call_openai() -> str:
+                    client = OpenAI(api_key=agent.openai_api_key)
+                    resp = client.chat.completions.create(
+                        model=agent.openai_model,
+                        temperature=0,
+                        response_format={"type": "json_object"},
+                        messages=[
+                            {"role": "system", "content": "Return strict JSON only."},
+                            {"role": "user", "content": prompt},
+                        ],
+                    )
+                    return str((resp.choices[0].message.content or "")).strip()
+
+                raw = await asyncio.to_thread(_call_openai)
+            except Exception as exc:
+                logger.info("OpenAI condensed formula fallback failed for %s: %s", formula, exc)
+
+        data = _extract_json_dict(raw)
+        smiles = str(data.get("smiles") or "").strip()
+        resolved_name = str(data.get("resolved_name") or "").strip()
+        if not smiles:
+            return {}
+        return {
+            "smiles": smiles,
+            "resolved_name": resolved_name,
+        }
+
+    async def _try_condensed_formula_llm_fallback(self, formula: str) -> Optional[StructureResult]:
+        payload = await self._llm_condensed_formula_to_smiles(formula)
+        smiles = str(payload.get("smiles") or "").strip()
+        resolved_name = str(payload.get("resolved_name") or "").strip() or formula
+        if not smiles:
+            return None
+
+        try:
+            sdf = await self.molchat.generate_3d_sdf(smiles)
+        except Exception as exc:
+            self._last_failure_class = _classify_resolution_failure(exc)
+            logger.info("Condensed formula LLM fallback generate-3d failed for %s: %s", formula, exc)
+            return None
+
+        if not sdf:
+            logger.info("Condensed formula LLM fallback returned unvalidated SMILES for %s: %s", formula, smiles)
+            return None
+
+        xyz = sdf_to_xyz(sdf, comment=resolved_name)
+        self._last_failure_class = None
+        return StructureResult(
+            xyz=xyz,
+            sdf=sdf,
+            smiles=smiles,
+            cid=None,
+            name=resolved_name,
+            source="llm_condensed_formula",
+            molecular_weight=None,
+            structure_query_raw=formula,
+            resolved_structure_name=resolved_name,
+            resolved_smiles=smiles,
+        )
+
     async def resolve(self, query: str) -> StructureResult:
         """Resolve a molecule query to XYZ coordinates.
 
@@ -521,9 +835,11 @@ class StructureResolver:
             ValueError: If structure cannot be resolved from any source.
         """
         if not query or not query.strip():
-            raise ValueError(
+            error = ValueError(
                 "구조 쿼리가 비어있습니다 / Structure query is empty"
             )
+            error.failure_class = "invalid_input"  # type: ignore[attr-defined]
+            raise error
 
         original_query = query.strip()
         query_plan = self._build_query_plan(original_query)
@@ -545,8 +861,11 @@ class StructureResolver:
                 return cached
 
         # Step 2: Try MolChat pipeline across candidate queries
+        saw_infrastructure_failure = False
         for candidate in query_plan["candidate_queries"]:
             result = await self._try_molchat_with_search_fallback(candidate)
+            if self._last_failure_class == "infrastructure":
+                saw_infrastructure_failure = True
             if result:
                 if not self._matches_expected_charge(result.smiles, query_plan.get("expected_charge")):
                     logger.info(
@@ -558,6 +877,10 @@ class StructureResolver:
                     )
                     continue
                 result.name = str(result.name or query_plan.get("display_query") or original_query)
+                result.resolved_structure_name = str(result.resolved_structure_name or result.name or original_query)
+                result.resolved_smiles = str(result.resolved_smiles or result.smiles or "").strip() or None
+                if query_plan.get("condensed_formula"):
+                    result.structure_query_raw = str(result.structure_query_raw or original_query)
                 result.query_plan = query_plan
                 self._cache_put(candidate.lower().strip(), result)
                 return result
@@ -567,6 +890,8 @@ class StructureResolver:
         if pubchem_enabled:
             for candidate in query_plan["candidate_queries"]:
                 result = await self._try_pubchem(candidate)
+                if self._last_failure_class == "infrastructure":
+                    saw_infrastructure_failure = True
                 if result:
                     if not self._matches_expected_charge(result.smiles, query_plan.get("expected_charge")):
                         logger.info(
@@ -578,16 +903,29 @@ class StructureResolver:
                         )
                         continue
                     result.name = str(result.name or query_plan.get("display_query") or original_query)
+                    result.resolved_structure_name = str(result.resolved_structure_name or result.name or original_query)
+                    result.resolved_smiles = str(result.resolved_smiles or result.smiles or "").strip() or None
+                    if query_plan.get("condensed_formula"):
+                        result.structure_query_raw = str(result.structure_query_raw or original_query)
                     result.query_plan = query_plan
                     self._cache_put(candidate.lower().strip(), result)
                     return result
 
-        raise ValueError(
+        if query_plan.get("condensed_formula"):
+            result = await self._try_condensed_formula_llm_fallback(original_query)
+            if result:
+                result.query_plan = query_plan
+                self._cache_put(original_query.lower().strip(), result)
+                return result
+
+        error = ValueError(
             f"'{original_query}' 구조를 찾을 수 없습니다. "
             f"MolChat 및 PubChem에서 모두 실패했습니다. / "
             f"Cannot resolve structure for '{original_query}'. "
             f"Both MolChat and PubChem failed."
         )
+        error.failure_class = "infrastructure" if saw_infrastructure_failure else "no_match"  # type: ignore[attr-defined]
+        raise error
 
     # ── MolChat pipeline ─────────────────────────────────────
 
@@ -628,6 +966,7 @@ class StructureResolver:
             # SDF → XYZ
             xyz = sdf_to_xyz(sdf, comment=name)
 
+            self._last_failure_class = None
             return StructureResult(
                 xyz=xyz,
                 sdf=sdf,
@@ -636,9 +975,12 @@ class StructureResolver:
                 name=name,
                 source="molchat",
                 molecular_weight=molecular_weight,
+                resolved_structure_name=name,
+                resolved_smiles=smiles,
             )
 
         except Exception as e:
+            self._last_failure_class = _classify_resolution_failure(e)
             logger.warning(
                 "MolChat 파이프라인 실패: %s → %s / "
                 "MolChat pipeline failed: %s → %s",
@@ -676,6 +1018,7 @@ class StructureResolver:
 
             xyz = sdf_to_xyz(sdf, comment=name)
 
+            self._last_failure_class = None
             return StructureResult(
                 xyz=xyz,
                 sdf=sdf,
@@ -684,9 +1027,12 @@ class StructureResolver:
                 name=name,
                 source="pubchem",
                 molecular_weight=None,
+                resolved_structure_name=name,
+                resolved_smiles=smiles,
             )
 
         except Exception as e:
+            self._last_failure_class = _classify_resolution_failure(e)
             logger.warning(
                 "PubChem 파이프라인 실패: %s → %s / "
                 "PubChem pipeline failed: %s → %s",

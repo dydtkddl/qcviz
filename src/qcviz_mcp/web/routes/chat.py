@@ -30,6 +30,7 @@ from qcviz_mcp.llm.normalizer import (
     build_structure_hypotheses,
     detect_task_hint,
     extract_structure_candidate,
+    is_condensed_structural_formula,
     normalize_user_text,
     _structure_text_signature,
 )
@@ -52,6 +53,7 @@ from qcviz_mcp.web.routes.compute import (
     _prepare_payload,
     _public_plan_dict,
     _safe_plan_message,
+    _submit_or_reuse_job,
     get_job_manager,
 )
 
@@ -296,6 +298,8 @@ def _plan_status_message(plan: Optional[Mapping[str, Any]], payload: Optional[Ma
     job_type = _safe_str(payload.get("job_type") or plan.get("job_type") or "analyze")
     planner_structure = _safe_str(plan.get("structure_query"))
     final_structure = _safe_str(payload.get("structure_query") or planner_structure)
+    raw_structure = _safe_str(payload.get("structure_query_raw") or plan.get("structure_query_raw"))
+    resolved_structure = _safe_str(payload.get("resolved_structure_name") or final_structure)
     method = _safe_str(payload.get("method") or plan.get("method"))
     basis = _safe_str(payload.get("basis") or plan.get("basis"))
     orbital = _safe_str(payload.get("orbital") or plan.get("orbital"))
@@ -306,6 +310,9 @@ def _plan_status_message(plan: Optional[Mapping[str, Any]], payload: Optional[Ma
     parts = [f"Plan: {job_type}"]
     if final_structure:
         parts.append(f"structure={final_structure}")
+    if raw_structure and resolved_structure and raw_structure.lower() != resolved_structure.lower():
+        parts.append(f"input={raw_structure}")
+        parts.append(f"resolved={resolved_structure}")
     if planner_structure and final_structure and planner_structure.lower() != final_structure.lower():
         parts.append(f"planner_structure={planner_structure}")
     if method:
@@ -360,7 +367,13 @@ def _plan_is_chat_only(plan: Optional[Mapping[str, Any]]) -> bool:
         return False
     intent = _safe_str(plan.get("intent")).lower()
     query_kind = _safe_str(plan.get("query_kind")).lower()
-    return intent == "chat" or query_kind == "chat_only"
+    explanation_intent = bool(plan.get("explanation_intent"))
+    compute_intent = bool(plan.get("compute_intent"))
+    if intent == "chat" or query_kind == "chat_only":
+        return True
+    if explanation_intent and not compute_intent:
+        return True
+    return False
 
 
 def _resolve_chat_response(plan: Optional[Mapping[str, Any]], message: str, *, history: Optional[List[Dict[str, str]]] = None) -> str:
@@ -516,6 +529,54 @@ def _build_semantic_clarification_form(
                 type="text",
                 label="직접 입력 / Custom molecule name or SMILES",
                 placeholder="예: acetone, water, CC(=O)C",
+                help_text="custom을 선택한 경우에만 사용됩니다.",
+            ),
+        ],
+    )
+
+
+def _build_typo_clarification_form(
+    *,
+    original_query: str,
+    typo_candidates: List[str],
+) -> ClarificationForm:
+    options: List[ClarificationOption] = []
+    for candidate in typo_candidates:
+        token = _safe_str(candidate)
+        if not token:
+            continue
+        options.append(ClarificationOption(value=token, label=token))
+
+    original_token = _safe_str(original_query)
+    if original_token:
+        options.append(
+            ClarificationOption(
+                value=original_token,
+                label=f"원래 입력 그대로: {original_token}",
+            )
+        )
+    options.append(ClarificationOption(value="custom", label="직접 입력 / Custom"))
+
+    default_value = _safe_str(typo_candidates[0]) if typo_candidates else original_token
+    return ClarificationForm(
+        mode="typo_rescue",
+        title="분자 이름을 확인해 주세요 / Confirm molecule name",
+        message=f"'{original_token or original_query}'와 비슷한 분자를 찾았습니다. 의도한 분자를 선택해 주세요.",
+        fields=[
+            ClarificationField(
+                id="structure_choice",
+                type="select",
+                label="분자를 선택해 주세요 / Choose a molecule",
+                required=True,
+                options=options,
+                default=default_value or None,
+                help_text="오타가 의심되어 가까운 이름의 분자를 추천합니다.",
+            ),
+            ClarificationField(
+                id="structure_custom",
+                type="text",
+                label="직접 입력 / Custom molecule name or SMILES",
+                placeholder="예: methylethylamine, CC(=O)C",
                 help_text="custom을 선택한 경우에만 사용됩니다.",
             ),
         ],
@@ -752,7 +813,8 @@ def _detect_follow_up_molecule(message: str) -> Optional[str]:
 
 
 # ─── Clarification Flow helpers ────────────────────────
-CONFIDENCE_THRESHOLD = 0.75
+CONFIDENCE_THRESHOLD = float(os.getenv("QCVIZ_CONFIDENCE_THRESHOLD", "0.75"))
+_CLARIFICATION_TTL_SECONDS = int(os.getenv("QCVIZ_CLARIFICATION_TTL_SECONDS", str(30 * 60)))
 ALLOWED_FIELD_TYPES = {"text", "textarea", "radio", "select", "number", "checkbox"}
 _DISCOVERY_HINT_RE = re.compile(
     r"\b(suggest|recommend|example|examples|candidate|candidates|list)\b|"
@@ -765,6 +827,114 @@ _COMPOSITE_HINT_RE = re.compile(
     r"와|과|및|랑|하고",
     re.IGNORECASE,
 )
+
+
+def _postvalidate_plan_confidence(plan: Dict[str, Any]) -> Dict[str, Any]:
+    """Downshift overconfident compute plans for typo-like structure strings."""
+    from qcviz_mcp.services.structure_resolver import (
+        CHEM_ABBREVIATIONS,
+        _KNOWN_MOLECULE_NAMES,
+        _fuzzy_rescue_candidates,
+    )
+
+    adjusted = dict(plan or {})
+    structure_query = _safe_str(adjusted.get("structure_query"))
+    confidence = float(adjusted.get("confidence", 0.0) or 0.0)
+    query_kind = _safe_str(adjusted.get("query_kind"))
+    if query_kind == "chat_only" or not structure_query:
+        return adjusted
+
+    sq_lower = structure_query.lower()
+    known_lower = {name.lower() for name in _KNOWN_MOLECULE_NAMES}
+    abbrev_lower = {name.lower() for name in CHEM_ABBREVIATIONS.keys()}
+    auto_accept_local_aliases = {"aminobutylic acid", "aminobutyric acid"}
+
+    if sq_lower in known_lower or sq_lower in abbrev_lower or sq_lower in auto_accept_local_aliases:
+        return adjusted
+
+    fuzzy_candidates = _fuzzy_rescue_candidates(structure_query, cutoff=0.7, n=3)
+    if fuzzy_candidates:
+        if confidence > CONFIDENCE_THRESHOLD:
+            adjusted["confidence"] = 0.65
+            adjusted["confidence_band"] = "medium"
+            adjusted["needs_clarification"] = True
+            adjusted["clarification_kind"] = "typo_suspicion"
+            adjusted["typo_candidates"] = fuzzy_candidates
+            missing_slots = list(adjusted.get("missing_slots") or [])
+            if "structure_query" not in missing_slots:
+                missing_slots.append("structure_query")
+            adjusted["missing_slots"] = missing_slots
+            logger.info(
+                "FAM-02: confidence downgraded %.2f -> 0.65 for %r with typo candidates %s",
+                confidence,
+                structure_query,
+                fuzzy_candidates,
+            )
+        return adjusted
+
+    if confidence > CONFIDENCE_THRESHOLD:
+        adjusted["confidence"] = 0.45
+        adjusted["confidence_band"] = "low"
+        adjusted["needs_clarification"] = True
+        adjusted["clarification_kind"] = "unknown_molecule"
+        missing_slots = list(adjusted.get("missing_slots") or [])
+        if "structure_query" not in missing_slots:
+            missing_slots.append("structure_query")
+        adjusted["missing_slots"] = missing_slots
+        logger.info(
+            "FAM-02: confidence downgraded %.2f -> 0.45 for %r with no fuzzy rescue",
+            confidence,
+            structure_query,
+        )
+    return adjusted
+
+
+def _build_validated_plan(raw_message: str, payload: Mapping[str, Any]) -> Dict[str, Any]:
+    plan = _safe_plan_message(raw_message, payload) if raw_message else {}
+    if not plan:
+        return {}
+    return _postvalidate_plan_confidence(plan)
+
+
+async def _probe_verified_typo_candidates(
+    structure_query: str,
+    candidates: List[str],
+) -> List[str]:
+    query = _safe_str(structure_query)
+    candidate_list = _dedupe_strings([_safe_str(item) for item in list(candidates or []) if _safe_str(item)])
+    if not query or not candidate_list:
+        return []
+
+    resolver = _get_resolver()
+    if resolver is None:
+        return []
+
+    molchat_hits = set()
+    try:
+        search_payload = await resolver.molchat.search(query, limit=max(5, len(candidate_list) * 2))
+        for row in list((search_payload or {}).get("results") or []):
+            name = _safe_str((row or {}).get("name")).lower()
+            if not name:
+                continue
+            molchat_hits.add(name)
+            molchat_hits.add(name.replace(" ", ""))
+    except Exception as exc:
+        logger.info("Typo-candidate MolChat probe failed for %s: %s", query, exc)
+
+    verified: List[str] = []
+    for candidate in candidate_list:
+        lowered = candidate.lower()
+        compact = lowered.replace(" ", "")
+        is_verified = lowered in molchat_hits or compact in molchat_hits
+        if not is_verified:
+            try:
+                is_verified = bool(await resolver.pubchem.name_exists(candidate))
+            except Exception as exc:
+                logger.info("Typo-candidate PubChem probe failed for %s -> %s", candidate, exc)
+                is_verified = False
+        if is_verified:
+            verified.append(candidate)
+    return _dedupe_strings(verified)
 
 
 def _dedupe_strings(items: List[str]) -> List[str]:
@@ -784,7 +954,15 @@ def _dedupe_strings(items: List[str]) -> List[str]:
 def _session_get(session_id: str) -> Optional[Dict[str, Any]]:
     if not session_id:
         return None
+    now = _now_ts()
     with _CLARIFICATION_SESSION_LOCK:
+        expired_keys = [
+            sid
+            for sid, state in _CLARIFICATION_SESSIONS.items()
+            if (now - float(state.get("created_at") or 0.0)) > _CLARIFICATION_TTL_SECONDS
+        ]
+        for sid in expired_keys:
+            _CLARIFICATION_SESSIONS.pop(sid, None)
         saved = _CLARIFICATION_SESSIONS.get(session_id)
         return dict(saved) if saved else None
 
@@ -793,7 +971,9 @@ def _session_put(session_id: str, state: Mapping[str, Any]) -> None:
     if not session_id:
         return
     with _CLARIFICATION_SESSION_LOCK:
-        _CLARIFICATION_SESSIONS[session_id] = dict(state)
+        entry = dict(state)
+        entry["created_at"] = _now_ts()
+        _CLARIFICATION_SESSIONS[session_id] = entry
 
 
 def _session_pop(session_id: str) -> Optional[Dict[str, Any]]:
@@ -830,6 +1010,9 @@ def _detect_ambiguity(plan: Dict[str, Any], prepared: Dict[str, Any], raw_messag
     batch_ready = bool(prepared.get("batch_request") and list(prepared.get("selected_molecules") or []))
     normalized = normalize_user_text(raw_message or query)
     continuation_context_used = bool(prepared.get("continuation_context_used"))
+    condensed_formula = bool(prepared.get("condensed_formula")) or is_condensed_structural_formula(
+        _safe_str(prepared.get("structure_query_raw")) or raw_message or query
+    )
     missing_slots = _current_missing_slots(plan, prepared)
     composite_structure_ready = bool(
         prepared.get("structures") and prepared.get("composition_kind") in {"ion_pair", "salt"}
@@ -857,12 +1040,13 @@ def _detect_ambiguity(plan: Dict[str, Any], prepared: Dict[str, Any], raw_messag
         and "structure_query" not in missing_slots
         and not prepared.get("structures")
         and not prepared.get("structure_locked")
+        and not condensed_formula
         and _looks_like_composite_query(query, raw_message)
     ):
         reasons.append("multiple_molecules")
 
     # Ion indicators without explicit charge
-    if query and not prepared.get("structures") and re.search(r'[A-Za-z]\+|[A-Za-z]-', query):
+    if query and not prepared.get("structures") and not condensed_formula and re.search(r'[A-Za-z]\+|[A-Za-z]-', query):
         if prepared.get("charge") is None:
             reasons.append("ion_charge_unclear")
 
@@ -1648,6 +1832,14 @@ async def _build_clarification_form(
     *,
     asked_fields: Optional[List[str]] = None,
 ) -> Optional[ClarificationForm]:
+    typo_candidates = [str(item).strip() for item in list(plan.get("typo_candidates") or []) if str(item).strip()]
+    clarification_kind = _safe_str(prepared.get("clarification_kind") or plan.get("clarification_kind"))
+    if clarification_kind == "typo_suspicion" and typo_candidates:
+        return _build_typo_clarification_form(
+            original_query=_safe_str(plan.get("structure_query") or raw_message),
+            typo_candidates=typo_candidates,
+        )
+
     reasons = _detect_ambiguity(plan, prepared, raw_message)
     fields = await _build_clarification_fields(
         reasons,
@@ -1834,8 +2026,43 @@ async def _prepare_or_clarify(
     session_id: str,
     turn_id: Optional[str] = None,
 ) -> Dict[str, Any]:
-    plan = _safe_plan_message(raw_message, body) if raw_message else {}
+    plan = _build_validated_plan(raw_message, body) if raw_message else {}
     pending = _merge_plan_into_payload(dict(body or {}), plan, raw_message=raw_message)
+    if plan.get("clarification_kind") == "typo_suspicion":
+        typo_candidates = list(plan.get("verified_typo_candidates") or plan.get("typo_candidates") or [])
+        verified_candidates = await _probe_verified_typo_candidates(
+            _safe_str(plan.get("structure_query") or pending.get("structure_query") or raw_message),
+            typo_candidates,
+        )
+        if verified_candidates:
+            plan["verified_typo_candidates"] = verified_candidates
+            plan["typo_candidates"] = verified_candidates
+        if len(verified_candidates) == 1:
+            promoted = _safe_str(verified_candidates[0])
+            original_query = _safe_str(plan.get("structure_query") or pending.get("structure_query") or raw_message)
+            pending["structure_query"] = promoted
+            plan["structure_query"] = promoted
+            plan["confidence"] = max(float(plan.get("confidence") or 0.0), 0.85)
+            plan["confidence_band"] = "high"
+            plan["needs_clarification"] = False
+            plan["clarification_kind"] = None
+            plan["missing_slots"] = [
+                slot for slot in list(plan.get("missing_slots") or [])
+                if _safe_str(slot) != "structure_query"
+            ]
+            notes = list(plan.get("reasoning_notes") or [])
+            notes.append(f"verified typo rescue auto-promoted: {original_query} -> {promoted}")
+            plan["reasoning_notes"] = _dedupe_strings([_safe_str(item) for item in notes if _safe_str(item)])
+            pending["typo_autocorrected_from"] = original_query
+            pending["verified_typo_candidate"] = promoted
+            prepared = _prepare_payload(pending)
+            return {
+                "requires_clarification": False,
+                "plan": plan,
+                "pending": pending,
+                "prepared": prepared,
+                "turn_id": _safe_str(turn_id),
+            }
     form = await _build_clarification_form(plan, pending, raw_message)
     if form is not None:
         asked_fields = [field.id for field in form.fields]
@@ -1904,6 +2131,7 @@ async def _handle_clarification_response(
                 "raw_message": raw_message,
                 "asked_fields": updated_asked + [field.id for field in form.fields],
                 "candidate_bindings": candidate_bindings or _build_candidate_bindings_from_form(form),
+                "turn_id": turn_id,
             },
         )
         return {
@@ -2103,7 +2331,7 @@ async def post_chat(
         prepared = merge_state["prepared"]
         plan = merge_state.get("plan") or {}
     else:
-        plan = _safe_plan_message(raw_message, body) if raw_message else {}
+        plan = _build_validated_plan(raw_message, body) if raw_message else {}
         semantic_chat = await _resolve_semantic_chat_mode(
             plan,
             body=body,
@@ -2165,7 +2393,7 @@ async def post_chat(
     plan_message = _plan_status_message(plan, prepared)
 
     manager = get_job_manager()
-    submitted = manager.submit(prepared)
+    submitted = _submit_or_reuse_job(prepared, manager=manager)
 
     should_wait = bool(wait or wait_for_result or body.get("wait") or body.get("wait_for_result") or body.get("sync"))
     if should_wait:
@@ -2173,6 +2401,11 @@ async def post_chat(
         if terminal is None:
             raise HTTPException(status_code=404, detail="Job not found.")
         ok = terminal.get("status") not in TERMINAL_FAILURE
+        terminal["reused"] = bool(submitted.get("reused"))
+        if submitted.get("original_job_id"):
+            terminal["original_job_id"] = submitted.get("original_job_id")
+        if submitted.get("canonical_result_key"):
+            terminal["canonical_result_key"] = submitted.get("canonical_result_key")
         return {
             "ok": ok, "session_id": session_id, "session_token": session_meta["session_token"], "message": plan_message, "plan": _public_plan_dict(plan),
             "job": terminal, "result": terminal.get("result"), "error": terminal.get("error"),
@@ -2355,7 +2588,7 @@ async def websocket_chat(websocket: WebSocket) -> None:
                 )
                 manager = get_job_manager()
                 try:
-                    submitted = manager.submit(prepared)
+                    submitted = _submit_or_reuse_job(prepared, manager=manager)
                 except HTTPException as exc:
                     quota = manager.quota_summary(
                         session_id=session_id,
@@ -2387,7 +2620,7 @@ async def websocket_chat(websocket: WebSocket) -> None:
                            message=user_message or "Request received.", payload=incoming, turn_id=turn_id, timestamp=_now_ts())
 
             try:
-                preliminary_plan = _safe_plan_message(user_message, incoming) if user_message else {}
+                preliminary_plan = _build_validated_plan(user_message, incoming) if user_message else {}
             except Exception as exc:
                 logger.warning("Preliminary chat plan generation failed: %s", exc)
                 preliminary_plan = {}
@@ -2490,7 +2723,7 @@ async def websocket_chat(websocket: WebSocket) -> None:
                         continue
 
             try:
-                plan = _safe_plan_message(user_message, incoming) if user_message else {}
+                plan = _build_validated_plan(user_message, incoming) if user_message else {}
             except Exception as exc:
                 logger.warning("Plan generation failed: %s", exc)
                 plan = {}
@@ -2526,6 +2759,7 @@ async def websocket_chat(websocket: WebSocket) -> None:
                 )
                 continue
 
+            plan = preflight.get("plan") or plan
             prepared = preflight["prepared"]
             if auth_user:
                 prepared["owner_username"] = auth_user["username"]
@@ -2548,7 +2782,7 @@ async def websocket_chat(websocket: WebSocket) -> None:
 
             manager = get_job_manager()
             try:
-                submitted = manager.submit(prepared)
+                submitted = _submit_or_reuse_job(prepared, manager=manager)
             except HTTPException as exc:
                 quota = manager.quota_summary(
                     session_id=session_id,
@@ -2601,7 +2835,7 @@ async def websocket_chat(websocket: WebSocket) -> None:
                 extra_payload["advisor_focus_tab"] = extra_tab
                 extra_payload.pop("job_id", None)
                 try:
-                    extra_sub = manager.submit(extra_payload)
+                    extra_sub = _submit_or_reuse_job(extra_payload, manager=manager)
                     await _ws_send(websocket, "job_submitted", session_id=session_id,
                                    job=extra_sub, turn_id=preflight.get("turn_id") or turn_id, timestamp=_now_ts())
                     await _stream_backend_job_until_terminal(

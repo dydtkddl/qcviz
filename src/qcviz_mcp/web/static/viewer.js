@@ -829,7 +829,7 @@
       if (detail && detail.result) {
         // Capture job ID and orbital cubes for orbital switching
         if (detail.jobId) currentJobId = detail.jobId;
-        if (detail.result.orbital_cubes) currentOrbitalCubes = detail.result.orbital_cubes;
+        currentOrbitalCubes = detail.result.orbital_cubes || {};
         updateViewer(detail.result);
       }
     });
@@ -839,7 +839,7 @@
         "has result:", !!(detail && detail.result));
       if (detail && detail.result) {
         if (detail.jobId) currentJobId = detail.jobId;
-        if (detail.result.orbital_cubes) currentOrbitalCubes = detail.result.orbital_cubes;
+        currentOrbitalCubes = detail.result.orbital_cubes || {};
         updateViewer(detail.result);
       }
     });

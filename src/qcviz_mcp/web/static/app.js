@@ -25,6 +25,7 @@
   var historyEmpty = document.getElementById("historyEmpty");
   var historySearch = document.getElementById("historySearch");
   var btnRefreshHistory = document.getElementById("btnRefreshHistory");
+  var btnNewSession = document.getElementById("btnNewSession");
   var btnThemeToggle = document.getElementById("btnThemeToggle");
   var btnAuthOpen = document.getElementById("btnAuthOpen");
   var quotaChip = document.getElementById("quotaChip");
@@ -67,6 +68,7 @@
   console.log("[app.js] DOM refs:", {
     globalStatus: !!globalStatus, historyList: !!historyList,
     historySearch: !!historySearch, btnRefreshHistory: !!btnRefreshHistory,
+    btnNewSession: !!btnNewSession,
     btnThemeToggle: !!btnThemeToggle, btnAuthOpen: !!btnAuthOpen,
     quotaChip: !!quotaChip, btnAdminOpen: !!btnAdminOpen,
     modalShortcuts: !!modalShortcuts, modalAuth: !!modalAuth, modalAdmin: !!modalAdmin,
@@ -652,6 +654,54 @@
       });
   }
 
+  function startNewSession() {
+    var oldSessionId = safeStr(App.store.sessionId);
+    var oldSessionToken = safeStr(App.store.sessionToken);
+    var newSessionId = "qcviz-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+
+    clearJobsState();
+    if (typeof App.clearChatMessages === "function") {
+      App.clearChatMessages();
+    } else {
+      App.store.chatMessages = [];
+      App.store.chatMessagesByJobId = {};
+    }
+
+    function removeScopedKeys(storage) {
+      if (!storage || !oldSessionId) return;
+      try { storage.removeItem("QCVIZ_V3_UI_SNAPSHOTS_" + oldSessionId); } catch (_) {}
+      try { storage.removeItem("QCVIZ_CHAT_" + oldSessionId); } catch (_) {}
+    }
+
+    removeScopedKeys(g.sessionStorage);
+    removeScopedKeys(g.localStorage);
+    scheduleHistoryRender();
+
+    App.setSessionAuth(newSessionId, "");
+    App.setStatus("Starting new session", "idle", "app");
+
+    if (oldSessionId) {
+      fetch(App.apiPrefix + "/session/clear_state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          previous_session_id: oldSessionId,
+          previous_session_token: oldSessionToken,
+        }),
+      }).catch(function (err) {
+        console.warn("[app.js] startNewSession — backend clear failed:", err);
+      });
+    }
+
+    return Promise.resolve(typeof App.ensureSession === "function" ? App.ensureSession() : null)
+      .then(function () {
+        return fetchHistory();
+      })
+      .catch(function (err) {
+        console.warn("[app.js] startNewSession — bootstrap failed:", err);
+      });
+  }
+
   function setAuthStatusMessage(text, isError) {
     if (!authStatusMessage) return;
     authStatusMessage.textContent = safeStr(text);
@@ -847,6 +897,12 @@
       renderQuotaState();
     });
 
+    if (btnNewSession) {
+      btnNewSession.addEventListener("click", function () {
+        startNewSession();
+      });
+    }
+
     App.on("auth:changed", function () {
       renderAuthState();
       if (!(App.store.authUser && safeStr(App.store.authUser.role).toLowerCase() === "admin")) {
@@ -929,6 +985,7 @@
     renderAuthState();
     renderQuotaState();
     App.refreshHistory = fetchHistory;
+    App.startNewSession = startNewSession;
     Promise.resolve(typeof App.ensureSession === "function" ? App.ensureSession() : null)
       .then(function () { return verifyStoredAuth(); })
       .then(function () {

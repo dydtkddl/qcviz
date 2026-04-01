@@ -325,18 +325,20 @@ class QCVizPromptPipeline:
             return result
 
         if not self._has_llm_provider():
+            reason = self._detailed_no_provider_reason()
             result = self._fallback(
                 raw_text,
                 context,
                 normalized_hint,
                 heuristic_planner,
                 stage="provider",
-                reason="no_llm_provider_available",
+                reason=reason,
                 repair_count=0,
             )
             trace.stage_outputs["fallback"] = result
             trace.fallback_stage = "provider"
-            trace.fallback_reason = "no_llm_provider_available"
+            trace.fallback_reason = reason
+            trace.failure_class = "planner_error"
             trace.total_latency_ms = round((time.perf_counter() - started) * 1000.0, 3)
             emit_pipeline_trace(trace)
             return result
@@ -404,6 +406,7 @@ class QCVizPromptPipeline:
             trace.stage_outputs["fallback"] = result
             trace.fallback_stage = exc.stage
             trace.fallback_reason = exc.reason
+            trace.failure_class = "planner_error"
             trace.locked_lane = _coerce_text(result.get("locked_lane") or result.get("planner_lane")) or None
             trace.repair_count = max(0, int(result.get("pipeline_repair_count") or repair_count))
             trace.total_latency_ms = round((time.perf_counter() - started) * 1000.0, 3)
@@ -414,6 +417,17 @@ class QCVizPromptPipeline:
         if self.provider == "none":
             return False
         return bool(self.gemini_api_key or self.openai_api_key)
+
+    def _detailed_no_provider_reason(self) -> str:
+        if self.provider == "none":
+            return "provider_set_to_none"
+        if self.provider == "gemini" and not self.gemini_api_key:
+            return "no_gemini_key"
+        if self.provider == "openai" and not self.openai_api_key:
+            return "no_openai_key"
+        if not self.gemini_api_key and not self.openai_api_key:
+            return "no_gemini_key_and_no_openai_key"
+        return "no_llm_provider_available"
 
     def _load_prompt_asset(self, name: str) -> str:
         asset_path = _PROMPT_ASSET_DIR / name

@@ -7,6 +7,8 @@ from typing import Any, Dict, Mapping, Optional
 
 _STATE_LOCK = Lock()
 _INMEMORY_STATE: Dict[str, Dict[str, Any]] = {}
+_RESULT_INDEX_LOCK = Lock()
+_RESULT_INDEX: Dict[str, Dict[str, str]] = {}
 
 
 def _safe_str(value: Any, default: str = "") -> str:
@@ -27,6 +29,64 @@ def _json_safe(value: Any) -> Any:
 
 def _manager_store(manager: Optional[Any]) -> Optional[Any]:
     return getattr(manager, "store", None) if manager is not None else None
+
+
+def build_canonical_result_key(
+    structure_name: str,
+    method: str = "",
+    basis: str = "",
+    job_type: str = "",
+    charge: Any = 0,
+    multiplicity: Any = 1,
+) -> str:
+    structure_token = _safe_str(structure_name).lower()
+    if not structure_token:
+        return ""
+    try:
+        charge_value = int(charge if charge not in (None, "") else 0)
+    except Exception:
+        charge_value = 0
+    try:
+        multiplicity_value = int(multiplicity if multiplicity not in (None, "") else 1)
+    except Exception:
+        multiplicity_value = 1
+    parts = [
+        structure_token,
+        _safe_str(method).lower() or "b3lyp",
+        _safe_str(basis).lower() or "def2-svp",
+        _safe_str(job_type).lower() or "analyze",
+        str(charge_value),
+        str(multiplicity_value),
+    ]
+    return ":".join(parts)
+
+
+def index_completed_result(session_id: str, canonical_result_key: str, job_id: str) -> None:
+    wanted_session = _safe_str(session_id)
+    wanted_key = _safe_str(canonical_result_key)
+    wanted_job = _safe_str(job_id)
+    if not wanted_session or not wanted_key or not wanted_job:
+        return
+    with _RESULT_INDEX_LOCK:
+        session_index = _RESULT_INDEX.setdefault(wanted_session, {})
+        session_index[wanted_key] = wanted_job
+
+
+def find_previous_result(session_id: str, canonical_result_key: str) -> Optional[str]:
+    wanted_session = _safe_str(session_id)
+    wanted_key = _safe_str(canonical_result_key)
+    if not wanted_session or not wanted_key:
+        return None
+    with _RESULT_INDEX_LOCK:
+        return _RESULT_INDEX.get(wanted_session, {}).get(wanted_key)
+
+
+def clear_result_index(session_id: str) -> None:
+    wanted = _safe_str(session_id)
+    if not wanted:
+        return
+    with _RESULT_INDEX_LOCK:
+        _RESULT_INDEX.pop(wanted, None)
 
 
 def load_conversation_state(session_id: str, *, manager: Optional[Any] = None) -> Dict[str, Any]:
@@ -82,6 +142,21 @@ def update_conversation_state(session_id: str, updates: Mapping[str, Any], *, ma
     return save_conversation_state(session_id, merged, manager=manager)
 
 
+def clear_conversation_state(session_id: str, *, manager: Optional[Any] = None) -> None:
+    wanted = _safe_str(session_id)
+    if not wanted:
+        return
+    with _STATE_LOCK:
+        _INMEMORY_STATE.pop(wanted, None)
+    clear_result_index(wanted)
+    store = _manager_store(manager)
+    if store is not None and hasattr(store, "clear_session_state"):
+        try:
+            store.clear_session_state(wanted)
+        except Exception:
+            pass
+
+
 def build_execution_state(
     payload: Mapping[str, Any],
     result: Mapping[str, Any],
@@ -96,6 +171,8 @@ def build_execution_state(
     job_type = _safe_str(result.get("job_type") or payload.get("job_type"))
     method = _safe_str(result.get("method") or payload.get("method"))
     basis = _safe_str(result.get("basis") or payload.get("basis"))
+    charge = result.get("charge", payload.get("charge", 0))
+    multiplicity = result.get("multiplicity", payload.get("multiplicity", 1))
     orbital = _safe_str(result.get("selected_orbital", {}).get("label") if isinstance(result.get("selected_orbital"), Mapping) else result.get("orbital"))
     vis = dict(result.get("visualization") or {})
     available = dict(vis.get("available") or {})
@@ -106,6 +183,15 @@ def build_execution_state(
     if job_type == "orbital_preview" and orbital:
         analysis_history.append(f"orbital:{orbital}")
 
+    canonical_result_key = build_canonical_result_key(
+        structure_name=structure_name,
+        method=method,
+        basis=basis,
+        job_type=job_type,
+        charge=charge,
+        multiplicity=multiplicity,
+    )
+
     return {
         "session_id": session_id,
         "last_job_id": _safe_str(job_id),
@@ -115,8 +201,9 @@ def build_execution_state(
         "last_method": method,
         "last_basis": basis,
         "last_orbital": orbital,
-        "last_charge": result.get("charge", payload.get("charge")),
-        "last_multiplicity": result.get("multiplicity", payload.get("multiplicity")),
+        "last_charge": charge,
+        "last_multiplicity": multiplicity,
+        "canonical_result_key": canonical_result_key,
         "available_result_tabs": [key for key, enabled in available.items() if enabled],
         "analysis_history": analysis_history,
         "last_resolved_artifact": {
@@ -126,8 +213,8 @@ def build_execution_state(
             "atom_spec": result.get("atom_spec") or payload.get("atom_spec"),
             "formula": result.get("formula"),
             "smiles": result.get("smiles"),
-            "charge": result.get("charge", payload.get("charge")),
-            "multiplicity": result.get("multiplicity", payload.get("multiplicity")),
+            "charge": charge,
+            "multiplicity": multiplicity,
             "orbital": orbital,
         },
     }
@@ -144,4 +231,7 @@ def update_conversation_state_from_execution(
     if not session_id:
         return {}
     execution_state = build_execution_state(payload, result, job_id=job_id)
+    canonical_result_key = _safe_str(execution_state.get("canonical_result_key"))
+    if canonical_result_key and _safe_str(job_id):
+        index_completed_result(session_id, canonical_result_key, _safe_str(job_id))
     return update_conversation_state(session_id, execution_state, manager=manager)

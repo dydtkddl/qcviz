@@ -172,6 +172,9 @@ _FORMULA_LIKE_RE = re.compile(r"^(?:[A-Z][a-z]?\d*){2,}(?:[+-]\d*|\d*[+-])?$")
 _STRUCTURAL_FORMULA_RE = re.compile(
     r"^(?:[A-Z][a-z]?\d*|[=#\-]){3,}[A-Za-z0-9=#\-]*$"
 )
+_CONDENSED_STRUCTURAL_FORMULA_RE = re.compile(
+    r"^(?:[A-Z][a-z]?\d*|\(|\)|[=#\-])+$"
+)
 _FORMULA_TOKEN_RE = re.compile(
     r"\b[A-Z][A-Za-z0-9]*(?:[=#\-][A-Za-z0-9]+)+\b|\b(?:[A-Z][a-z]?\d*){2,}(?:[+-]\d*|\d*[+-])?\b"
 )
@@ -490,8 +493,28 @@ def _translate_korean_aliases(text: str) -> str:
 
 def _normalize_formula_text(text: str) -> str:
     result = str(text or "").translate(_SUBSCRIPT_MAP)
+    result = re.sub(r"[‐‑‒–—−]", "-", result)
     result = re.sub(r"\s*/+\s*$", "", result).strip()
     return result
+
+
+def is_condensed_structural_formula(text: str) -> bool:
+    raw = _normalize_formula_text(str(text or "").strip())
+    compact = re.sub(r"\s+", "", raw)
+    if not compact or len(compact) < 6:
+        return False
+    if "+" in compact or "." in compact:
+        return False
+    if not any(symbol in compact for symbol in ("(", ")", "-", "=", "#")):
+        return False
+    if not _CONDENSED_STRUCTURAL_FORMULA_RE.fullmatch(compact):
+        return False
+    tokens = re.findall(r"[A-Z][a-z]?\d*", compact)
+    if len(tokens) < 3:
+        return False
+    if not any(any(ch.isdigit() for ch in token) for token in tokens):
+        return False
+    return True
 
 
 _COMPAT_JONGSEONG_INDEX: Dict[str, int] = {
@@ -537,6 +560,8 @@ _STRUCTURE_PARENT_ALIASES: Dict[str, str] = {
     "피리딘": "pyridine",
     "naphthalene": "naphthalene",
     "나프탈렌": "naphthalene",
+    "amine": "amine",
+    "\uc544\ubbfc": "amine",
 }
 
 _SUBSTITUENT_PREFIX_ALIASES: Dict[str, str] = {
@@ -626,7 +651,7 @@ def _is_plausible_structure_candidate(text: str) -> bool:
     if not token:
         return False
     lower = token.lower()
-    if re.fullmatch(r"(?:[\u3131-\u3163]{1,4})(?:\s+[\u3131-\u3163]{1,4})*", token):
+    if re.fullmatch(r"(?:[\u3131-\u3163]+)(?:\s+[\u3131-\u3163]+)*", token):
         return False
     if not re.search(r"[A-Za-z0-9\uac00-\ud7a3\u3131-\u3163]", token):
         return False
@@ -667,6 +692,26 @@ def _expand_compositional_candidates(text: str) -> List[str]:
         add_candidate(joined)
         add_candidate(" ".join(prefix_tokens + [parent_name]))
 
+    normalized_prefix_lookup = {
+        re.sub(r"[\s\-]+", "", str(key).lower()): value
+        for key, value in _SUBSTITUENT_PREFIX_ALIASES.items()
+        if str(key).strip() and str(value).strip()
+    }
+    sorted_prefix_aliases = sorted(normalized_prefix_lookup.keys(), key=len, reverse=True)
+
+    def split_substituent_prefixes(prefix_text: str) -> List[str]:
+        remaining = re.sub(r"[\s\-]+", "", str(prefix_text or "").lower())
+        if not remaining:
+            return []
+        resolved: List[str] = []
+        while remaining:
+            matched = next((alias for alias in sorted_prefix_aliases if remaining.startswith(alias)), None)
+            if not matched:
+                return []
+            resolved.append(normalized_prefix_lookup[matched])
+            remaining = remaining[len(matched):]
+        return resolved
+
     for parent_alias, parent_name in sorted(_STRUCTURE_PARENT_ALIASES.items(), key=lambda item: len(item[0]), reverse=True):
         parent_alias_lc = parent_alias.lower().replace(" ", "")
         if not lowered_compact.endswith(parent_alias_lc):
@@ -684,6 +729,8 @@ def _expand_compositional_candidates(text: str) -> List[str]:
                 mapped_prefixes = []
                 break
             mapped_prefixes.append(mapped)
+        if not mapped_prefixes:
+            mapped_prefixes = split_substituent_prefixes(prefix_part)
         add_joined_candidates(mapped_prefixes, parent_name)
 
     token_list = [tok for tok in re.split(r"[\s,/;]+", translated) if tok]
@@ -918,7 +965,11 @@ def _is_formula_like(token: str) -> bool:
     compact = re.sub(r"\s+", "", _normalize_formula_text(str(token or "").strip()))
     if not compact:
         return False
-    return bool(_FORMULA_LIKE_RE.fullmatch(compact) or _STRUCTURAL_FORMULA_RE.fullmatch(compact))
+    return bool(
+        _FORMULA_LIKE_RE.fullmatch(compact)
+        or _STRUCTURAL_FORMULA_RE.fullmatch(compact)
+        or is_condensed_structural_formula(compact)
+    )
 
 
 def _looks_like_enumeration_label(token: str) -> bool:
@@ -1117,6 +1168,23 @@ def _collect_structure_mentions(text: str) -> Dict[str, Any]:
             "multi_molecule": True,
             "mentioned_molecules": mentions,
             "raw_segments": list(multi_set.get("raw_segments") or []),
+            "condensed_formula": False,
+        }
+
+    if is_condensed_structural_formula(raw_input):
+        return {
+            "raw_input": raw_input,
+            "mentions": [raw_input],
+            "formula_mentions": [raw_input],
+            "alias_mentions": [],
+            "canonical_candidates": [raw_input],
+            "mixed_input": False,
+            "primary_candidate": raw_input,
+            "direct_input_confident": True,
+            "multi_molecule": False,
+            "mentioned_molecules": [],
+            "raw_segments": [],
+            "condensed_formula": True,
         }
 
     mentions: List[str] = []
@@ -1170,6 +1238,7 @@ def _collect_structure_mentions(text: str) -> Dict[str, Any]:
         "multi_molecule": False,
         "mentioned_molecules": [],
         "raw_segments": [],
+        "condensed_formula": False,
     }
 
 
@@ -1237,6 +1306,17 @@ def analyze_query_routing(
     follow_up_analysis = dict(follow_up_analysis or analyze_follow_up_request(raw))
     normalized_text = re.sub(r"\s+", " ", _space_korean_compounds(raw)).strip()
 
+    if structure_analysis.get("condensed_formula"):
+        return {
+            "query_kind": "compute_ready",
+            "chat_only": False,
+            "semantic_grounding_needed": False,
+            "question_like": False,
+            "explicit_compute_action": False,
+            "unknown_acronyms": [],
+            "reasoning_notes": ["condensed structural formula locked as a single structure input"],
+        }
+
     stripped_raw = raw.rstrip()
     has_terminal_question_mark = stripped_raw.endswith("?") or stripped_raw.endswith("？")
     has_explanation_phrase = bool(_CHAT_EXPLANATION_RE.search(normalized_text))
@@ -1249,15 +1329,25 @@ def analyze_query_routing(
     direct_molecule_like = bool(
         primary_candidate and (_looks_like_plain_molecule_name(primary_candidate) or _is_formula_like(primary_candidate))
     )
+    explanation_priority = bool(
+        has_explanation_phrase
+        and not follow_up_analysis.get("requires_context")
+        and not analysis_bundle
+        and not semantic_info.get("semantic_descriptor")
+        and not direct_molecule_like
+    )
 
     chat_only = bool(
-        not follow_up_analysis.get("requires_context")
-        and not explicit_compute_action
-        and not analysis_bundle
-        and (
-            has_explanation_phrase
-            or has_terminal_question_mark
-            or bool(unknown_acronyms and not direct_molecule_like)
+        explanation_priority
+        or (
+            not follow_up_analysis.get("requires_context")
+            and not explicit_compute_action
+            and not analysis_bundle
+            and (
+                has_explanation_phrase
+                or has_terminal_question_mark
+                or bool(unknown_acronyms and not direct_molecule_like)
+            )
         )
     )
 
@@ -1278,6 +1368,8 @@ def analyze_query_routing(
     reasoning_notes: List[str] = []
     if chat_only:
         reasoning_notes.append("question-like input without explicit compute action -> chat_only")
+    if explanation_priority and explicit_compute_action:
+        reasoning_notes.append("explanation phrase without explicit structure takes priority over compute wording")
     if semantic_grounding_needed:
         reasoning_notes.append("descriptor or unresolved acronym requires grounding before compute")
     elif follow_up_analysis.get("follow_up_mode"):
@@ -1417,6 +1509,14 @@ def build_structure_hypotheses(
 def analyze_composite_structure_input(text: str) -> Dict[str, Any]:
     raw = _normalize_formula_text(_space_korean_compounds(str(text or "").strip()))
     if not raw:
+        return {
+            "raw_input": raw,
+            "composition_kind": None,
+            "structures": [],
+            "charge_hint": None,
+            "component_names": [],
+        }
+    if is_condensed_structural_formula(raw):
         return {
             "raw_input": raw,
             "composition_kind": None,
@@ -1817,6 +1917,8 @@ def extract_structure_candidate(text: str) -> Optional[str]:
     raw = _normalize_formula_text(str(text or "").strip())
     if not raw:
         return None
+    if is_condensed_structural_formula(raw):
+        return raw
 
     base_analysis = analyze_structure_input(raw)
     primary_candidate = str(base_analysis.get("primary_candidate") or "").strip()
@@ -2157,6 +2259,7 @@ def normalize_user_text(text: str) -> Dict[str, Any]:
         "alias_mentions": list(structure_analysis.get("alias_mentions") or []),
         "canonical_candidates": canonical_candidates,
         "mixed_input": bool(structure_analysis.get("mixed_input")),
+        "condensed_formula": bool(structure_analysis.get("condensed_formula")),
         "multi_molecule": bool(structure_analysis.get("multi_molecule")),
         "mentioned_molecules": mentioned_molecules,
         "raw_segments": list(structure_analysis.get("raw_segments") or []),

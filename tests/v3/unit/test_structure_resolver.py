@@ -217,6 +217,24 @@ class TestResolve:
         assert query_plan["normalized_query"].lower() == "gamma-aminobutyric acid"
         assert query_plan["display_query"].lower() == "gamma-aminobutyric acid"
 
+    def test_query_plan_adds_fuzzy_rescue_candidate_for_methyl_ethyl_aminje(self):
+        resolver = StructureResolver()
+        query_plan = resolver._build_query_plan("Methyl Ethyl aminje")
+        lowered = [item.lower() for item in query_plan["candidate_queries"]]
+        assert "methylethylamine" in lowered
+
+    def test_query_plan_reconstructs_korean_compositional_amine_name(self):
+        resolver = StructureResolver()
+        query_plan = resolver._build_query_plan("\uba54\ud2f8\uc5d0\ud2f8\uc544\ubbfc")
+        lowered = [item.lower() for item in query_plan["candidate_queries"]]
+        assert "methylethylamine" in lowered
+
+    def test_query_plan_adds_fuzzy_rescue_candidate_for_benzne(self):
+        resolver = StructureResolver()
+        query_plan = resolver._build_query_plan("benzne")
+        lowered = [item.lower() for item in query_plan["candidate_queries"]]
+        assert "benzene" in lowered
+
     @pytest.mark.asyncio
     async def test_resolve_mixed_input_does_not_call_external_services_with_raw_literal_query(self):
         resolver = StructureResolver()
@@ -276,6 +294,59 @@ class TestResolve:
         assert result.cid == 119
         assert result.smiles == "C(CC(=O)O)CN"
         assert result.source == "molchat_search_autocorrect"
+
+    def test_normalize_user_text_locks_condensed_formula_as_single_structure(self):
+        formula = "CH\u2083\u2013C(CH\u2083)(Cl)\u2013CH\u2082CH\u2083"
+        normalized = normalize_user_text(formula)
+        assert normalized["condensed_formula"] is True
+        assert normalized["candidate_queries"] == ["CH3-C(CH3)(Cl)-CH2CH3"]
+        assert normalized["canonical_candidates"] == ["CH3-C(CH3)(Cl)-CH2CH3"]
+        assert normalized["formula_mentions"] == ["CH3-C(CH3)(Cl)-CH2CH3"]
+        assert normalized["structures"] == []
+        assert normalized["charge_hint"] is None
+        assert normalized["unknown_acronyms"] == []
+        assert normalized["query_kind"] == "compute_ready"
+
+    def test_query_plan_marks_condensed_formula_without_fragment_candidates(self):
+        resolver = StructureResolver()
+        formula = "CH\u2083\u2013C(CH\u2083)(Cl)\u2013CH\u2082CH\u2083"
+        query_plan = resolver._build_query_plan(formula)
+        assert query_plan["condensed_formula"] is True
+        assert query_plan["query_kind"] == "condensed_formula"
+        assert query_plan["candidate_queries"] == ["CH3-C(CH3)(Cl)-CH2CH3"]
+        assert query_plan["canonical_candidates"] == ["CH3-C(CH3)(Cl)-CH2CH3"]
+        assert query_plan["formula_mentions"] == ["CH3-C(CH3)(Cl)-CH2CH3"]
+        assert query_plan["expected_charge"] is None
+
+    @pytest.mark.asyncio
+    async def test_resolve_condensed_formula_uses_llm_smiles_fallback_after_lookup_failure(self):
+        resolver = StructureResolver()
+        formula = "CH\u2083\u2013C(CH\u2083)(Cl)\u2013CH\u2082CH\u2083"
+
+        with patch.object(resolver, "_try_molchat_with_search_fallback", new=AsyncMock(return_value=None)):
+            with patch.object(resolver, "_try_pubchem", new=AsyncMock(return_value=None)):
+                with patch.object(
+                    resolver,
+                    "_llm_condensed_formula_to_smiles",
+                    new=AsyncMock(
+                        return_value={
+                            "smiles": "CC(Cl)(C)CC",
+                            "resolved_name": "2-chloro-2-methylbutane",
+                        }
+                    ),
+                ):
+                    resolver.molchat.generate_3d_sdf = AsyncMock(return_value="mock-sdf")
+                    with patch(
+                        "qcviz_mcp.services.structure_resolver.sdf_to_xyz",
+                        return_value="6\n2-chloro-2-methylbutane\nC 0 0 0",
+                    ):
+                        result = await resolver.resolve(formula)
+
+        assert result.source == "llm_condensed_formula"
+        assert result.structure_query_raw == formula
+        assert result.resolved_structure_name == "2-chloro-2-methylbutane"
+        assert result.resolved_smiles == "CC(Cl)(C)CC"
+        assert result.name == "2-chloro-2-methylbutane"
 
     def test_query_plan_marks_semantic_descriptor_and_drops_raw_phrase_candidates(self):
         resolver = StructureResolver()

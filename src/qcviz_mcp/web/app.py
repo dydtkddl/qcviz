@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from qcviz_mcp.web.routes.chat import router as chat_router
+from qcviz_mcp.web.routes import chat as chat_route
 from qcviz_mcp.web.routes.compute import router as compute_router
 from qcviz_mcp.web.routes import compute as compute_route
 from qcviz_mcp.web.auth_store import (
@@ -26,7 +27,12 @@ from qcviz_mcp.web.auth_store import (
     require_admin_user,
     revoke_auth_token,
 )
-from qcviz_mcp.web.session_auth import bootstrap_or_validate_session, session_auth_health
+from qcviz_mcp.web.session_auth import (
+    bootstrap_or_validate_session,
+    invalidate_session,
+    session_auth_health,
+)
+from qcviz_mcp.web.conversation_state import clear_conversation_state
 from qcviz_mcp.web.runtime_info import runtime_debug_info
 
 logger = logging.getLogger(__name__)
@@ -102,6 +108,7 @@ def _route_table() -> Dict[str, Any]:
             "index": "/",
             "health": "/health",
             "session_bootstrap": "/session/bootstrap",
+            "session_clear_state": "/session/clear_state",
             "auth_register": "/auth/register",
             "auth_login": "/auth/login",
             "auth_me": "/auth/me",
@@ -117,6 +124,7 @@ def _route_table() -> Dict[str, Any]:
         "api_alias": {
             "health": "/api/health",
             "session_bootstrap": "/api/session/bootstrap",
+            "session_clear_state": "/api/session/clear_state",
             "auth_register": "/api/auth/register",
             "auth_login": "/api/auth/login",
             "auth_me": "/api/auth/me",
@@ -404,6 +412,24 @@ def create_app() -> FastAPI:
                 "chat_rest": "/chat",
                 "compute_jobs": "/compute/jobs",
             },
+        }
+
+    @app.post("/session/clear_state")
+    @app.post("/api/session/clear_state", include_in_schema=False)
+    async def session_clear_state(payload: Dict[str, Any] | None = Body(default=None)) -> Dict[str, Any]:
+        body = dict(payload or {})
+        previous_session_id = str(body.get("previous_session_id") or body.get("session_id") or "").strip()
+        previous_session_token = str(body.get("previous_session_token") or body.get("session_token") or "").strip()
+        cleared_auth = invalidate_session(previous_session_id, previous_session_token or None)
+        clear_conversation_state(previous_session_id, manager=compute_route.get_job_manager())
+        try:
+            chat_route._session_pop(previous_session_id)
+        except Exception:
+            pass
+        return {
+            "ok": True,
+            "cleared_session": previous_session_id,
+            "cleared_auth": cleared_auth,
         }
 
     @app.post("/auth/register")

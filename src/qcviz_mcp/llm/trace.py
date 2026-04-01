@@ -19,6 +19,7 @@ class PipelineTrace:
     provider: Optional[str] = None
     fallback_stage: Optional[str] = None
     fallback_reason: Optional[str] = None
+    failure_class: Optional[str] = None
     locked_lane: Optional[str] = None
     repair_count: int = 0
     serve_mode: Optional[str] = None
@@ -35,6 +36,7 @@ class PipelineTrace:
             "provider": self.provider,
             "fallback_stage": self.fallback_stage,
             "fallback_reason": self.fallback_reason,
+            "failure_class": self.failure_class,
             "locked_lane": self.locked_lane,
             "repair_count": self.repair_count,
             "serve_mode": self.serve_mode,

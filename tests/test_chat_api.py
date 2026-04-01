@@ -76,6 +76,19 @@ def test_chat_rest_korean_methylamine_alias_runs_without_custom_picker(client, p
     assert data["result"]["structure_query"].lower() == "methylamine"
 
 
+def test_chat_rest_korean_compositional_amine_reconstructs_canonical_name(client, patch_fake_runners):
+    resp = client.post(
+        "/api/chat?wait_for_result=true",
+        json={"message": "\uba54\ud2f8\uc5d0\ud2f8\uc544\ubbfc"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["ok"] is True
+    assert "requires_clarification" not in data
+    assert data["plan"]["structure_query"].lower() == "methylethylamine"
+    assert data["result"]["structure_query"].lower() == "methylethylamine"
+
+
 def test_chat_rest_formula_alias_mixed_input_runs_without_clarification(client, patch_fake_runners):
     resp = client.post("/api/chat?wait_for_result=true", json={"message": "CH3COOH (acetic acid)"})
     assert resp.status_code == 200
@@ -84,6 +97,54 @@ def test_chat_rest_formula_alias_mixed_input_runs_without_clarification(client, 
     assert "requires_clarification" not in data
     assert data["plan"]["structure_query"].lower() == "acetic acid"
     assert data["result"]["structure_query"].lower() == "acetic acid"
+
+
+def test_chat_rest_condensed_formula_stays_locked_and_preserves_raw_and_resolved_labels(
+    client, patch_fake_runners, monkeypatch
+):
+    formula = "CH\u2083\u2013C(CH\u2083)(Cl)\u2013CH\u2082CH\u2083"
+    seen_queries = []
+
+    async def _fake_condensed_resolve(query: str):
+        seen_queries.append(query)
+        return {
+            "xyz": "6\n2-chloro-2-methylbutane\nC 0 0 0",
+            "smiles": "CC(Cl)(C)CC",
+            "resolved_smiles": "CC(Cl)(C)CC",
+            "cid": None,
+            "name": "2-chloro-2-methylbutane",
+            "resolved_structure_name": "2-chloro-2-methylbutane",
+            "structure_query_raw": formula,
+            "source": "llm_condensed_formula",
+            "sdf": None,
+            "molecular_weight": 106.59,
+            "query_plan": {
+                "raw_query": "CH3-C(CH3)(Cl)-CH2CH3",
+                "normalized_query": "CH3-C(CH3)(Cl)-CH2CH3",
+                "candidate_queries": ["CH3-C(CH3)(Cl)-CH2CH3"],
+                "condensed_formula": True,
+            },
+        }
+
+    monkeypatch.setattr(compute_route, "_resolve_structure_async", _fake_condensed_resolve)
+    resp = client.post("/api/chat?wait_for_result=true", json={"message": formula})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["ok"] is True
+    assert "requires_clarification" not in data
+    assert seen_queries
+    assert seen_queries[0].replace("\u2013", "-") == "CH3-C(CH3)(Cl)-CH2CH3"
+    assert data["plan"]["structure_query"] == "CH3-C(CH3)(Cl)-CH2CH3"
+    assert data["plan"]["structure_query_raw"] == formula
+    assert data["plan"]["structure_query_candidates"] == ["CH3-C(CH3)(Cl)-CH2CH3"]
+    assert data["plan"]["canonical_candidates"] == ["CH3-C(CH3)(Cl)-CH2CH3"]
+    assert data["plan"]["condensed_formula"] is True
+    assert data["plan"]["structures"] in (None, [])
+    assert data["plan"]["charge_hint"] is None
+    assert data["result"]["structure_query"] == "2-chloro-2-methylbutane"
+    assert data["result"]["structure_query_raw"] == formula
+    assert data["result"]["resolved_structure_name"] == "2-chloro-2-methylbutane"
+    assert data["result"]["resolved_smiles"] == "CC(Cl)(C)CC"
 
 
 def test_chat_rest_korean_acetic_acid_alias_runs_without_generic_picker(client, patch_fake_runners):
@@ -1299,6 +1360,46 @@ def test_chat_rest_typo_like_aminobutylic_name_autocorrects_before_compute(
     assert "requires_clarification" not in data
     assert data["result"]["structure_query"].lower() == "gamma-aminobutyric acid"
     assert data["result"]["visualization"]["available"]["orbital"] is True
+
+
+def test_chat_rest_methyl_ethyl_aminje_triggers_typo_rescue_clarification():
+    plan = chat_route._build_validated_plan("Methyl Ethyl aminje", {"message": "Methyl Ethyl aminje"})
+    assert plan["clarification_kind"] == "typo_suspicion"
+    assert plan["needs_clarification"] is True
+
+    preflight = asyncio.run(
+        chat_route._prepare_or_clarify(
+            {"message": "Methyl Ethyl aminje"},
+            raw_message="Methyl Ethyl aminje",
+            session_id="typo-methyl-ethyl-aminje",
+        )
+    )
+    assert preflight["requires_clarification"] is True
+    clarification = preflight["clarification"].model_dump()
+    assert clarification["mode"] == "typo_rescue"
+    structure_field = next((f for f in clarification["fields"] if f.get("id") == "structure_choice"), None)
+    assert structure_field is not None
+    option_values = [str(opt.get("value", "")).strip().lower() for opt in structure_field.get("options", [])]
+    assert "methylethylamine" in option_values
+
+
+def test_chat_rest_benzne_homo_auto_promotes_single_verified_typo_candidate():
+    plan = chat_route._build_validated_plan("benzne HOMO", {"message": "benzne HOMO"})
+    assert plan["clarification_kind"] == "typo_suspicion"
+    assert plan["needs_clarification"] is True
+
+    preflight = asyncio.run(
+        chat_route._prepare_or_clarify(
+            {"message": "benzne HOMO"},
+            raw_message="benzne HOMO",
+            session_id="typo-benzne-homo",
+        )
+    )
+    assert preflight["requires_clarification"] is False
+    assert preflight["plan"]["structure_query"].lower() == "benzene"
+    assert preflight["prepared"]["structure_query"].lower() == "benzene"
+    assert preflight["pending"]["verified_typo_candidate"].lower() == "benzene"
+    assert preflight["pending"]["typo_autocorrected_from"].lower() == "benzne"
 
 
 def test_molchat_interpret_candidates_prefers_local_mea_alias_over_remote_guess(monkeypatch):
