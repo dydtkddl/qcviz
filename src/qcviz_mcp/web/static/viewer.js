@@ -587,6 +587,11 @@
         }
       } else {
         console.warn("[viewer.js] addSurface/ESP — partial data: espB64:", !!espB64, "densB64:", !!densB64);
+        if (viewerLegend) {
+          viewerLegend.innerHTML =
+            '<p class="viewer-legend__info">ESP surface payload incomplete - density/ESP cube contract를 확인하세요</p>';
+          show(viewerLegend);
+        }
       }
     } else {
       hide(viewerLegend);

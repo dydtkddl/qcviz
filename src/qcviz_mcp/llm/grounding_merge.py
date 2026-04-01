@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from typing import Any, Iterable, Mapping, Optional
 
 from qcviz_mcp.llm.lane_lock import LaneLock
+from qcviz_mcp.llm.routing_config import GROUNDING_AUTO_ACCEPT_THRESHOLD
 from qcviz_mcp.llm.schemas import GroundingCandidate, GroundingOutcome, PlanResult
 
 
@@ -22,15 +22,7 @@ class GroundingConfig:
 
     @classmethod
     def from_env(cls) -> "GroundingConfig":
-        try:
-            threshold = float(os.getenv("QCVIZ_GROUNDING_AUTO_ACCEPT_THRESHOLD", "0.85"))
-        except Exception:
-            threshold = 0.85
-        if threshold < 0.0:
-            threshold = 0.0
-        if threshold > 1.0:
-            threshold = 1.0
-        return cls(auto_accept_threshold=threshold)
+        return cls(auto_accept_threshold=GROUNDING_AUTO_ACCEPT_THRESHOLD)
 
 
 def _coerce_text(value: Any) -> str:

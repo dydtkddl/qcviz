@@ -1525,6 +1525,62 @@ def test_compact_ws_result_still_strips_density_cube_when_no_esp_surface_uses_it
     assert compact["visualization"]["available"]["density"] is False
 
 
+def test_compact_ws_result_backfills_top_level_cube_payloads_into_visualization():
+    result = {
+        "job_type": "esp_map",
+        "structure_query": "acetone",
+        "orbital_cube_b64": "top-level-orbital",
+        "density_cube_b64": "top-level-density",
+        "esp_cube_b64": "top-level-esp",
+        "visualization": {
+            "available": {"orbital": False, "density": False, "esp": False},
+            "xyz_block": "3\nacetone\n...",
+        },
+    }
+
+    compact = chat_route._compact_result_for_ws(result)
+
+    assert compact["visualization"]["orbital"]["cube_b64"] == "top-level-orbital"
+    assert compact["visualization"]["density"]["cube_b64"] == "top-level-density"
+    assert compact["visualization"]["esp"]["cube_b64"] == "top-level-esp"
+    assert compact["visualization"]["available"]["orbital"] is True
+    assert compact["visualization"]["available"]["density"] is True
+    assert compact["visualization"]["available"]["esp"] is True
+
+
+def test_safe_plan_message_forwards_payload_context_to_agent_when_supported(
+    monkeypatch,
+):
+    captured = {}
+
+    class _ContextAwareAgent:
+        def plan(self, message: str, context=None):
+            captured["message"] = message
+            captured["context"] = dict(context or {})
+            return {
+                "intent": "chat",
+                "job_type": "chat",
+                "query_kind": "chat_only",
+                "planner_lane": "chat_only",
+                "lane_locked": True,
+                "confidence": 0.91,
+                "provider": "openai",
+                "chat_response": "ok",
+            }
+
+    monkeypatch.setattr(compute_route, "get_qcviz_agent", lambda: _ContextAwareAgent(), raising=False)
+    plan = compute_route._safe_plan_message(
+        "물 HOMO 보여줘",
+        {"session_id": "sess-123", "job_type": "orbital_preview", "structure_query": "water"},
+    )
+
+    assert captured["message"] == "물 HOMO 보여줘"
+    assert captured["context"]["session_id"] == "sess-123"
+    assert captured["context"]["job_type"] == "orbital_preview"
+    assert plan["planner_lane"] == "chat_only"
+    assert plan["provider"] == "openai"
+
+
 def test_chat_rest_semantic_descriptor_never_falls_back_to_generic_examples(
     client, patch_fake_runners, monkeypatch
 ):

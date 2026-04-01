@@ -26,6 +26,7 @@ from fastapi import APIRouter, Body, Header, HTTPException, Query
 
 from qcviz_mcp.compute import pyscf_runner
 from qcviz_mcp.llm.execution_guard import ExecutionGuardViolation, execution_guard_from_payload
+from qcviz_mcp.llm.schemas import PlanResponse
 from qcviz_mcp.llm.normalizer import (
     _is_formula_like,
     _looks_like_locant_structure_name,
@@ -1104,6 +1105,29 @@ def get_qcviz_agent():
         return None
 
 
+def _invoke_agent_plan(agent: Any, message: str, payload: Optional[Mapping[str, Any]] = None) -> Any:
+    plan_fn = getattr(agent, "plan", None)
+    if not callable(plan_fn):
+        raise AttributeError("agent.plan is not callable")
+
+    payload_dict = dict(payload or {})
+    try:
+        signature = inspect.signature(plan_fn)
+    except (TypeError, ValueError):
+        signature = None
+
+    if signature is not None:
+        params = list(signature.parameters.values())
+        if any(param.name == "context" for param in params):
+            return plan_fn(message, context=payload_dict)
+        if any(param.name == "payload" for param in params):
+            return plan_fn(message, payload=payload_dict)
+        if any(param.kind == inspect.Parameter.VAR_KEYWORD for param in params):
+            return plan_fn(message, context=payload_dict)
+
+    return plan_fn(message)
+
+
 def _coerce_plan_to_dict(plan_obj: Any) -> Dict[str, Any]:
     if plan_obj is None:
         return {}
@@ -1319,7 +1343,11 @@ def _safe_plan_message(message: str, payload: Optional[Mapping[str, Any]] = None
         if agent is not None:
             try:
                 if hasattr(agent, "plan") and callable(agent.plan):
-                    planned = _enrich_plan(_coerce_plan_to_dict(agent.plan(message)))
+                    planned = _enrich_plan(_coerce_plan_to_dict(_invoke_agent_plan(agent, message, payload=payload)))
+                    try:
+                        planned = PlanResponse.model_validate(planned).to_public_dict()
+                    except Exception:
+                        pass
                     obs.metrics.update(
                         {
                             "provider": planned.get("provider"),
@@ -1332,6 +1360,10 @@ def _safe_plan_message(message: str, payload: Optional[Mapping[str, Any]] = None
                 obs.metrics.update({"fallback_reason": str(exc)})
                 logger.warning("Planner invocation failed; heuristic fallback: %s", exc)
         planned = _enrich_plan(_heuristic_plan(message, payload=payload))
+        try:
+            planned = PlanResponse.model_validate(planned).to_public_dict()
+        except Exception:
+            pass
         obs.metrics.update(
             {
                 "provider": planned.get("provider"),
@@ -1881,6 +1913,9 @@ def _normalize_result_contract(result: Any, payload: Optional[Mapping[str, Any]]
         out["mulliken_charges"] = out["partial_charges"]
 
     vis = out.setdefault("visualization", {})
+    for cube_key in ("orbital_cube_b64", "density_cube_b64", "esp_cube_b64"):
+        if out.get(cube_key) and not vis.get(cube_key):
+            vis[cube_key] = out.get(cube_key)
     defaults = vis.setdefault("defaults", {})
     defaults.setdefault("style", "stick")
     defaults.setdefault("labels", False)

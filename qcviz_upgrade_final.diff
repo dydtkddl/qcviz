@@ -1,0 +1,456 @@
+diff --git a/src/qcviz_mcp/llm/grounding_merge.py b/src/qcviz_mcp/llm/grounding_merge.py
+--- a/src/qcviz_mcp/llm/grounding_merge.py	2026-04-01 07:49:17.379854124 +0000
++++ b/src/qcviz_mcp/llm/grounding_merge.py	2026-04-01 07:55:55.795425881 +0000
+@@ -1,10 +1,10 @@
+ from __future__ import annotations
+ 
+-import os
+ from dataclasses import dataclass
+ from typing import Any, Iterable, Mapping, Optional
+ 
+ from qcviz_mcp.llm.lane_lock import LaneLock
++from qcviz_mcp.llm.routing_config import GROUNDING_AUTO_ACCEPT_THRESHOLD
+ from qcviz_mcp.llm.schemas import GroundingCandidate, GroundingOutcome, PlanResult
+ 
+ 
+@@ -22,15 +22,7 @@
+ 
+     @classmethod
+     def from_env(cls) -> "GroundingConfig":
+-        try:
+-            threshold = float(os.getenv("QCVIZ_GROUNDING_AUTO_ACCEPT_THRESHOLD", "0.85"))
+-        except Exception:
+-            threshold = 0.85
+-        if threshold < 0.0:
+-            threshold = 0.0
+-        if threshold > 1.0:
+-            threshold = 1.0
+-        return cls(auto_accept_threshold=threshold)
++        return cls(auto_accept_threshold=GROUNDING_AUTO_ACCEPT_THRESHOLD)
+ 
+ 
+ def _coerce_text(value: Any) -> str:
+diff --git a/src/qcviz_mcp/llm/pipeline.py b/src/qcviz_mcp/llm/pipeline.py
+--- a/src/qcviz_mcp/llm/pipeline.py	2026-04-01 07:49:17.365746629 +0000
++++ b/src/qcviz_mcp/llm/pipeline.py	2026-04-01 07:55:55.801329094 +0000
+@@ -691,6 +691,16 @@
+                     "follow_up_mode": normalized_hint.get("follow_up_mode"),
+                     "follow_up_requires_context": bool(normalized_hint.get("follow_up_requires_context")),
+                     "analysis_bundle": list(normalized_hint.get("analysis_bundle") or []),
++                    "canonical_candidates": list(normalized_hint.get("canonical_candidates") or []),
++                    "formula_mentions": list(normalized_hint.get("formula_mentions") or []),
++                    "alias_mentions": list(normalized_hint.get("alias_mentions") or []),
++                    "maybe_structure_hint": normalized_hint.get("maybe_structure_hint"),
++                    "mixed_input": bool(normalized_hint.get("mixed_input")),
++                    "mentioned_molecules": list(normalized_hint.get("mentioned_molecules") or []),
++                    "selected_molecules": list(normalized_hint.get("selected_molecules") or []),
++                    "target_scope": normalized_hint.get("target_scope"),
++                    "selection_mode": normalized_hint.get("selection_mode"),
++                    "selection_hint": normalized_hint.get("selection_hint"),
+                 },
+                 "context": dict(context or {}),
+                 "available_actions": [
+diff --git a/src/qcviz_mcp/llm/prompt_assets/action_planner.md b/src/qcviz_mcp/llm/prompt_assets/action_planner.md
+--- a/src/qcviz_mcp/llm/prompt_assets/action_planner.md	2026-04-01 07:49:17.387041041 +0000
++++ b/src/qcviz_mcp/llm/prompt_assets/action_planner.md	2026-04-01 07:55:55.802999385 +0000
+@@ -9,10 +9,24 @@
+ - `grounding_required`: user wants computation but the molecule identity is ambiguous, semantically described, or unresolved
+ - `compute_ready`: user wants computation and the structure is explicit or available from follow-up context
+ 
+-# Reasoning Rules
+-- Think through alternative interpretations before committing, but return only the final JSON object.
+-- Use the `reasoning` field to summarize why the lane was chosen.
+-- Treat semantic expansion as internal reasoning only. Do not emit paraphrase lists.
++# Core Routing Rule
++First decide whether the user is asking a chemistry question or asking QCViz to run a calculation.
++- Question / explanation / comparison / definition / tutorial -> `chat_only`
++- Explicit render / calculate / optimize / show HOMO/LUMO/ESP / charge / energy request -> `compute_ready` or `grounding_required`
++- A Korean question ending alone (`뭐야`, `설명해줘`, `차이가 뭐야`, `어떻게`, `왜`) does NOT make it compute.
++- A conversational Korean ending does NOT cancel compute intent if an explicit compute action is present.
++
++# Korean + Mixed-Language Rules
++- Mixed language inputs such as `물 HOMO 보여줘`, `benzene ESP`, `TNT가 뭐야?` must be classified from intent, not language.
++- Preserve the molecule mention as the user stated it unless only whitespace / token-join repair is needed.
++- Minor join repair is allowed when the molecule is obviously one term: `니트로 벤젠` -> `니트로벤젠`, `베 ㄴ젠` -> `벤젠`.
++- Do not invent an English molecule name when the user only provided Korean.
++- If annotations show `canonical_candidates` or `maybe_structure_hint`, use them only to decide ambiguity, not to invent a new structure token.
++
++# Follow-up Rules
++- If the user only changes basis, method, preset, or analysis on an already locked structure, choose `compute_ready` and use `molecule_from_context`.
++- If the user says `그거`, `저거`, `다시`, `이번엔`, `그 분자` and the follow-up clearly depends on prior context, prefer `compute_ready` with `molecule_from_context`.
++- If follow-up context is still not sufficient to know the structure, choose `grounding_required`.
+ 
+ # Critical Policy
+ - Never classify a purely explanatory question as `compute_ready`.
+@@ -20,6 +34,7 @@
+ - Unknown acronym with explicit compute action must be `grounding_required`.
+ - Follow-up that only changes basis, method, preset, or analysis on an already locked structure should be `compute_ready`.
+ - Do not invent molecule names, structures, methods, or presets that the user did not provide.
++- Do not downgrade an explicit direct-molecule compute request into a chat answer.
+ 
+ # Slot Rules
+ - `molecule_name`: the molecule identifier exactly as the user stated it, when present
+@@ -29,6 +44,20 @@
+ - `preset`: one of `acs`, `rsc`, `custom`, or `null`
+ - `molecule_from_context`: use only for follow-up requests where the structure should come from prior context
+ 
++# Decision Examples
++- `HOMO가 뭐야?` -> `chat_only`
++- `물 HOMO 보여줘` -> `compute_ready` with `molecule_name="물"`, `computation_type="homo"`
++- `MEA가 뭐야?` -> `chat_only`
++- `MEA HOMO 보여줘` -> `grounding_required`
++- `그거 basis def2-TZVP로 다시` -> `compute_ready` with `molecule_from_context`
++- `대표적인 5개 원자 분자 추천해줘` -> `chat_only`
++- `메인 성분 TNT HOMO 보여줘` -> `grounding_required`
++
++# Reasoning Rules
++- Think through alternative interpretations before committing, but return only the final JSON object.
++- Use the `reasoning` field to summarize why the lane was chosen.
++- Treat semantic expansion as internal reasoning only. Do not emit paraphrase lists.
++
+ # Output Rules
+ - Return exactly one JSON object
+ - Match the supplied schema
+@@ -38,4 +67,3 @@
+ - Do not output markdown
+ - Do not output free-form explanation outside JSON
+ - Do not invent compute intent
+-- Do not downgrade an explicit direct-molecule compute request into a chat answer
+diff --git a/src/qcviz_mcp/llm/prompt_assets/action_planner_repair.md b/src/qcviz_mcp/llm/prompt_assets/action_planner_repair.md
+--- a/src/qcviz_mcp/llm/prompt_assets/action_planner_repair.md	2026-04-01 07:50:35.578201445 +0000
++++ b/src/qcviz_mcp/llm/prompt_assets/action_planner_repair.md	2026-04-01 07:55:55.803282363 +0000
+@@ -5,9 +5,11 @@
+ Fix only the schema or policy violation described in the repair feedback and return one valid JSON object.
+ 
+ # Critical Rules
+-- Preserve the original lane unless the repair feedback explicitly says the lane itself was invalid
+-- Do not invent new molecules, actions, or parameters
+-- Keep the output concise and schema-valid
++- Preserve the original lane unless the repair feedback explicitly says the lane itself was invalid.
++- Preserve question-vs-compute intent. Do not promote a concept/explanation question into `compute_ready`.
++- Do not invent new molecules, actions, methods, basis sets, or presets.
++- If the message is a Korean or mixed-language follow-up and the structure comes from prior context, prefer `molecule_from_context` over inventing `molecule_name`.
++- Keep the output concise and schema-valid.
+ 
+ # Output Rules
+ - Return exactly one JSON object
+diff --git a/src/qcviz_mcp/llm/routing_config.py b/src/qcviz_mcp/llm/routing_config.py
+--- a/src/qcviz_mcp/llm/routing_config.py	1970-01-01 00:00:00.000000000 +0000
++++ b/src/qcviz_mcp/llm/routing_config.py	2026-04-01 07:55:55.795018670 +0000
+@@ -0,0 +1,27 @@
++from __future__ import annotations
++
++import os
++from typing import Iterable
++
++
++def _env_float_any(names: Iterable[str], default: float, *, min_value: float = 0.0, max_value: float = 1.0) -> float:
++    value = default
++    for name in names:
++        raw = os.getenv(name)
++        if raw in (None, ''):
++            continue
++        try:
++            value = float(raw)
++            break
++        except Exception:
++            continue
++    if value < min_value:
++        return min_value
++    if value > max_value:
++        return max_value
++    return value
++
++
++PLAN_CONFIDENCE_THRESHOLD = _env_float_any(["QCVIZ_CONFIDENCE_THRESHOLD"], 0.75)
++GROUNDING_AUTO_ACCEPT_THRESHOLD = _env_float_any(["QCVIZ_GROUNDING_AUTO_ACCEPT_THRESHOLD"], 0.85)
++TYPO_AUTO_PROMOTE_THRESHOLD = _env_float_any(["QCVIZ_TYPO_AUTO_PROMOTE_THRESHOLD"], 0.85)
+diff --git a/src/qcviz_mcp/web/routes/chat.py b/src/qcviz_mcp/web/routes/chat.py
+--- a/src/qcviz_mcp/web/routes/chat.py	2026-04-01 07:49:17.343286783 +0000
++++ b/src/qcviz_mcp/web/routes/chat.py	2026-04-01 07:55:55.799631237 +0000
+@@ -35,6 +35,11 @@
+     normalize_user_text,
+     _structure_text_signature,
+ )
++from qcviz_mcp.llm.routing_config import (
++    GROUNDING_AUTO_ACCEPT_THRESHOLD,
++    PLAN_CONFIDENCE_THRESHOLD,
++    TYPO_AUTO_PROMOTE_THRESHOLD,
++)
+ from qcviz_mcp.llm.schemas import ClarificationField, ClarificationForm, ClarificationOption, SlotMergeResult
+ from qcviz_mcp.web.auth_store import get_auth_user
+ from qcviz_mcp.web.conversation_state import load_conversation_state, update_conversation_state
+@@ -213,20 +218,34 @@
+         if key in viz and viz.get(key) not in (None, ""):
+             viz_out[key] = viz.get(key)
+ 
+-    orbital = dict(viz.get("orbital") or {})
++    def _ensure_nested_cube(target_key: str, *source_keys: str) -> Dict[str, Any]:
++        target = dict(viz.get(target_key) or viz_out.get(target_key) or {})
++        if target.get("cube_b64") not in (None, ""):
++            return target
++        for source_key in source_keys:
++            candidate = raw.get(source_key)
++            if candidate in (None, ""):
++                candidate = viz.get(source_key)
++            if candidate not in (None, ""):
++                target["cube_b64"] = candidate
++                return target
++        return target
++
++    orbital = _ensure_nested_cube("orbital", "orbital_cube_b64")
+     if orbital:
+-        viz_out["orbital"] = dict(orbital)
++        viz_out["orbital"] = orbital
+ 
+-    esp = dict(viz.get("esp") or {})
++    esp = _ensure_nested_cube("esp", "esp_cube_b64")
+     if esp:
+-        viz_out["esp"] = dict(esp)
++        viz_out["esp"] = esp
+ 
+-    density = dict(viz.get("density") or {})
++    density = _ensure_nested_cube("density", "density_cube_b64")
+     if density:
+         keep_density_cube = bool(
+             available.get("esp")
+             or esp.get("cube_b64")
+             or viz.get("esp_cube_b64")
++            or raw.get("esp_cube_b64")
+         )
+         density_out = dict(density) if keep_density_cube else {k: v for k, v in density.items() if k != "cube_b64"}
+         if density_out:
+@@ -234,6 +253,13 @@
+         if "density" in available and not keep_density_cube:
+             available["density"] = False
+ 
++    if (viz_out.get("orbital") or {}).get("cube_b64") not in (None, ""):
++        available["orbital"] = True
++    if (viz_out.get("density") or {}).get("cube_b64") not in (None, ""):
++        available["density"] = True
++    if (viz_out.get("esp") or {}).get("cube_b64") not in (None, "") and (viz_out.get("density") or {}).get("cube_b64") not in (None, ""):
++        available["esp"] = True
++
+     if available:
+         viz_out["available"] = available
+     if viz_out:
+@@ -433,7 +459,7 @@
+     confidence = _semantic_candidate_confidence(candidate)
+     if query_mode == "direct_name":
+         return True
+-    if confidence is not None and confidence >= 0.85:
++    if confidence is not None and confidence >= GROUNDING_AUTO_ACCEPT_THRESHOLD:
+         return True
+     if resolution_method in {"autocomplete", "alias", "translation"} and source != "molchat_search_fallback":
+         return True
+@@ -814,7 +840,7 @@
+ 
+ 
+ # ─── Clarification Flow helpers ────────────────────────
+-CONFIDENCE_THRESHOLD = float(os.getenv("QCVIZ_CONFIDENCE_THRESHOLD", "0.75"))
++CONFIDENCE_THRESHOLD = PLAN_CONFIDENCE_THRESHOLD
+ _CLARIFICATION_TTL_SECONDS = int(os.getenv("QCVIZ_CLARIFICATION_TTL_SECONDS", str(30 * 60)))
+ ALLOWED_FIELD_TYPES = {"text", "textarea", "radio", "select", "number", "checkbox"}
+ _DISCOVERY_HINT_RE = re.compile(
+@@ -2063,7 +2089,7 @@
+             original_query = _safe_str(plan.get("structure_query") or pending.get("structure_query") or raw_message)
+             pending["structure_query"] = promoted
+             plan["structure_query"] = promoted
+-            plan["confidence"] = max(float(plan.get("confidence") or 0.0), 0.85)
++            plan["confidence"] = max(float(plan.get("confidence") or 0.0), TYPO_AUTO_PROMOTE_THRESHOLD)
+             plan["confidence_band"] = "high"
+             plan["needs_clarification"] = False
+             plan["clarification_kind"] = None
+diff --git a/src/qcviz_mcp/web/routes/compute.py b/src/qcviz_mcp/web/routes/compute.py
+--- a/src/qcviz_mcp/web/routes/compute.py	2026-04-01 07:49:17.351884335 +0000
++++ b/src/qcviz_mcp/web/routes/compute.py	2026-04-01 07:55:55.800761747 +0000
+@@ -26,6 +26,7 @@
+ 
+ from qcviz_mcp.compute import pyscf_runner
+ from qcviz_mcp.llm.execution_guard import ExecutionGuardViolation, execution_guard_from_payload
++from qcviz_mcp.llm.schemas import PlanResponse
+ from qcviz_mcp.llm.normalizer import (
+     _is_formula_like,
+     _looks_like_locant_structure_name,
+@@ -1104,6 +1105,24 @@
+         return None
+ 
+ 
++def _invoke_agent_plan(agent: Any, message: str, payload: Optional[Mapping[str, Any]] = None) -> Any:
++    plan_fn = getattr(agent, "plan", None)
++    if not callable(plan_fn):
++        raise AttributeError("agent.plan is not callable")
++
++    try:
++        signature = inspect.signature(plan_fn)
++    except (TypeError, ValueError):
++        signature = None
++
++    if signature is not None:
++        params = list(signature.parameters.values())
++        if any(param.name == "context" for param in params) or len(params) >= 2:
++            return plan_fn(message, context=dict(payload or {}))
++
++    return plan_fn(message)
++
++
+ def _coerce_plan_to_dict(plan_obj: Any) -> Dict[str, Any]:
+     if plan_obj is None:
+         return {}
+@@ -1319,7 +1338,11 @@
+         if agent is not None:
+             try:
+                 if hasattr(agent, "plan") and callable(agent.plan):
+-                    planned = _enrich_plan(_coerce_plan_to_dict(agent.plan(message)))
++                    planned = _enrich_plan(_coerce_plan_to_dict(_invoke_agent_plan(agent, message, payload=payload)))
++                    try:
++                        planned = PlanResponse.model_validate(planned).to_public_dict()
++                    except Exception:
++                        pass
+                     obs.metrics.update(
+                         {
+                             "provider": planned.get("provider"),
+@@ -1332,6 +1355,10 @@
+                 obs.metrics.update({"fallback_reason": str(exc)})
+                 logger.warning("Planner invocation failed; heuristic fallback: %s", exc)
+         planned = _enrich_plan(_heuristic_plan(message, payload=payload))
++        try:
++            planned = PlanResponse.model_validate(planned).to_public_dict()
++        except Exception:
++            pass
+         obs.metrics.update(
+             {
+                 "provider": planned.get("provider"),
+@@ -1881,6 +1908,9 @@
+         out["mulliken_charges"] = out["partial_charges"]
+ 
+     vis = out.setdefault("visualization", {})
++    for cube_key in ("orbital_cube_b64", "density_cube_b64", "esp_cube_b64"):
++        if out.get(cube_key) and not vis.get(cube_key):
++            vis[cube_key] = out.get(cube_key)
+     defaults = vis.setdefault("defaults", {})
+     defaults.setdefault("style", "stick")
+     defaults.setdefault("labels", False)
+diff --git a/src/qcviz_mcp/web/static/viewer.js b/src/qcviz_mcp/web/static/viewer.js
+--- a/src/qcviz_mcp/web/static/viewer.js	2026-04-01 07:49:17.358742079 +0000
++++ b/src/qcviz_mcp/web/static/viewer.js	2026-04-01 07:55:55.802725682 +0000
+@@ -587,6 +587,11 @@
+         }
+       } else {
+         console.warn("[viewer.js] addSurface/ESP — partial data: espB64:", !!espB64, "densB64:", !!densB64);
++        if (viewerLegend) {
++          viewerLegend.innerHTML =
++            '<p class="viewer-legend__info">ESP surface payload incomplete — density/ESP cube contract를 확인하세요</p>';
++          show(viewerLegend);
++        }
+       }
+     } else {
+       hide(viewerLegend);
+diff --git a/tests/test_chat_api.py b/tests/test_chat_api.py
+--- a/tests/test_chat_api.py	2026-04-01 07:49:17.412643464 +0000
++++ b/tests/test_chat_api.py	2026-04-01 07:57:15.457817625 +0000
+@@ -875,6 +875,62 @@
+     assert "water" not in option_values
+ 
+ 
++def test_compact_ws_result_backfills_top_level_cube_payloads_into_visualization():
++    result = {
++        "job_type": "esp_map",
++        "structure_query": "acetone",
++        "orbital_cube_b64": "top-level-orbital",
++        "density_cube_b64": "top-level-density",
++        "esp_cube_b64": "top-level-esp",
++        "visualization": {
++            "available": {"orbital": False, "density": False, "esp": False},
++            "xyz_block": "3\nacetone\n...",
++        },
++    }
++
++    compact = chat_route._compact_result_for_ws(result)
++
++    assert compact["visualization"]["orbital"]["cube_b64"] == "top-level-orbital"
++    assert compact["visualization"]["density"]["cube_b64"] == "top-level-density"
++    assert compact["visualization"]["esp"]["cube_b64"] == "top-level-esp"
++    assert compact["visualization"]["available"]["orbital"] is True
++    assert compact["visualization"]["available"]["density"] is True
++    assert compact["visualization"]["available"]["esp"] is True
++
++
++def test_safe_plan_message_forwards_payload_context_to_agent_when_supported(
++    monkeypatch,
++):
++    captured = {}
++
++    class _ContextAwareAgent:
++        def plan(self, message: str, context=None):
++            captured["message"] = message
++            captured["context"] = dict(context or {})
++            return {
++                "intent": "chat",
++                "job_type": "chat",
++                "query_kind": "chat_only",
++                "planner_lane": "chat_only",
++                "lane_locked": True,
++                "confidence": 0.91,
++                "provider": "openai",
++                "chat_response": "ok",
++            }
++
++    monkeypatch.setattr(compute_route, "get_qcviz_agent", lambda: _ContextAwareAgent(), raising=False)
++    plan = compute_route._safe_plan_message(
++        "물 HOMO 보여줘",
++        {"session_id": "sess-123", "job_type": "orbital_preview", "structure_query": "water"},
++    )
++
++    assert captured["message"] == "물 HOMO 보여줘"
++    assert captured["context"]["session_id"] == "sess-123"
++    assert captured["context"]["job_type"] == "orbital_preview"
++    assert plan["planner_lane"] == "chat_only"
++    assert plan["provider"] == "openai"
++
++
+ def test_chat_rest_semantic_descriptor_never_falls_back_to_generic_examples(
+     client, patch_fake_runners, monkeypatch
+ ):
+diff --git a/tests/test_result_contract.py b/tests/test_result_contract.py
+--- a/tests/test_result_contract.py	2026-04-01 07:49:17.394202750 +0000
++++ b/tests/test_result_contract.py	2026-04-01 07:55:55.803535610 +0000
+@@ -57,3 +57,38 @@
+     assert normalized["charge"] == 0
+     assert normalized["multiplicity"] == 1
+     assert "defaults" in normalized["visualization"]
++
++
++def test_normalize_result_contract_hoists_top_level_cube_payloads_into_visualization():
++
++    result = {
++
++        "success": True,
++
++        "job_type": "esp_map",
++
++        "structure_name": "acetone",
++
++        "xyz": "3\nx\nO 0 0 0\nH 0 0 1\nH 0 1 0\n",
++
++        "orbital_cube_b64": _b64("ORB"),
++
++        "density_cube_b64": _b64("DENS"),
++
++        "esp_cube_b64": _b64("ESP"),
++
++    }
++
++    normalized = compute_route._normalize_result_contract(result, {"job_type": "esp_map", "esp_preset": "acs"})
++
++    assert normalized["visualization"]["orbital"]["cube_b64"] == _b64("ORB")
++
++    assert normalized["visualization"]["density"]["cube_b64"] == _b64("DENS")
++
++    assert normalized["visualization"]["esp"]["cube_b64"] == _b64("ESP")
++
++    assert normalized["visualization"]["available"]["orbital"] is True
++
++    assert normalized["visualization"]["available"]["density"] is True
++
++    assert normalized["visualization"]["available"]["esp"] is True

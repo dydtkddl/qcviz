@@ -431,9 +431,12 @@ class ExecutionDecision(BaseModel):
 
 
 class PlanResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     normalized_text: str = ""
     intent: str = "analyze"
     job_type: str = "analyze"
+    chat_only: bool = False
     query_kind: Optional[str] = None
     planner_lane: Optional[str] = None
     lane_locked: bool = False
@@ -469,6 +472,7 @@ class PlanResponse(BaseModel):
     multiplicity: Optional[int] = None
     orbital: Optional[str] = None
     esp_preset: Optional[str] = None
+    advisor_focus_tab: Optional[str] = None
     focus_tab: str = "summary"
     confidence: float = 0.0
     confidence_band: Optional[ConfidenceBand] = None
@@ -497,6 +501,7 @@ class PlanResponse(BaseModel):
         "basis",
         "orbital",
         "esp_preset",
+        "advisor_focus_tab",
         "fallback_reason",
         "chat_response",
         "raw_input",
@@ -545,6 +550,7 @@ class PlanResponse(BaseModel):
 
     @field_validator(
         "semantic_grounding_needed",
+        "chat_only",
         "question_like",
         "explicit_compute_action",
         "explanation_intent",
@@ -575,8 +581,12 @@ class PlanResponse(BaseModel):
             self.job_type = self.intent or "analyze"
         if not self.planner_lane:
             self.planner_lane = self.query_kind
+        if self.query_kind == "chat_only":
+            self.chat_only = True
         if self.lane_locked and not self.locked_lane:
             self.locked_lane = self.planner_lane
+        if not self.advisor_focus_tab:
+            self.advisor_focus_tab = self.focus_tab or "summary"
         if not self.confidence_band:
             self.confidence_band = confidence_to_band(self.confidence)
         if self.missing_slots and not self.needs_clarification:

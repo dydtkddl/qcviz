@@ -57,3 +57,22 @@ def test_normalize_result_contract_sets_method_basis_charge_defaults():
     assert normalized["charge"] == 0
     assert normalized["multiplicity"] == 1
     assert "defaults" in normalized["visualization"]
+
+
+def test_normalize_result_contract_hoists_top_level_cube_payloads_into_visualization():
+    result = {
+        "success": True,
+        "job_type": "esp_map",
+        "structure_name": "acetone",
+        "xyz": "3\nx\nO 0 0 0\nH 0 0 1\nH 0 1 0\n",
+        "orbital_cube_b64": _b64("ORB"),
+        "density_cube_b64": _b64("DENS"),
+        "esp_cube_b64": _b64("ESP"),
+    }
+    normalized = compute_route._normalize_result_contract(result, {"job_type": "esp_map", "esp_preset": "acs"})
+    assert normalized["visualization"]["orbital"]["cube_b64"] == _b64("ORB")
+    assert normalized["visualization"]["density"]["cube_b64"] == _b64("DENS")
+    assert normalized["visualization"]["esp"]["cube_b64"] == _b64("ESP")
+    assert normalized["visualization"]["available"]["orbital"] is True
+    assert normalized["visualization"]["available"]["density"] is True
+    assert normalized["visualization"]["available"]["esp"] is True

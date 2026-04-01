@@ -35,6 +35,11 @@ from qcviz_mcp.llm.normalizer import (
     normalize_user_text,
     _structure_text_signature,
 )
+from qcviz_mcp.llm.routing_config import (
+    GROUNDING_AUTO_ACCEPT_THRESHOLD,
+    PLAN_CONFIDENCE_THRESHOLD,
+    TYPO_AUTO_PROMOTE_THRESHOLD,
+)
 from qcviz_mcp.llm.schemas import ClarificationField, ClarificationForm, ClarificationOption, SlotMergeResult
 from qcviz_mcp.web.auth_store import get_auth_user
 from qcviz_mcp.web.conversation_state import load_conversation_state, update_conversation_state
@@ -213,26 +218,47 @@ def _compact_result_for_ws(result: Optional[Mapping[str, Any]]) -> Dict[str, Any
         if key in viz and viz.get(key) not in (None, ""):
             viz_out[key] = viz.get(key)
 
-    orbital = dict(viz.get("orbital") or {})
+    def _ensure_nested_cube(target_key: str, *source_keys: str) -> Dict[str, Any]:
+        target = dict(viz.get(target_key) or viz_out.get(target_key) or {})
+        if target.get("cube_b64") not in (None, ""):
+            return target
+        for source_key in source_keys:
+            candidate = raw.get(source_key)
+            if candidate in (None, ""):
+                candidate = viz.get(source_key)
+            if candidate not in (None, ""):
+                target["cube_b64"] = candidate
+                return target
+        return target
+
+    orbital = _ensure_nested_cube("orbital", "orbital_cube_b64")
     if orbital:
-        viz_out["orbital"] = dict(orbital)
+        viz_out["orbital"] = orbital
 
-    esp = dict(viz.get("esp") or {})
+    esp = _ensure_nested_cube("esp", "esp_cube_b64")
     if esp:
-        viz_out["esp"] = dict(esp)
+        viz_out["esp"] = esp
 
-    density = dict(viz.get("density") or {})
+    density = _ensure_nested_cube("density", "density_cube_b64")
     if density:
         keep_density_cube = bool(
             available.get("esp")
             or esp.get("cube_b64")
             or viz.get("esp_cube_b64")
+            or raw.get("esp_cube_b64")
         )
         density_out = dict(density) if keep_density_cube else {k: v for k, v in density.items() if k != "cube_b64"}
         if density_out:
             viz_out["density"] = density_out
         if "density" in available and not keep_density_cube:
             available["density"] = False
+
+    if (viz_out.get("orbital") or {}).get("cube_b64") not in (None, ""):
+        available["orbital"] = True
+    if (viz_out.get("density") or {}).get("cube_b64") not in (None, ""):
+        available["density"] = True
+    if (viz_out.get("esp") or {}).get("cube_b64") not in (None, "") and (viz_out.get("density") or {}).get("cube_b64") not in (None, ""):
+        available["esp"] = True
 
     if available:
         viz_out["available"] = available
@@ -433,7 +459,7 @@ def _semantic_candidate_supports_direct_answer(candidate: Mapping[str, Any]) -> 
     confidence = _semantic_candidate_confidence(candidate)
     if query_mode == "direct_name":
         return True
-    if confidence is not None and confidence >= 0.85:
+    if confidence is not None and confidence >= GROUNDING_AUTO_ACCEPT_THRESHOLD:
         return True
     if resolution_method in {"autocomplete", "alias", "translation"} and source != "molchat_search_fallback":
         return True
@@ -814,7 +840,7 @@ def _detect_follow_up_molecule(message: str) -> Optional[str]:
 
 
 # ─── Clarification Flow helpers ────────────────────────
-CONFIDENCE_THRESHOLD = float(os.getenv("QCVIZ_CONFIDENCE_THRESHOLD", "0.75"))
+CONFIDENCE_THRESHOLD = PLAN_CONFIDENCE_THRESHOLD
 _CLARIFICATION_TTL_SECONDS = int(os.getenv("QCVIZ_CLARIFICATION_TTL_SECONDS", str(30 * 60)))
 ALLOWED_FIELD_TYPES = {"text", "textarea", "radio", "select", "number", "checkbox"}
 _DISCOVERY_HINT_RE = re.compile(
@@ -2063,7 +2089,7 @@ async def _prepare_or_clarify(
             original_query = _safe_str(plan.get("structure_query") or pending.get("structure_query") or raw_message)
             pending["structure_query"] = promoted
             plan["structure_query"] = promoted
-            plan["confidence"] = max(float(plan.get("confidence") or 0.0), 0.85)
+            plan["confidence"] = max(float(plan.get("confidence") or 0.0), TYPO_AUTO_PROMOTE_THRESHOLD)
             plan["confidence_band"] = "high"
             plan["needs_clarification"] = False
             plan["clarification_kind"] = None
