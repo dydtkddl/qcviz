@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections import OrderedDict
 import difflib
 import json
 import re
@@ -73,7 +74,8 @@ WS_POLL_SECONDS = float(os.getenv("QCVIZ_WS_POLL_SECONDS", "0.25"))
 WS_PING_INTERVAL = float(os.getenv("QCVIZ_WS_PING_INTERVAL", "25"))
 WS_TIMEOUT = float(os.getenv("QCVIZ_WS_TIMEOUT", "60"))
 _CLARIFICATION_SESSION_LOCK = Lock()
-_CLARIFICATION_SESSIONS: Dict[str, Dict[str, Any]] = {}
+_CLARIFICATION_SESSIONS: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
+_CLARIFICATION_MAX_SESSIONS = 512
 _GENERIC_AGENT_SUGGESTION_NAMES = {"water", "methane", "ethanol", "methanol", "benzene"}
 _STRUCTURE_SUGGESTION_CATALOG: List[Dict[str, Any]] = [
     {"name": "methylamine", "formula": "CH5N", "atoms": 7, "description": "메틸아민 — simplest primary amine"},
@@ -213,24 +215,23 @@ def _compact_result_for_ws(result: Optional[Mapping[str, Any]]) -> Dict[str, Any
 
     orbital = dict(viz.get("orbital") or {})
     if orbital:
-        orbital_out = {k: v for k, v in orbital.items() if k != "cube_b64"}
-        if orbital.get("cube_b64"):
-            orbital_out["cube_b64"] = orbital.get("cube_b64")
-        viz_out["orbital"] = orbital_out
+        viz_out["orbital"] = dict(orbital)
 
     esp = dict(viz.get("esp") or {})
     if esp:
-        esp_out = {k: v for k, v in esp.items() if k != "cube_b64"}
-        if esp.get("cube_b64"):
-            esp_out["cube_b64"] = esp.get("cube_b64")
-        viz_out["esp"] = esp_out
+        viz_out["esp"] = dict(esp)
 
     density = dict(viz.get("density") or {})
     if density:
-        density_out = {k: v for k, v in density.items() if k != "cube_b64"}
+        keep_density_cube = bool(
+            available.get("esp")
+            or esp.get("cube_b64")
+            or viz.get("esp_cube_b64")
+        )
+        density_out = dict(density) if keep_density_cube else {k: v for k, v in density.items() if k != "cube_b64"}
         if density_out:
             viz_out["density"] = density_out
-        if "density" in available:
+        if "density" in available and not keep_density_cube:
             available["density"] = False
 
     if available:
@@ -954,16 +955,11 @@ def _dedupe_strings(items: List[str]) -> List[str]:
 def _session_get(session_id: str) -> Optional[Dict[str, Any]]:
     if not session_id:
         return None
-    now = _now_ts()
     with _CLARIFICATION_SESSION_LOCK:
-        expired_keys = [
-            sid
-            for sid, state in _CLARIFICATION_SESSIONS.items()
-            if (now - float(state.get("created_at") or 0.0)) > _CLARIFICATION_TTL_SECONDS
-        ]
-        for sid in expired_keys:
-            _CLARIFICATION_SESSIONS.pop(sid, None)
+        _clarification_passive_evict()
         saved = _CLARIFICATION_SESSIONS.get(session_id)
+        if saved is not None:
+            _CLARIFICATION_SESSIONS.move_to_end(session_id)
         return dict(saved) if saved else None
 
 
@@ -971,17 +967,42 @@ def _session_put(session_id: str, state: Mapping[str, Any]) -> None:
     if not session_id:
         return
     with _CLARIFICATION_SESSION_LOCK:
+        _clarification_passive_evict()
         entry = dict(state)
         entry["created_at"] = _now_ts()
         _CLARIFICATION_SESSIONS[session_id] = entry
+        _CLARIFICATION_SESSIONS.move_to_end(session_id)
 
 
 def _session_pop(session_id: str) -> Optional[Dict[str, Any]]:
     if not session_id:
         return None
     with _CLARIFICATION_SESSION_LOCK:
+        _clarification_passive_evict()
         saved = _CLARIFICATION_SESSIONS.pop(session_id, None)
         return dict(saved) if saved else None
+
+
+def _clarification_passive_evict() -> int:
+    """Evict stale clarification sessions opportunistically on store access."""
+    now = _now_ts()
+    evicted = 0
+    expired_keys: List[str] = []
+    scanned = 0
+    for session_id, state in _CLARIFICATION_SESSIONS.items():
+        if scanned >= 32:
+            break
+        scanned += 1
+        created_at = float(state.get("created_at") or 0.0)
+        if created_at and (now - created_at) > _CLARIFICATION_TTL_SECONDS:
+            expired_keys.append(session_id)
+            evicted += 1
+    for session_id in expired_keys:
+        _CLARIFICATION_SESSIONS.pop(session_id, None)
+    while len(_CLARIFICATION_SESSIONS) > _CLARIFICATION_MAX_SESSIONS:
+        _CLARIFICATION_SESSIONS.popitem(last=False)
+        evicted += 1
+    return evicted
 
 
 def _current_missing_slots(plan: Mapping[str, Any], payload: Mapping[str, Any]) -> List[str]:

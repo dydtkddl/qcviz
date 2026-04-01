@@ -8,10 +8,12 @@ from typing import Optional
 from qcviz_mcp.llm.normalizer import KO_TO_EN
 
 _SUBSCRIPT_MAP = str.maketrans("₀₁₂₃₄₅₆₇₈₉₊₋", "0123456789+-")
+_UNICODE_DASH_RE = re.compile(r"[‐‑‒–—−]")
 
 
 def _normalize_formula_text(text: str) -> str:
     result = str(text or "").translate(_SUBSCRIPT_MAP)
+    result = _UNICODE_DASH_RE.sub("-", result)
     result = re.sub(r"\s*/+\s*$", "", result).strip()
     return result
 

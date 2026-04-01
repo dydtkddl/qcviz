@@ -6,11 +6,14 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from .molchat_client import MolChatClient
 from .pubchem_client import PubChemClient
 from .sdf_converter import merge_sdfs, sdf_to_xyz
+
+if TYPE_CHECKING:
+    from .structure_resolver import StructureResolver
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +112,8 @@ async def resolve_ion_pair(
     molchat: MolChatClient,
     pubchem: PubChemClient,
     offset: float = 5.0,
+    *,
+    resolver: Optional["StructureResolver"] = None,
 ) -> IonPairResult:
     """Resolve an ion pair by resolving each ion individually then merging.
 
@@ -117,6 +122,7 @@ async def resolve_ion_pair(
         molchat: MolChat API client.
         pubchem: PubChem API client (fallback).
         offset: X-axis offset between fragments (Å).
+        resolver: Optional shared StructureResolver instance.
 
     Returns:
         IonPairResult with merged XYZ and total charge.
@@ -124,10 +130,8 @@ async def resolve_ion_pair(
     Raises:
         ValueError: If resolution fails for any ion.
     """
-    # Avoid circular import
-    from .structure_resolver import StructureResolver
-
-    resolver = StructureResolver(molchat=molchat, pubchem=pubchem)
+    if resolver is None:
+        resolver = _new_resolver(molchat=molchat, pubchem=pubchem)
 
     result = IonPairResult()
     sdfs: List[str] = []
@@ -177,3 +181,10 @@ async def resolve_ion_pair(
     )
 
     return result
+
+
+def _new_resolver(*, molchat: MolChatClient, pubchem: PubChemClient) -> "StructureResolver":
+    # Avoid circular import at module import time.
+    from .structure_resolver import StructureResolver
+
+    return StructureResolver(molchat=molchat, pubchem=pubchem)

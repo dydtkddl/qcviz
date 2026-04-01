@@ -861,6 +861,7 @@ async def _resolve_ion_pair_async(structures: List[Dict[str, Any]]) -> Dict[str,
             molchat=resolver.molchat,
             pubchem=resolver.pubchem,
             offset=float(os.getenv("ION_OFFSET_ANGSTROM", "5.0")),
+            resolver=resolver,
         )
         return {
             "xyz": ion_result.xyz,

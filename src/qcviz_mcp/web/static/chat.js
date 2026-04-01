@@ -1106,7 +1106,14 @@
         case "job_update":
           var jobId = safeStr(msg.job_id);
           var updateTurnId = safeStr(msg.turn_id);
-          var isUpdateForCurrentTurn = !updateTurnId || !currentTurnId || updateTurnId === currentTurnId;
+          var isUpdateForCurrentTurn;
+          if (updateTurnId && currentTurnId) {
+            isUpdateForCurrentTurn = updateTurnId === currentTurnId;
+          } else if (jobId && activeJobIdForChat) {
+            isUpdateForCurrentTurn = jobId === activeJobIdForChat;
+          } else {
+            isUpdateForCurrentTurn = true;
+          }
           console.log("[chat.js] ← job_update, jobId:", jobId, "progress:", msg.progress,
             "step:", msg.step, "msg:", msg.message);
           if (jobId) {
@@ -1121,7 +1128,7 @@
                 queue: msg.queue || (msg.job && msg.job.queue) || null,
                 status: msg.status || (msg.job && msg.job.status) || null,
               });
-            if (msg.preview_result) {
+            if (msg.preview_result && isUpdateForCurrentTurn) {
               console.log("[chat.js] ← structure preview ready for job:", jobId);
               App.setActiveResult(msg.preview_result, { jobId: jobId, source: "preview" });
             }
@@ -1189,7 +1196,14 @@
           var jobId2 = safeStr(job2.job_id || msg.job_id);
           var explicitResultTurnId = safeStr(msg.turn_id);
           var resultTurnId = safeStr(msg.turn_id || currentTurnId || pendingTurnId);
-          var isResultForCurrentTurn = !explicitResultTurnId || !currentTurnId || explicitResultTurnId === currentTurnId;
+          var isResultForCurrentTurn;
+          if (explicitResultTurnId && currentTurnId) {
+            isResultForCurrentTurn = explicitResultTurnId === currentTurnId;
+          } else if (jobId2 && activeJobIdForChat) {
+            isResultForCurrentTurn = jobId2 === activeJobIdForChat;
+          } else {
+            isResultForCurrentTurn = true;
+          }
           if (isResultForCurrentTurn && resultTurnId) {
             currentTurnId = resultTurnId;
             pendingTurnId = null;

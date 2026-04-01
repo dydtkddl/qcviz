@@ -34,6 +34,14 @@ from .pubchem_client import PubChemClient
 from .sdf_converter import sdf_to_xyz
 
 try:
+    from rdkit import Chem
+
+    _RDKIT_AVAILABLE = True
+except Exception:
+    Chem = None  # type: ignore
+    _RDKIT_AVAILABLE = False
+
+try:
     from qcviz_mcp.llm.agent import QCVizAgent
 except Exception:
     QCVizAgent = None  # type: ignore
@@ -314,6 +322,93 @@ def _extract_json_dict(raw: str) -> Dict[str, Any]:
         return parsed if isinstance(parsed, dict) else {}
     except Exception:
         return {}
+
+
+def _validate_llm_smiles(smiles: str, original_formula: str) -> Optional[str]:
+    """Run a lightweight chemistry sanity check on LLM-generated SMILES.
+
+    This is intentionally not a full identity proof. It only filters obviously
+    broken or clearly unrelated molecules before 3D generation.
+    """
+    cleaned = str(smiles or "").strip()
+    original = str(original_formula or "").strip()
+    if not cleaned:
+        return None
+    if not _RDKIT_AVAILABLE:
+        logger.warning(
+            "RDKit not available; skipping LLM SMILES sanity check for %s",
+            original or cleaned,
+        )
+        return cleaned
+
+    try:
+        mol = Chem.MolFromSmiles(cleaned, sanitize=False)  # type: ignore[union-attr]
+    except Exception:
+        mol = None
+    if mol is None:
+        logger.info(
+            "LLM SMILES rejected due to parse failure: formula=%s smiles=%s",
+            original,
+            cleaned,
+        )
+        return None
+
+    try:
+        Chem.SanitizeMol(mol)  # type: ignore[union-attr]
+    except Exception as exc:
+        logger.info(
+            "LLM SMILES rejected due to sanitize failure: formula=%s smiles=%s error=%s",
+            original,
+            cleaned,
+            exc,
+        )
+        return None
+
+    heavy_atoms = mol.GetNumHeavyAtoms()
+    if heavy_atoms < 2:
+        logger.info(
+            "LLM SMILES rejected due to too few heavy atoms: formula=%s smiles=%s heavy_atoms=%d",
+            original,
+            cleaned,
+            heavy_atoms,
+        )
+        return None
+
+    formula_elements = set(re.findall(r"[A-Z][a-z]?", original))
+    smiles_elements = {atom.GetSymbol() for atom in mol.GetAtoms()}
+    formula_heavy = formula_elements - {"H"}
+    smiles_heavy = smiles_elements - {"H"}
+    if formula_heavy and not (formula_heavy & smiles_heavy):
+        logger.info(
+            "LLM SMILES rejected due to element mismatch: formula=%s smiles=%s formula_elements=%s smiles_elements=%s",
+            original,
+            cleaned,
+            sorted(formula_heavy),
+            sorted(smiles_heavy),
+        )
+        return None
+    if formula_heavy and len(formula_heavy) >= 2:
+        overlap_ratio = len(formula_heavy & smiles_heavy) / len(formula_heavy)
+        if overlap_ratio < 0.5:
+            logger.info(
+                "LLM SMILES rejected due to low element overlap: formula=%s smiles=%s overlap=%.2f formula_elements=%s smiles_elements=%s",
+                original,
+                cleaned,
+                overlap_ratio,
+                sorted(formula_heavy),
+                sorted(smiles_heavy),
+            )
+            return None
+
+    canonical = Chem.MolToSmiles(mol, canonical=True)  # type: ignore[union-attr]
+    logger.info(
+        "LLM SMILES passed sanity check: formula=%s input=%s canonical=%s heavy_atoms=%d",
+        original,
+        cleaned,
+        canonical,
+        heavy_atoms,
+    )
+    return canonical
 
 _BRACKET_ATOM_RE = re.compile(r"\[([^\]]+)\]")
 _CHARGE_TOKEN_RE = re.compile(r"(\+{1,4}|-{1,4}|[+-]\d+|\d+[+-])")
@@ -796,15 +891,28 @@ class StructureResolver:
         if not smiles:
             return None
 
+        validated_smiles = _validate_llm_smiles(smiles, formula)
+        if not validated_smiles:
+            logger.warning(
+                "Condensed formula LLM fallback rejected by sanity check: formula=%s raw_smiles=%s",
+                formula,
+                smiles,
+            )
+            return None
+
         try:
-            sdf = await self.molchat.generate_3d_sdf(smiles)
+            sdf = await self.molchat.generate_3d_sdf(validated_smiles)
         except Exception as exc:
             self._last_failure_class = _classify_resolution_failure(exc)
             logger.info("Condensed formula LLM fallback generate-3d failed for %s: %s", formula, exc)
             return None
 
         if not sdf:
-            logger.info("Condensed formula LLM fallback returned unvalidated SMILES for %s: %s", formula, smiles)
+            logger.info(
+                "Condensed formula LLM fallback failed 3D validation for %s: %s",
+                formula,
+                validated_smiles,
+            )
             return None
 
         xyz = sdf_to_xyz(sdf, comment=resolved_name)
@@ -812,14 +920,14 @@ class StructureResolver:
         return StructureResult(
             xyz=xyz,
             sdf=sdf,
-            smiles=smiles,
+            smiles=validated_smiles,
             cid=None,
             name=resolved_name,
             source="llm_condensed_formula",
             molecular_weight=None,
             structure_query_raw=formula,
             resolved_structure_name=resolved_name,
-            resolved_smiles=smiles,
+            resolved_smiles=validated_smiles,
         )
 
     async def resolve(self, query: str) -> StructureResult:

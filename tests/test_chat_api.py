@@ -1474,7 +1474,7 @@ def test_molchat_interpret_candidates_reranks_tnt_candidate_ahead_of_unrelated_r
     assert candidates[1]["name"] == "Eprinomectin component B1a"
 
 
-def test_compact_ws_result_keeps_selected_cube_but_strips_heavy_duplicate_payloads():
+def test_compact_ws_result_keeps_selected_cube_but_preserves_esp_rendering_payload():
     result = {
         "job_type": "orbital_preview",
         "structure_query": "benzene",
@@ -1502,7 +1502,26 @@ def test_compact_ws_result_keeps_selected_cube_but_strips_heavy_duplicate_payloa
     assert "events" not in compact
     assert compact["visualization"]["orbital"]["cube_b64"] == "orbital-cube"
     assert compact["visualization"]["esp"]["cube_b64"] == "esp-cube"
-    assert "cube_b64" not in compact["visualization"].get("density", {})
+    assert compact["visualization"]["density"]["cube_b64"] == "density-cube"
+    assert compact["visualization"]["available"]["density"] is True
+
+
+def test_compact_ws_result_still_strips_density_cube_when_no_esp_surface_uses_it():
+    result = {
+        "job_type": "analyze",
+        "structure_query": "water",
+        "density_cube_b64": "top-level-density",
+        "visualization": {
+            "available": {"orbital": False, "density": True, "esp": False},
+            "xyz_block": "3\nwater\n...",
+            "density": {"cube_b64": "density-cube", "label": "density"},
+        },
+    }
+
+    compact = chat_route._compact_result_for_ws(result)
+
+    assert "density_cube_b64" not in compact
+    assert "cube_b64" not in compact["visualization"]["density"]
     assert compact["visualization"]["available"]["density"] is False
 
 

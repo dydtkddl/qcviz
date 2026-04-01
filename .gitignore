@@ -1,2 +1,37 @@
-docs/presentation/참고자료/Figures.pptx 
-docs/presentation/참고자료/Figures.pptx 
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Test / Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Runtime artifacts
+nohup.out
+*.log
+output/
+tmp_*/
+
+# OS
+.DS_Store
+Thumbs.db

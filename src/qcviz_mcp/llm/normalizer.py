@@ -195,139 +195,6 @@ _FOLLOW_UP_REUSE_LAST_JOB_RE = re.compile(
     r"(계산 끝난 뒤|계산 후|결과 나온 뒤|after\s+(the\s+)?calculation|after\s+that)",
     re.IGNORECASE,
 )
-r"""
-_FOLLOW_UP_ESP_RE = re.compile(
-    r"\b(esp|electrostatic)\b|전위|정전기",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_CHARGE_RE = re.compile(
-    r"\b(charge|charges|mulliken)\b|전하",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_OPT_RE = re.compile(
-    r"\b(opt|optimize|optimization)\b|최적화",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_ORBITAL_RE = re.compile(
-    r"\b(homo|lumo|orbital|mo)\b|오비탈",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_BASIS_RE = re.compile(
-    r"\b(sto-?3g|3-21g|6-31g[*]{0,2}|6-311g[*]{0,2}|def2-?svp|def2-?tzvp|cc-pv[dt]z|aug-cc-pv[dt]z)\b",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_SAME_STRUCTURE_RE = re.compile(
-    r"(같은 구조|same structure|이걸|this one|that one|same molecule|동일 구조)",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_BASIS_RE = re.compile(
-    r"\b(sto-?3g|3-21g|6-31g[*]{0,2}|6-311g[*]{0,2}|def2-?svp|def2-?tzvp|cc-pv[dt]z|aug-cc-pv[dt]z)\b",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_ESP_RE = re.compile(r"\b(esp|electrostatic)\b|전위|정전기", re.IGNORECASE)
-_FOLLOW_UP_CHARGE_RE = re.compile(r"\b(charge|charges|mulliken)\b|전하", re.IGNORECASE)
-_FOLLOW_UP_OPT_RE = re.compile(r"\b(opt|optimize|optimization)\b|최적화", re.IGNORECASE)
-_FOLLOW_UP_ORBITAL_RE = re.compile(r"\b(homo|lumo|orbital|mo)\b|오비탈", re.IGNORECASE)
-_FOLLOW_UP_PLACEHOLDER_RE = re.compile(
-    r"^(?:this|that|it|same structure|same molecule|basis|esp|homo|lumo|orbital|charge|charges|optimize|optimization|"
-    r"이걸|그걸|이거|저거|같은 구조|동일 구조)$",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_CONTINUATION_CUE_RE = re.compile(
-    r"(?:\b(?:also|too|same structure|same molecule|this|that)\b|"
-    r"같은 구조|동일 구조|이걸|그걸|이거|저거|계산 끝난 뒤|계산 후|결과 나온 뒤|더 키워|만 더|"
-    r"ㄱㄱ|(?:\bgo(?:\s+go)?\b)|가자|도\s|[A-Za-z0-9][ ]?도\b)",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_QUERY_CUE_RE = re.compile(
-    r"(?:\b(?:also|too|again|more|next)\b|궁금|알려줘|뭐야|추가|다시|더\b|ㄱㄱ|(?:\bgo(?:\s+go)?\b)|가자)",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_SAME_STRUCTURE_RE = re.compile(
-    r"(?:"
-    r"same structure|same molecule|this one|that one|"
-    r"그거|이거|저거|그걸|이걸|저걸|"
-    r"그 분자|이 분자|저 분자|"
-    r"그 구조|이 구조|저 구조|"
-    r"방금 거|아까 거|"
-    r"媛숈? 援ъ“|?닿구|?숈씪 援ъ“"
-    r")",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_PLACEHOLDER_RE = re.compile(
-    r"^(?:"
-    r"this|that|it|same structure|same molecule|"
-    r"basis|esp|homo|lumo|orbital|charge|charges|optimize|optimization|"
-    r"그거|이거|저거|그걸|이걸|저걸|"
-    r"그 분자|이 분자|저 분자|"
-    r"그 구조|이 구조|저 구조|"
-    r"방금 거|아까 거|"
-    r"?닿구|洹멸구|?닿굅|?嫄?媛숈? 援ъ“|?숈씪 援ъ“
-    r")$",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_CONTINUATION_CUE_RE = re.compile(
-    r"(?:\b(?:also|too|same structure|same molecule|this|that)\b|"
-    r"그거|이거|저거|그걸|이걸|저걸|"
-    r"그 분자|이 분자|저 분자|"
-    r"그 구조|이 구조|저 구조|"
-    r"방금 거|아까 거|"
-    r"媛숈? 援ъ“|?숈씪 援ъ“|?닿구|洹멸구|?닿굅|?嫄?怨꾩궛 ?앸궃 ??怨꾩궛 ??寃곌낵 ?섏삩 ?????ㅼ썙|留???"
-    r"?긱꽦|(?:\bgo(?:\s+go)?\b)|媛????s|[A-Za-z0-9][ ]???b)",
-    re.IGNORECASE,
-)
-"""
-_FOLLOW_UP_ESP_RE = re.compile(
-    r"\b(esp|electrostatic)\b|전위|정전기",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_CHARGE_RE = re.compile(
-    r"\b(charge|charges|mulliken)\b|전하",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_OPT_RE = re.compile(
-    r"\b(opt|optimize|optimization)\b|최적화",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_ORBITAL_RE = re.compile(
-    r"\b(homo|lumo|orbital|mo)\b|오비탈",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_SAME_STRUCTURE_RE = re.compile(
-    r"(?:"
-    r"same structure|same molecule|this one|that one|"
-    r"\uadf8\uac70|\uc774\uac70|\uc800\uac70|"
-    r"\uadf8\uac78|\uc774\uac78|\uc800\uac78|"
-    r"\uadf8 \ubd84\uc790|\uc774 \ubd84\uc790|\uc800 \ubd84\uc790|"
-    r"\uadf8 \uad6c\uc870|\uc774 \uad6c\uc870|\uc800 \uad6c\uc870|"
-    r"\ubc29\uae08 \uac70|\uc544\uae4c \uac70|"
-    r"same molecule|same structure"
-    r")",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_PLACEHOLDER_RE = re.compile(
-    r"^(?:"
-    r"this|that|it|same structure|same molecule|"
-    r"basis|esp|homo|lumo|orbital|charge|charges|optimize|optimization|"
-    r"\uadf8\uac70|\uc774\uac70|\uc800\uac70|"
-    r"\uadf8\uac78|\uc774\uac78|\uc800\uac78|"
-    r"\uadf8 \ubd84\uc790|\uc774 \ubd84\uc790|\uc800 \ubd84\uc790|"
-    r"\uadf8 \uad6c\uc870|\uc774 \uad6c\uc870|\uc800 \uad6c\uc870|"
-    r"\ubc29\uae08 \uac70|\uc544\uae4c \uac70"
-    r")$",
-    re.IGNORECASE,
-)
-_FOLLOW_UP_CONTINUATION_CUE_RE = re.compile(
-    r"(?:\b(?:also|too|same structure|same molecule|this|that)\b|"
-    r"\uadf8\uac70|\uc774\uac70|\uc800\uac70|"
-    r"\uadf8\uac78|\uc774\uac78|\uc800\uac78|"
-    r"\uadf8 \ubd84\uc790|\uc774 \ubd84\uc790|\uc800 \ubd84\uc790|"
-    r"\uadf8 \uad6c\uc870|\uc774 \uad6c\uc870|\uc800 \uad6c\uc870|"
-    r"\ubc29\uae08 \uac70|\uc544\uae4c \uac70|"
-    r"(?:\bgo(?:\s+go)?\b)|also|too|again|more|next"
-    r")",
-    re.IGNORECASE,
-)
 _FOLLOW_UP_BASIS_RE = re.compile(
     r"\b(sto-?3g|3-21g|6-31g[*]{0,2}|6-311g[*]{0,2}|def2-?svp|def2-?tzvp|cc-pv[dt]z|aug-cc-pv[dt]z)\b",
     re.IGNORECASE,
@@ -337,31 +204,31 @@ _FOLLOW_UP_METHOD_TOKEN_RE = re.compile(
     re.IGNORECASE,
 )
 _FOLLOW_UP_ESP_RE = re.compile(
-    r"\b(esp|electrostatic)\b|\uc804\uc704|\uc815\uc804\uae30",
+    r"\b(esp|electrostatic)\b|전위|정전기",
     re.IGNORECASE,
 )
 _FOLLOW_UP_CHARGE_RE = re.compile(
-    r"\b(charge|charges|mulliken)\b|\ucc28\uc9c0|\uc804\ud558",
+    r"\b(charge|charges|mulliken)\b|차지|전하",
     re.IGNORECASE,
 )
 _FOLLOW_UP_OPT_RE = re.compile(
-    r"\b(opt|optimize|optimization)\b|\ucd5c\uc801\ud654",
+    r"\b(opt|optimize|optimization)\b|최적화",
     re.IGNORECASE,
 )
 _FOLLOW_UP_ORBITAL_RE = re.compile(
-    r"\b(homo|lumo|orbital|mo)\b|\uada4\ub3c4",
+    r"\b(homo|lumo|orbital|mo)\b|궤도",
     re.IGNORECASE,
 )
 _FOLLOW_UP_SAME_STRUCTURE_RE = re.compile(
-    r"(?:" 
+    r"(?:"
     r"same structure|same molecule|this one|that one|it too|this too|that too|"
-    r"\uadf8\uac70|\uc774\uac70|\uc800\uac70|"
-    r"\uadf8\uac78|\uc774\uac78|\uc800\uac78|"
-    r"\uadf8 \ubd84\uc790|\uc774 \ubd84\uc790|\uc800 \ubd84\uc790|"
-    r"\uadf8 \uad6c\uc870|\uc774 \uad6c\uc870|\uc800 \uad6c\uc870|"
-    r"\ubc29\uae08 \uac70|\uc544\uae4c \uac70|"
-    r"\uc774\ubc88\uc5d4|\uc774\ubc88\uc5d0\ub294|"
-    r"\ub3d9\uc77c \uad6c\uc870|\uac19\uc740 \uad6c\uc870"
+    r"그거|이거|저거|"
+    r"그걸|이걸|저걸|"
+    r"그 분자|이 분자|저 분자|"
+    r"그 구조|이 구조|저 구조|"
+    r"방금 거|아까 거|"
+    r"이번엔|이번에는|"
+    r"동일 구조|같은 구조"
     r")",
     re.IGNORECASE,
 )
@@ -369,42 +236,42 @@ _FOLLOW_UP_PLACEHOLDER_RE = re.compile(
     r"^(?:"
     r"this|that|it|it too|this too|that too|same structure|same molecule|"
     r"basis|esp|homo|lumo|orbital|charge|charges|optimize|optimization|"
-    r"\uadf8\uac70|\uc774\uac70|\uc800\uac70|"
-    r"\uadf8\uac78|\uc774\uac78|\uc800\uac78|"
-    r"\uadf8 \ubd84\uc790|\uc774 \ubd84\uc790|\uc800 \ubd84\uc790|"
-    r"\uadf8 \uad6c\uc870|\uc774 \uad6c\uc870|\uc800 \uad6c\uc870|"
-    r"\ubc29\uae08 \uac70|\uc544\uae4c \uac70|"
-    r"\uc774\ubc88\uc5d4|\uc774\ubc88\uc5d0\ub294|"
-    r"\ub3d9\uc77c \uad6c\uc870|\uac19\uc740 \uad6c\uc870"
+    r"그거|이거|저거|"
+    r"그걸|이걸|저걸|"
+    r"그 분자|이 분자|저 분자|"
+    r"그 구조|이 구조|저 구조|"
+    r"방금 거|아까 거|"
+    r"이번엔|이번에는|"
+    r"동일 구조|같은 구조"
     r")$",
     re.IGNORECASE,
 )
 _FOLLOW_UP_CONTINUATION_CUE_RE = re.compile(
     r"(?:\b(?:also|too|same structure|same molecule|this|that)\b|"
     r"\b(?:it|this|that)\s+too\b|"
-    r"\uadf8\uac70|\uc774\uac70|\uc800\uac70|"
-    r"\uadf8\uac78|\uc774\uac78|\uc800\uac78|"
-    r"\uadf8 \ubd84\uc790|\uc774 \ubd84\uc790|\uc800 \ubd84\uc790|"
-    r"\uadf8 \uad6c\uc870|\uc774 \uad6c\uc870|\uc800 \uad6c\uc870|"
-    r"\ubc29\uae08 \uac70|\uc544\uae4c \uac70|"
-    r"\uc774\ubc88\uc5d4|\uc774\ubc88\uc5d0\ub294|"
-    r"\ub3d9\uc77c \uad6c\uc870|\uac19\uc740 \uad6c\uc870|"
-    r"\u3147\u3147|\u3131\u3131|"
+    r"그거|이거|저거|"
+    r"그걸|이걸|저걸|"
+    r"그 분자|이 분자|저 분자|"
+    r"그 구조|이 구조|저 구조|"
+    r"방금 거|아까 거|"
+    r"이번엔|이번에는|"
+    r"동일 구조|같은 구조|"
+    r"ㅇㅇ|ㄱㄱ|"
     r"(?:\bgo(?:\s+go)?\b)|also|too|again|more|next"
     r")",
     re.IGNORECASE,
 )
 _FOLLOW_UP_QUERY_CUE_RE = re.compile(
     r"(?:\b(?:also|too|again|more|next)\b|"
-    r"\uad81\uae08|\ub354|\ucd94\uac00|\ub2e4\uc2dc|"
-    r"\ubc29\uae08 \uac70|\uc544\uae4c \uac70|"
-    r"\uc774\ubc88\uc5d4|\uc774\ubc88\uc5d0\ub294|"
-    r"\u3147\u3147|\u3131\u3131|"
+    r"궁금|더|추가|다시|"
+    r"방금 거|아까 거|"
+    r"이번엔|이번에는|"
+    r"ㅇㅇ|ㄱㄱ|"
     r"(?:\bgo(?:\s+go)?\b))",
     re.IGNORECASE,
 )
 _FOLLOW_UP_ANALYSIS_SUFFIX_RE = re.compile(
-    r"(?:homo|lumo|esp|orbital|charge|charges|mulliken|opt|optimize|optimization|basis)\s*\ub3c4(?:\b|$)",
+    r"(?:homo|lumo|esp|orbital|charge|charges|mulliken|opt|optimize|optimization|basis)\s*도(?:\b|$)",
     re.IGNORECASE,
 )
 _BATCH_ALL_MENTIONED_RE = re.compile(

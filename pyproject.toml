@@ -41,6 +41,7 @@ dev = [
   "pytest-cov>=5.0,<6.0",
   "wsproto>=1.2,<2.0",
   "httpx-ws>=0.7,<1.0",
+  "rdkit-pypi>=2022.9.5",
 ]
 
 [tool.setuptools]

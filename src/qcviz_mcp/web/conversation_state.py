@@ -2,13 +2,19 @@
 from __future__ import annotations
 
 import time
+from collections import OrderedDict
 from threading import Lock
 from typing import Any, Dict, Mapping, Optional
 
+_STATE_MAX_SESSIONS = 1024
+_STATE_TTL_SECONDS = 3600 * 4
+_RESULT_INDEX_MAX = 2048
+_EVICTION_SCAN_LIMIT = 64
+
 _STATE_LOCK = Lock()
-_INMEMORY_STATE: Dict[str, Dict[str, Any]] = {}
+_INMEMORY_STATE: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
 _RESULT_INDEX_LOCK = Lock()
-_RESULT_INDEX: Dict[str, Dict[str, str]] = {}
+_RESULT_INDEX: "OrderedDict[str, Dict[str, str]]" = OrderedDict()
 
 
 def _safe_str(value: Any, default: str = "") -> str:
@@ -31,6 +37,39 @@ def _manager_store(manager: Optional[Any]) -> Optional[Any]:
     return getattr(manager, "store", None) if manager is not None else None
 
 
+def _evict_expired_state() -> int:
+    """Remove expired state entries from the front of the LRU store."""
+    now = time.time()
+    expired: list[str] = []
+    for session_id, state in _INMEMORY_STATE.items():
+        if len(expired) >= _EVICTION_SCAN_LIMIT:
+            break
+        updated = float(state.get("updated_at") or state.get("created_at") or 0.0)
+        if updated and (now - updated) > _STATE_TTL_SECONDS:
+            expired.append(session_id)
+            continue
+        break
+    for session_id in expired:
+        _INMEMORY_STATE.pop(session_id, None)
+    return len(expired)
+
+
+def _enforce_state_max_size() -> int:
+    evicted = 0
+    while len(_INMEMORY_STATE) > _STATE_MAX_SESSIONS:
+        _INMEMORY_STATE.popitem(last=False)
+        evicted += 1
+    return evicted
+
+
+def _enforce_result_index_max_size() -> int:
+    evicted = 0
+    while len(_RESULT_INDEX) > _RESULT_INDEX_MAX:
+        _RESULT_INDEX.popitem(last=False)
+        evicted += 1
+    return evicted
+
+
 def build_canonical_result_key(
     structure_name: str,
     method: str = "",
@@ -42,6 +81,17 @@ def build_canonical_result_key(
     structure_token = _safe_str(structure_name).lower()
     if not structure_token:
         return ""
+
+    default_method = "b3lyp"
+    default_basis = "def2-svp"
+    try:
+        from qcviz_mcp.compute.pyscf_runner import DEFAULT_BASIS, DEFAULT_METHOD
+
+        default_method = _safe_str(DEFAULT_METHOD).lower() or default_method
+        default_basis = _safe_str(DEFAULT_BASIS).lower() or default_basis
+    except Exception:
+        pass
+
     try:
         charge_value = int(charge if charge not in (None, "") else 0)
     except Exception:
@@ -52,8 +102,8 @@ def build_canonical_result_key(
         multiplicity_value = 1
     parts = [
         structure_token,
-        _safe_str(method).lower() or "b3lyp",
-        _safe_str(basis).lower() or "def2-svp",
+        _safe_str(method).lower() or default_method,
+        _safe_str(basis).lower() or default_basis,
         _safe_str(job_type).lower() or "analyze",
         str(charge_value),
         str(multiplicity_value),
@@ -68,8 +118,10 @@ def index_completed_result(session_id: str, canonical_result_key: str, job_id: s
     if not wanted_session or not wanted_key or not wanted_job:
         return
     with _RESULT_INDEX_LOCK:
+        _enforce_result_index_max_size()
         session_index = _RESULT_INDEX.setdefault(wanted_session, {})
         session_index[wanted_key] = wanted_job
+        _RESULT_INDEX.move_to_end(wanted_session)
 
 
 def find_previous_result(session_id: str, canonical_result_key: str) -> Optional[str]:
@@ -78,7 +130,11 @@ def find_previous_result(session_id: str, canonical_result_key: str) -> Optional
     if not wanted_session or not wanted_key:
         return None
     with _RESULT_INDEX_LOCK:
-        return _RESULT_INDEX.get(wanted_session, {}).get(wanted_key)
+        session_index = _RESULT_INDEX.get(wanted_session)
+        if session_index is None:
+            return None
+        _RESULT_INDEX.move_to_end(wanted_session)
+        return session_index.get(wanted_key)
 
 
 def clear_result_index(session_id: str) -> None:
@@ -99,12 +155,18 @@ def load_conversation_state(session_id: str, *, manager: Optional[Any] = None) -
             state = store.load_session_state(wanted)
             if isinstance(state, dict):
                 with _STATE_LOCK:
+                    _evict_expired_state()
                     _INMEMORY_STATE[wanted] = dict(state)
+                    _INMEMORY_STATE.move_to_end(wanted)
+                    _enforce_state_max_size()
                 return dict(state)
         except Exception:
             pass
     with _STATE_LOCK:
+        _evict_expired_state()
         saved = _INMEMORY_STATE.get(wanted)
+        if saved is not None:
+            _INMEMORY_STATE.move_to_end(wanted)
         return dict(saved) if saved else {}
 
 
@@ -116,7 +178,10 @@ def save_conversation_state(session_id: str, state: Mapping[str, Any], *, manage
     payload["session_id"] = wanted
     payload["updated_at"] = float(payload.get("updated_at") or time.time())
     with _STATE_LOCK:
+        _evict_expired_state()
         _INMEMORY_STATE[wanted] = dict(payload)
+        _INMEMORY_STATE.move_to_end(wanted)
+        _enforce_state_max_size()
     store = _manager_store(manager)
     if store is not None and hasattr(store, "save_session_state"):
         try:
@@ -155,6 +220,20 @@ def clear_conversation_state(session_id: str, *, manager: Optional[Any] = None) 
             store.clear_session_state(wanted)
         except Exception:
             pass
+
+
+def state_store_stats() -> Dict[str, Any]:
+    with _STATE_LOCK:
+        state_count = len(_INMEMORY_STATE)
+    with _RESULT_INDEX_LOCK:
+        result_index_count = len(_RESULT_INDEX)
+    return {
+        "state_sessions": state_count,
+        "state_max": _STATE_MAX_SESSIONS,
+        "state_ttl_s": _STATE_TTL_SECONDS,
+        "result_index_sessions": result_index_count,
+        "result_index_max": _RESULT_INDEX_MAX,
+    }
 
 
 def build_execution_state(
