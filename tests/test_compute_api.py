@@ -103,6 +103,54 @@ def test_compute_wait_for_result_sequential_workflow_optimize_then_esp(client, p
     assert result["workflow_results"]["s2"]["job_type"] == "esp_map"
     assert result["visualization"]["available"]["esp"] is True
 
+
+def test_prepare_payload_with_action_plan_skips_raw_text_reparsing(monkeypatch):
+    def _explode(*args, **kwargs):
+        raise AssertionError("normalize_user_text should not run for authoritative action_plan payloads")
+
+    monkeypatch.setattr(compute_route, "normalize_user_text", _explode, raising=False)
+    monkeypatch.setattr(
+        compute_route,
+        "load_conversation_state",
+        lambda *args, **kwargs: {
+            "last_structure_query": "water",
+            "last_job_type": "single_point",
+            "last_resolved_artifact": {},
+        },
+        raising=False,
+    )
+    monkeypatch.setattr(compute_route, "get_job_manager", lambda: None, raising=False)
+
+    prepared = compute_route._prepare_payload(
+        {
+            "message": "이번엔 esp",
+            "session_id": "plan-follow-up",
+            "planner_applied": True,
+            "job_type": "esp_map",
+            "planner_intent": "esp_map",
+            "planner_missing_slots": [],
+            "planner_needs_clarification": False,
+            "follow_up_mode": "previous_result",
+            "action_plan": {
+                "mode": "compute",
+                "intent": "esp_map",
+                "target": {"molecule_text": None, "from_context": True, "resolved_reference": "previous_result"},
+                "parameters": {"method": None, "basis": None, "charge": None, "multiplicity": None, "orbital": None, "surface_type": "esp"},
+                "comparison": {"enabled": False, "targets": []},
+                "follow_up": {"enabled": True, "reference_type": "previous_result", "reference_slot": "latest"},
+                "workflow": {"enabled": False, "steps": []},
+                "explanation_request": False,
+                "needs_clarification": False,
+                "clarification_reason": None,
+                "confidence": 0.93,
+            },
+        }
+    )
+
+    assert prepared["structure_query"].lower() == "water"
+    assert prepared["continuation_context_used"] is True
+    assert prepared["job_type"] == "esp_map"
+
 def test_compute_async_submit_then_poll_on_api_alias(client, patch_fake_runners):
     submit = client.post("/api/compute/jobs", json={"message": "물의 Mulliken charge 계산해줘"})
     assert submit.status_code == 200

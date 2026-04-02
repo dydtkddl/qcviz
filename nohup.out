@@ -1,0 +1,174 @@
+INFO:qcviz_mcp.web.routes.compute:JobManager initialized (ThreadPoolExecutor, max_workers=1).
+INFO:     Started server process [80895]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8817 (Press CTRL+C to quit)
+/home/yongsang/miniconda3/envs/qcviz/lib/python3.11/site-packages/starlette/templating.py:162: DeprecationWarning: The `name` is not the first parameter anymore. The first parameter should be the `Request` instance.
+Replace `TemplateResponse(name, {"request": request})` by `TemplateResponse(request, name)`.
+  warnings.warn(
+INFO:     172.27.96.1:50061 - "GET /qcviz8817/ HTTP/1.1" 200 OK
+INFO:     172.27.96.1:52335 - "GET /qcviz8817/static/style.css HTTP/1.1" 200 OK
+INFO:     172.27.96.1:52336 - "GET /qcviz8817/static/chat.js HTTP/1.1" 200 OK
+INFO:     172.27.96.1:52337 - "GET /qcviz8817/static/results.js HTTP/1.1" 200 OK
+INFO:     172.27.96.1:49302 - "GET /qcviz8817/static/app.js HTTP/1.1" 200 OK
+INFO:     172.27.96.1:49301 - "GET /qcviz8817/static/viewer.js HTTP/1.1" 200 OK
+INFO:     172.27.96.1:49303 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:64845 - "WebSocket /qcviz8817/ws/chat?session_id=qcviz-mn7p0swd-0ljpzn&session_token=EfQp3WnmADCJ37KKAkVAA7HRN0sjzDBvJcFdoG6H7O0" [accepted]
+INFO:     172.27.96.1:64846 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:49802 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:49803 - "GET /qcviz8817/compute/jobs?include_result=true&session_id=qcviz-mn7p0swd-0ljpzn HTTP/1.1" 200 OK
+INFO:     172.27.96.1:52184 - "GET /qcviz8817/static/favicon.svg HTTP/1.1" 200 OK
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=ethylene carbonate normalized=ethylene carbonate candidates=['ethylene carbonate'] mixed_input=False aliases=['ethylene carbonate'] formulas=[]
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=ethylene+carbonate "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=ethylene+carbonate "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=ethylene+carbonate "HTTP/1.1 502 Bad Gateway"
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: ethylene carbonate → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=ethylene+carbonate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502 / MolChat pipeline failed: ethylene carbonate → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=ethylene+carbonate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/ethylene%20carbonate/SDF?record_type=3d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/ethylene%20carbonate/cids/JSON "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/7303/property/CanonicalSMILES,ConnectivitySMILES,IsomericSMILES/JSON "HTTP/1.1 200 OK"
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (bonding_analysis, 10 atoms): B3LYP-D3(BJ)/def2-SVP
+WARNING:qcviz_mcp.compute.pyscf_runner:Löwdin population failed: module 'pyscf.scf.hf' has no attribute 'lowdin_pop'
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (esp_mapping, 10 atoms): B3LYP-D3(BJ)/def2-SVP
+WARNING:qcviz_mcp.compute.pyscf_runner:Löwdin population failed: module 'pyscf.scf.hf' has no attribute 'lowdin_pop'
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=dimethyl carbonate normalized=dimethyl carbonate candidates=['dimethyl carbonate'] mixed_input=False aliases=['dimethyl carbonate'] formulas=[]
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: dimethyl carbonate → Event loop is closed / MolChat pipeline failed: dimethyl carbonate → Event loop is closed
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: dimethyl carbonate → Event loop is closed / PubChem name_to_sdf_3d failed: dimethyl carbonate → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/dimethyl%20carbonate/cids/JSON "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/12021/SDF?record_type=3d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/12021/property/CanonicalSMILES,ConnectivitySMILES,IsomericSMILES/JSON "HTTP/1.1 200 OK"
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (bonding_analysis, 12 atoms): B3LYP-D3(BJ)/def2-SVP
+WARNING:qcviz_mcp.compute.pyscf_runner:Löwdin population failed: module 'pyscf.scf.hf' has no attribute 'lowdin_pop'
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (esp_mapping, 12 atoms): B3LYP-D3(BJ)/def2-SVP
+WARNING:qcviz_mcp.compute.pyscf_runner:Löwdin population failed: module 'pyscf.scf.hf' has no attribute 'lowdin_pop'
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=DVS normalized=DVS candidates=['DVS'] mixed_input=False aliases=[] formulas=['DVS']
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DVS "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DVS "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DVS "HTTP/1.1 502 Bad Gateway"
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: DVS → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DVS'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502 / MolChat pipeline failed: DVS → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DVS'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: DVS → Event loop is closed / PubChem name_to_sdf_3d failed: DVS → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/DVS/cids/JSON "HTTP/1.1 404 PUGREST.NotFound"
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=DVS normalized=DVS candidates=['DVS'] mixed_input=False aliases=[] formulas=['DVS']
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: DVS → Event loop is closed / MolChat pipeline failed: DVS → Event loop is closed
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: DVS → Event loop is closed / PubChem name_to_sdf_3d failed: DVS → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/DVS/cids/JSON "HTTP/1.1 404 PUGREST.NotFound"
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=vinyl normalized=vinyl candidates=['vinyl'] mixed_input=False aliases=['vinyl'] formulas=[]
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=vinyl "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=vinyl "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=vinyl "HTTP/1.1 502 Bad Gateway"
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: vinyl → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=vinyl'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502 / MolChat pipeline failed: vinyl → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=vinyl'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: vinyl → Event loop is closed / PubChem name_to_sdf_3d failed: vinyl → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/vinyl/cids/JSON "HTTP/1.1 404 PUGREST.NotFound"
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=vinyl normalized=vinyl candidates=['vinyl'] mixed_input=False aliases=['vinyl'] formulas=[]
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: vinyl → Event loop is closed / MolChat pipeline failed: vinyl → Event loop is closed
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: vinyl → Event loop is closed / PubChem name_to_sdf_3d failed: vinyl → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/vinyl/cids/JSON "HTTP/1.1 404 PUGREST.NotFound"
+INFO:qcviz_mcp.web.routes.chat:WebSocket disconnected.
+/home/yongsang/miniconda3/envs/qcviz/lib/python3.11/site-packages/starlette/templating.py:162: DeprecationWarning: The `name` is not the first parameter anymore. The first parameter should be the `Request` instance.
+Replace `TemplateResponse(name, {"request": request})` by `TemplateResponse(request, name)`.
+  warnings.warn(
+INFO:     172.27.96.1:65412 - "GET /qcviz8817/ HTTP/1.1" 200 OK
+INFO:     172.27.96.1:63235 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:63348 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:63349 - "WebSocket /qcviz8817/ws/chat?session_id=qcviz-mn7rlbgx-z1gayb&session_token=0iWjXyJSgR9HUUIb7E1QT0Wgu53TyqS6O3Xb2dklV3k" [accepted]
+INFO:     172.27.96.1:63350 - "GET /qcviz8817/compute/jobs?include_result=true&session_id=qcviz-mn7rlbgx-z1gayb HTTP/1.1" 200 OK
+INFO:     172.27.96.1:49295 - "GET /qcviz8817/ HTTP/1.1" 200 OK
+INFO:qcviz_mcp.web.routes.chat:WebSocket disconnected.
+INFO:     172.27.96.1:49296 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:50126 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:50127 - "WebSocket /qcviz8817/ws/chat?session_id=qcviz-mn7rlbgx-z1gayb&session_token=0iWjXyJSgR9HUUIb7E1QT0Wgu53TyqS6O3Xb2dklV3k" [accepted]
+INFO:     172.27.96.1:50128 - "GET /qcviz8817/compute/jobs?include_result=true&session_id=qcviz-mn7rlbgx-z1gayb HTTP/1.1" 200 OK
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=benzene normalized=benzene candidates=['benzene'] mixed_input=False aliases=['benzene'] formulas=[]
+INFO:     172.27.96.1:52181 - "POST /qcviz8817/compute/jobs/b81f57fc6016478a82fc5d2ed5434115/cancel?session_id=qcviz-mn7rlbgx-z1gayb HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=benzene "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=benzene "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=benzene "HTTP/1.1 502 Bad Gateway"
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: benzene → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=benzene'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502 / MolChat pipeline failed: benzene → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=benzene'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: benzene → Event loop is closed / PubChem name_to_sdf_3d failed: benzene → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/benzene/cids/JSON "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/241/SDF?record_type=3d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/241/property/CanonicalSMILES,ConnectivitySMILES,IsomericSMILES/JSON "HTTP/1.1 200 OK"
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (bonding_analysis, 12 atoms): B3LYP-D3(BJ)/def2-SVP
+INFO:     172.27.96.1:62305 - "GET /qcviz8817/ HTTP/1.1" 200 OK
+INFO:     172.27.96.1:62306 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:50583 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:50584 - "WebSocket /qcviz8817/ws/chat?session_id=qcviz-mn7rlbgx-z1gayb&session_token=0iWjXyJSgR9HUUIb7E1QT0Wgu53TyqS6O3Xb2dklV3k" [accepted]
+INFO:     172.27.96.1:50585 - "GET /qcviz8817/compute/jobs?include_result=true&session_id=qcviz-mn7rlbgx-z1gayb HTTP/1.1" 200 OK
+INFO:     172.27.96.1:50586 - "GET /qcviz8817/ HTTP/1.1" 200 OK
+INFO:qcviz_mcp.web.routes.chat:WebSocket disconnected.
+INFO:     172.27.96.1:50587 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:55984 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:55985 - "WebSocket /qcviz8817/ws/chat?session_id=qcviz-mn7rlbgx-z1gayb&session_token=0iWjXyJSgR9HUUIb7E1QT0Wgu53TyqS6O3Xb2dklV3k" [accepted]
+INFO:     172.27.96.1:55986 - "GET /qcviz8817/compute/jobs?include_result=true&session_id=qcviz-mn7rlbgx-z1gayb HTTP/1.1" 200 OK
+INFO:     172.27.96.1:55987 - "GET /qcviz8817/ HTTP/1.1" 200 OK
+INFO:qcviz_mcp.web.routes.chat:WebSocket disconnected.
+INFO:     172.27.96.1:55988 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:54737 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:54738 - "WebSocket /qcviz8817/ws/chat?session_id=qcviz-mn7rlbgx-z1gayb&session_token=0iWjXyJSgR9HUUIb7E1QT0Wgu53TyqS6O3Xb2dklV3k" [accepted]
+INFO:     172.27.96.1:54739 - "GET /qcviz8817/compute/jobs?include_result=true&session_id=qcviz-mn7rlbgx-z1gayb HTTP/1.1" 200 OK
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=Divinyl Sulfone normalized=Divinyl Sulfone candidates=['Divinyl Sulfone'] mixed_input=False aliases=['Divinyl Sulfone'] formulas=[]
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: Divinyl Sulfone → Event loop is closed / MolChat pipeline failed: Divinyl Sulfone → Event loop is closed
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: Divinyl Sulfone → Event loop is closed / PubChem name_to_sdf_3d failed: Divinyl Sulfone → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Divinyl%20Sulfone/cids/JSON "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6496/SDF?record_type=3d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6496/property/CanonicalSMILES,ConnectivitySMILES,IsomericSMILES/JSON "HTTP/1.1 200 OK"
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (bonding_analysis, 13 atoms): B3LYP-D3(BJ)/def2-SVP
+WARNING:qcviz_mcp.compute.pyscf_runner:Löwdin population failed: module 'pyscf.scf.hf' has no attribute 'lowdin_pop'
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (esp_mapping, 13 atoms): B3LYP-D3(BJ)/def2-SVP
+WARNING:qcviz_mcp.compute.pyscf_runner:Löwdin population failed: module 'pyscf.scf.hf' has no attribute 'lowdin_pop'
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=DMS normalized=DMS candidates=['DMS'] mixed_input=False aliases=[] formulas=['DMS']
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DMS "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DMS "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DMS "HTTP/1.1 502 Bad Gateway"
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: DMS → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DMS'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502 / MolChat pipeline failed: DMS → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=DMS'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: DMS → Event loop is closed / PubChem name_to_sdf_3d failed: DMS → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/DMS/cids/JSON "HTTP/1.1 404 PUGREST.NotFound"
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=DMS normalized=DMS candidates=['DMS'] mixed_input=False aliases=[] formulas=['DMS']
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: DMS → Event loop is closed / MolChat pipeline failed: DMS → Event loop is closed
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: DMS → Event loop is closed / PubChem name_to_sdf_3d failed: DMS → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/DMS/cids/JSON "HTTP/1.1 404 PUGREST.NotFound"
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=Dimethyl Sulfone normalized=Dimethyl Sulfone candidates=['Dimethyl Sulfone'] mixed_input=False aliases=['Dimethyl Sulfone'] formulas=[]
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Dimethyl+Sulfone "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Dimethyl+Sulfone "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Dimethyl+Sulfone "HTTP/1.1 502 Bad Gateway"
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: Dimethyl Sulfone → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Dimethyl+Sulfone'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502 / MolChat pipeline failed: Dimethyl Sulfone → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Dimethyl+Sulfone'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: Dimethyl Sulfone → Event loop is closed / PubChem name_to_sdf_3d failed: Dimethyl Sulfone → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Dimethyl%20Sulfone/cids/JSON "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6213/SDF?record_type=3d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6213/property/CanonicalSMILES,ConnectivitySMILES,IsomericSMILES/JSON "HTTP/1.1 200 OK"
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (bonding_analysis, 11 atoms): B3LYP-D3(BJ)/def2-SVP
+WARNING:qcviz_mcp.compute.pyscf_runner:Löwdin population failed: module 'pyscf.scf.hf' has no attribute 'lowdin_pop'
+INFO:qcviz_mcp.advisor.preset_recommender:Recommendation for organic_small (esp_mapping, 11 atoms): B3LYP-D3(BJ)/def2-SVP
+WARNING:qcviz_mcp.compute.pyscf_runner:Löwdin population failed: module 'pyscf.scf.hf' has no attribute 'lowdin_pop'
+INFO:qcviz_mcp.web.routes.chat:WebSocket disconnected.
+INFO:     172.27.96.1:51297 - "GET /qcviz8817/ HTTP/1.1" 200 OK
+INFO:     172.27.96.1:61140 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:59252 - "POST /qcviz8817/session/bootstrap HTTP/1.1" 200 OK
+INFO:     172.27.96.1:59254 - "WebSocket /qcviz8817/ws/chat?session_id=qcviz-mn7smlao-3u004o&session_token=XMt4M1gLS3XNIShalNGX0ojn4vL7Oz90D8lABUr6ors" [accepted]
+INFO:     172.27.96.1:64810 - "GET /qcviz8817/compute/jobs?include_result=true&session_id=qcviz-mn7smlao-3u004o HTTP/1.1" 200 OK
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=Sodium Hexafluorophosphate normalized=Sodium Hexafluorophosphate candidates=['Sodium Hexafluorophosphate'] mixed_input=False aliases=['Sodium Hexafluorophosphate'] formulas=[]
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: Sodium Hexafluorophosphate → Event loop is closed / MolChat pipeline failed: Sodium Hexafluorophosphate → Event loop is closed
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: Sodium Hexafluorophosphate → Event loop is closed / PubChem name_to_sdf_3d failed: Sodium Hexafluorophosphate → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Sodium%20Hexafluorophosphate/cids/JSON "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/5147921/SDF?record_type=3d "HTTP/1.1 404 PUGREST.NotFound"
+INFO:qcviz_mcp.services.structure_resolver:Structure query plan raw=Sodium Hexafluorophosphate normalized=Sodium Hexafluorophosphate candidates=['Sodium Hexafluorophosphate'] mixed_input=False aliases=['Sodium Hexafluorophosphate'] formulas=[]
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Sodium+Hexafluorophosphate "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Sodium+Hexafluorophosphate "HTTP/1.1 502 Bad Gateway"
+INFO:httpx:HTTP Request: GET http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Sodium+Hexafluorophosphate "HTTP/1.1 502 Bad Gateway"
+WARNING:qcviz_mcp.services.structure_resolver:MolChat 파이프라인 실패: Sodium Hexafluorophosphate → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Sodium+Hexafluorophosphate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502 / MolChat pipeline failed: Sodium Hexafluorophosphate → Server error '502 Bad Gateway' for url 'http://psid.aizen.co.kr/molchat/api/v1/molecules/resolve?names=Sodium+Hexafluorophosphate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502
+WARNING:qcviz_mcp.services.pubchem_client:PubChem name_to_sdf_3d 실패: Sodium Hexafluorophosphate → Event loop is closed / PubChem name_to_sdf_3d failed: Sodium Hexafluorophosphate → Event loop is closed
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Sodium%20Hexafluorophosphate/cids/JSON "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/5147921/SDF?record_type=3d "HTTP/1.1 404 PUGREST.NotFound"

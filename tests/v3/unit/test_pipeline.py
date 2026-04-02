@@ -11,6 +11,7 @@ from qcviz_mcp.llm.grounding_merge import (
     grounding_merge,
 )
 from qcviz_mcp.llm.lane_lock import LaneLock, LaneLockViolation
+from qcviz_mcp.llm.normalizer import normalize_text_only
 from qcviz_mcp.llm.pipeline import (
     PipelineStageError,
     QCVizPromptPipeline,
@@ -219,6 +220,16 @@ def test_execution_guard_raises_when_compute_ready_has_no_structure():
     outcome = GroundingOutcome(semantic_outcome=SEMANTIC_OUTCOME_COMPUTE_READY)
     with pytest.raises(ExecutionGuardViolation):
         execution_guard(outcome, {})
+
+
+def test_normalize_text_only_keeps_text_preprocessing_separate_from_routing():
+    normalized = normalize_text_only("  벤젠  ESP   보여줘  ")
+
+    assert normalized["raw_text"] == "벤젠  ESP   보여줘"
+    assert normalized["normalized_compact_text"] == "벤젠 ESP 보여줘"
+    assert normalized["normalized_text"]
+    assert normalized["translated_text"]
+    assert "candidate_queries" not in normalized
 
 
 def test_coerce_action_plan_resolves_follow_up_target_from_context():

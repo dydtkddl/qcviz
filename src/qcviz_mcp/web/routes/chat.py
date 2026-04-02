@@ -1052,13 +1052,29 @@ def _current_missing_slots(plan: Mapping[str, Any], payload: Mapping[str, Any]) 
 
     return _dedupe_strings(missing)
 
+
+def _action_plan_context_clarification_owner(plan: Mapping[str, Any], prepared: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    action_plan = dict((prepared or {}).get("action_plan") or plan.get("action_plan") or {})
+    if not action_plan:
+        return {}
+    target = dict(action_plan.get("target") or {})
+    if _safe_str(action_plan.get("clarification_reason")) == "context_reference_ambiguous":
+        return action_plan
+    if target.get("from_context"):
+        return action_plan
+    return {}
+
+
 def _detect_ambiguity(plan: Dict[str, Any], prepared: Dict[str, Any], raw_message: str) -> List[str]:
     """Return list of ambiguity reasons, or empty if plan is clear."""
     reasons: List[str] = []
+    action_plan = _action_plan_context_clarification_owner(plan, prepared)
+    if _safe_str(action_plan.get("mode")) == "question":
+        return reasons
     confidence = float(plan.get("confidence", 0.0))
     query = _safe_str(prepared.get("structure_query"))
     batch_ready = bool(prepared.get("batch_request") and list(prepared.get("selected_molecules") or []))
-    normalized = normalize_user_text(raw_message or query)
+    normalized = {} if action_plan else normalize_user_text(raw_message or query)
     continuation_context_used = bool(prepared.get("continuation_context_used"))
     condensed_formula = bool(prepared.get("condensed_formula")) or is_condensed_structural_formula(
         _safe_str(prepared.get("structure_query_raw")) or raw_message or query
@@ -1466,7 +1482,10 @@ async def _molchat_interpret_candidates(query: str) -> List[Dict[str, Any]]:
 
 
 def _clarification_mode(plan: Mapping[str, Any], prepared: Mapping[str, Any], raw_message: str, reasons: List[str]) -> str:
-    normalized = normalize_user_text(raw_message or _safe_str(prepared.get("structure_query")))
+    action_plan = _action_plan_context_clarification_owner(plan, prepared)
+    if _safe_str(action_plan.get("clarification_reason")) == "context_reference_ambiguous":
+        return "continuation_targeting"
+    normalized = {} if action_plan else normalize_user_text(raw_message or _safe_str(prepared.get("structure_query")))
     proposed_mode = _safe_str(prepared.get("clarification_kind")) or _safe_str(plan.get("clarification_kind"))
     analysis_bundle = {
         str(item).upper()
@@ -1477,6 +1496,10 @@ def _clarification_mode(plan: Mapping[str, Any], prepared: Mapping[str, Any], ra
     if "missing_orbital" in reasons and "no_structure" not in reasons:
         return "parameter_completion"
     if "no_structure" in reasons:
+        follow_up = dict(action_plan.get("follow_up") or {})
+        target = dict(action_plan.get("target") or {})
+        if follow_up.get("enabled") and (_safe_str(follow_up.get("reference_type")) or target.get("from_context")):
+            return "continuation_targeting"
         session_id = _safe_str(prepared.get("session_id"))
         has_session_state = bool(session_id and load_conversation_state(session_id, manager=get_job_manager()))
         if (

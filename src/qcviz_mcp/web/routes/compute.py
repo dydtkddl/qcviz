@@ -1595,13 +1595,39 @@ def _is_follow_up_placeholder_query(query: str) -> bool:
     return False
 
 
+def _action_plan_can_skip_raw_reparse(payload: Mapping[str, Any]) -> bool:
+    action_plan = dict(payload.get("action_plan") or {})
+    if not action_plan:
+        return False
+
+    if _safe_str(action_plan.get("clarification_reason")) == "context_reference_ambiguous":
+        return True
+
+    target = dict(action_plan.get("target") or {})
+    follow_up = dict(action_plan.get("follow_up") or {})
+    parameters = dict(action_plan.get("parameters") or {})
+    follow_up_mode = _safe_str(payload.get("follow_up_mode") or follow_up.get("reference_type"))
+
+    if any(parameters.get(key) not in (None, "") for key in ("method", "basis", "orbital", "charge", "multiplicity")):
+        return False
+
+    return bool(target.get("from_context")) and follow_up_mode in {
+        "",
+        "previous_result",
+        "reuse_last_structure",
+        "reuse_last_job",
+        "add_analysis",
+        "previous_structure",
+    }
+
+
 def _apply_session_continuation(out: Dict[str, Any], *, source_text: str = "") -> Dict[str, Any]:
     session_id = _extract_session_id(out)
     if not session_id:
         return out
 
     action_plan = dict(out.get("action_plan") or {})
-    authoritative_action_plan = bool(action_plan)
+    authoritative_action_plan = _action_plan_can_skip_raw_reparse(out)
     message = _safe_str(source_text or _extract_message(out))
     normalization = {} if authoritative_action_plan else normalize_user_text(message or _safe_str(out.get("structure_query")))
     follow_up_mode = _safe_str(out.get("follow_up_mode") or normalization.get("follow_up_mode"))
@@ -1777,7 +1803,7 @@ def _apply_session_continuation(out: Dict[str, Any], *, source_text: str = "") -
 
 def _preserve_structure_decomposition(out: Dict[str, Any], *, source_text: str = "") -> Dict[str, Any]:
     action_plan = dict(out.get("action_plan") or {})
-    authoritative_action_plan = bool(action_plan)
+    authoritative_action_plan = _action_plan_can_skip_raw_reparse(out)
     query = _safe_str(out.get("structure_query"))
     if not query and authoritative_action_plan:
         return out
@@ -1893,7 +1919,7 @@ def _merge_plan_into_payload(
         if workflow.get("enabled") and list(workflow.get("steps") or []):
             out["workflow_plan"] = workflow
         out["planner_mode"] = _safe_str(action_plan.get("mode")) or out.get("planner_mode")
-    authoritative_action_plan = bool(action_plan)
+    authoritative_action_plan = _action_plan_can_skip_raw_reparse(out)
 
     for key in ("method", "basis", "orbital", "advisor_focus_tab"):
         if not out.get(key) and plan.get(key):
@@ -2001,7 +2027,6 @@ def _merge_plan_into_payload(
     if (
         not authoritative_action_plan
         and not planner_requires_structure_clarification
-        not planner_requires_structure_clarification
         and not out.get("structure_query")
         and not out.get("xyz")
         and not out.get("atom_spec")
@@ -2149,7 +2174,7 @@ def _prepare_payload(payload: Mapping[str, Any]) -> Dict[str, Any]:
         plan = _safe_plan_message(raw_message, data)
         data = _merge_plan_into_payload(data, plan, raw_message=raw_message)
 
-    authoritative_action_plan = bool(data.get("action_plan"))
+    authoritative_action_plan = _action_plan_can_skip_raw_reparse(data)
     _preserve_structure_decomposition(data, source_text=raw_message)
     if not data.get("_continuation_applied"):
         _apply_session_continuation(data, source_text=raw_message)

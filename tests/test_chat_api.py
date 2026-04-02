@@ -1581,6 +1581,35 @@ def test_safe_plan_message_forwards_payload_context_to_agent_when_supported(
     assert plan["provider"] == "openai"
 
 
+def test_clarification_mode_with_action_plan_context_reference_skips_raw_reparsing(monkeypatch):
+    def _explode(*args, **kwargs):
+        raise AssertionError("normalize_user_text should not run for authoritative action_plan clarifications")
+
+    action_plan = {
+        "mode": "clarify",
+        "intent": "unknown",
+        "target": {"molecule_text": None, "from_context": True, "resolved_reference": "previous_result"},
+        "parameters": {"method": None, "basis": None, "charge": None, "multiplicity": None, "orbital": None, "surface_type": None},
+        "comparison": {"enabled": False, "targets": []},
+        "follow_up": {"enabled": True, "reference_type": "previous_result", "reference_slot": "latest"},
+        "workflow": {"enabled": False, "steps": []},
+        "explanation_request": False,
+        "needs_clarification": True,
+        "clarification_reason": "context_reference_ambiguous",
+        "confidence": 0.62,
+    }
+    monkeypatch.setattr(chat_route, "normalize_user_text", _explode, raising=False)
+
+    mode = chat_route._clarification_mode(
+        {"action_plan": action_plan, "follow_up_mode": "previous_result"},
+        {"action_plan": action_plan, "session_id": "clarify-ctx"},
+        "이번엔 그거",
+        ["no_structure"],
+    )
+
+    assert mode == "continuation_targeting"
+
+
 def test_chat_rest_semantic_descriptor_never_falls_back_to_generic_examples(
     client, patch_fake_runners, monkeypatch
 ):

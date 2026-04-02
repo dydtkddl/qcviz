@@ -1,37 +1,15 @@
-# Python
 __pycache__/
-*.py[cod]
-*.pyo
+*.pyc
+.venv/
+venv/
+node_modules/
+.env
 *.egg-info/
 dist/
 build/
-*.egg
-.eggs/
-
-# Environment & Secrets
-.env
-.env.*
-!.env.example
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Test / Coverage
-.coverage
-htmlcov/
 .pytest_cache/
-.tox/
-
-# Runtime artifacts
-nohup.out
 *.log
-output/
-tmp_*/
-
-# OS
+*.cube
+*.molden
+*.chk
 .DS_Store
-Thumbs.db
