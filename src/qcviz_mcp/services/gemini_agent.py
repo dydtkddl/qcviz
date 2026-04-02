@@ -9,6 +9,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
+from qcviz_mcp.env_bootstrap import bootstrap_runtime_env
 from qcviz_mcp.llm.normalizer import normalize_user_text
 from qcviz_mcp.llm.schemas import PlanResponse
 
@@ -121,6 +122,7 @@ class GeminiAgent:
         timeout: Optional[float] = None,
         temperature: Optional[float] = None,
     ) -> None:
+        bootstrap_runtime_env()
         self.api_key: str = api_key or os.getenv("GEMINI_API_KEY", "")
         self.model: str = model or os.getenv("QCVIZ_GEMINI_MODEL", "gemini-2.5-flash")
         self.timeout: float = timeout or float(os.getenv("GEMINI_TIMEOUT", "10"))

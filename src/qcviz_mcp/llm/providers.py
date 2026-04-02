@@ -6,10 +6,30 @@ import json
 import os
 import logging
 from typing import Optional
-from pydantic import ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
-from .schemas import PlannerRequest, PlannerResponse, ToolCall
+from qcviz_mcp.env_bootstrap import bootstrap_runtime_env
 from .prompts import SYSTEM_PROMPT
+
+try:
+    from .schemas import PlannerRequest, PlannerResponse, ToolCall
+except ImportError:
+    class ToolCall(BaseModel):
+        tool_name: str
+        parameters: dict = Field(default_factory=dict)
+
+
+    class PlannerRequest(BaseModel):
+        user_prompt: str = ""
+        available_tools: list = Field(default_factory=list)
+
+
+    class PlannerResponse(BaseModel):
+        thought_process: str = ""
+        assistant_message: str = ""
+        tool_calls: list[ToolCall] = Field(default_factory=list)
+        is_help_only: bool = False
+        suggested_focus_tab: Optional[str] = None
 
 logger = logging.getLogger("qcviz_mcp.llm.providers")
 
@@ -28,6 +48,7 @@ class LLMProvider:
 
 class GeminiProvider(LLMProvider):
     def __init__(self, api_key: Optional[str] = None):
+        bootstrap_runtime_env()
         if not _HAS_GEMINI:
             raise ImportError("google-genai is not installed. Run: pip install google-genai")
         
@@ -107,6 +128,7 @@ class DummyProvider(LLMProvider):
 
 
 def get_provider() -> LLMProvider:
+    bootstrap_runtime_env()
     if os.environ.get("GEMINI_API_KEY") and _HAS_GEMINI:
         return GeminiProvider()
     

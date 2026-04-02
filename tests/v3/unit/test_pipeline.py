@@ -11,7 +11,14 @@ from qcviz_mcp.llm.grounding_merge import (
     grounding_merge,
 )
 from qcviz_mcp.llm.lane_lock import LaneLock, LaneLockViolation
-from qcviz_mcp.llm.pipeline import PipelineStageError, QCVizPromptPipeline, build_grounding_outcome
+from qcviz_mcp.llm.pipeline import (
+    PipelineStageError,
+    QCVizPromptPipeline,
+    action_plan_to_legacy_plan,
+    build_action_plan,
+    build_grounding_outcome,
+    coerce_action_plan,
+)
 from qcviz_mcp.llm.schemas import GroundingOutcome, IngressRewriteResult
 
 
@@ -212,3 +219,89 @@ def test_execution_guard_raises_when_compute_ready_has_no_structure():
     outcome = GroundingOutcome(semantic_outcome=SEMANTIC_OUTCOME_COMPUTE_READY)
     with pytest.raises(ExecutionGuardViolation):
         execution_guard(outcome, {})
+
+
+def test_coerce_action_plan_resolves_follow_up_target_from_context():
+    action_plan = coerce_action_plan(
+        {
+            "intent": "orbital_preview",
+            "job_type": "orbital_preview",
+            "query_kind": "compute_ready",
+            "planner_lane": "compute_ready",
+            "follow_up_mode": "add_analysis",
+            "orbital": "HOMO",
+            "confidence": 0.88,
+        },
+        raw_text="이번엔 HOMO",
+        conversation_state={"last_structure_query": "water", "last_resolved_name": "water"},
+        normalized_hint={
+            "normalized_text": "이번엔 HOMO",
+            "follow_up_mode": "add_analysis",
+            "follow_up_requires_context": True,
+            "analysis_bundle": ["HOMO"],
+            "explicit_compute_action": True,
+            "query_kind": "compute_ready",
+        },
+    )
+
+    assert action_plan.mode == "compute"
+    assert action_plan.target.molecule_text == "water"
+    assert action_plan.target.from_context is True
+    assert action_plan.follow_up.enabled is True
+    assert action_plan.parameters.orbital == "HOMO"
+
+
+def test_build_action_plan_detects_optimize_then_esp_workflow():
+    def _workflow_heuristic(message, context, normalized_hint):
+        return {
+            "intent": "geometry_optimization",
+            "job_type": "geometry_optimization",
+            "query_kind": "compute_ready",
+            "planner_lane": "compute_ready",
+            "structure_query": "methanol",
+            "confidence": 0.9,
+            "provider": "heuristic",
+        }
+
+    action_plan = build_action_plan(
+        "메탄올 최적화하고 그 결과로 ESP",
+        {},
+        {},
+        heuristic_planner=_workflow_heuristic,
+        pipeline=QCVizPromptPipeline(enabled=False),
+    )
+
+    assert action_plan.mode == "workflow"
+    assert action_plan.workflow.enabled is True
+    assert [step.action for step in action_plan.workflow.steps] == [
+        "geometry_optimization",
+        "esp_map",
+    ]
+    assert action_plan.workflow.steps[0].target == "methanol"
+    assert action_plan.workflow.steps[1].input_from == "s1"
+
+
+def test_action_plan_to_legacy_plan_keeps_discovery_clarification_compute_shaped():
+    action_plan = coerce_action_plan(
+        {
+            "intent": "orbital_preview",
+            "job_type": "orbital_preview",
+            "query_kind": "compute_ready",
+            "planner_lane": "compute_ready",
+            "needs_clarification": True,
+            "clarification_kind": "discovery",
+            "confidence": 0.41,
+        },
+        raw_text="HOMO 보여줘",
+        normalized_hint={
+            "normalized_text": "HOMO 보여줘",
+            "analysis_bundle": ["HOMO"],
+            "explicit_compute_action": True,
+            "query_kind": "compute_ready",
+        },
+    )
+    legacy = action_plan_to_legacy_plan(action_plan, legacy_plan={"job_type": "orbital_preview"})
+
+    assert legacy["query_kind"] == "compute_ready"
+    assert legacy["needs_clarification"] is True
+    assert legacy["clarification_kind"] == "discovery"

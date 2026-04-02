@@ -7,6 +7,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional
 
+from qcviz_mcp.env_bootstrap import bootstrap_runtime_env
 from qcviz_mcp.llm.normalizer import (
     analyze_query_routing,
     analyze_follow_up_request,
@@ -275,6 +276,7 @@ class QCVizAgent:
         openai_api_key: Optional[str] = None,
         gemini_api_key: Optional[str] = None,
     ) -> None:
+        bootstrap_runtime_env()
         self.provider = (provider or os.getenv("QCVIZ_LLM_PROVIDER", "auto")).strip().lower()
         self.openai_model = openai_model or os.getenv("QCVIZ_OPENAI_MODEL", "gpt-4.1-mini")
         self.gemini_model = gemini_model or os.getenv("QCVIZ_GEMINI_MODEL", "gemini-2.5-flash")

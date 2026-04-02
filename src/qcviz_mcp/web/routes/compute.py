@@ -25,7 +25,9 @@ from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Seque
 from fastapi import APIRouter, Body, Header, HTTPException, Query
 
 from qcviz_mcp.compute import pyscf_runner
+from qcviz_mcp.env_bootstrap import bootstrap_runtime_env
 from qcviz_mcp.llm.execution_guard import ExecutionGuardViolation, execution_guard_from_payload
+from qcviz_mcp.llm.pipeline import action_plan_to_legacy_plan, coerce_action_plan
 from qcviz_mcp.llm.schemas import PlanResponse
 from qcviz_mcp.llm.normalizer import (
     _is_formula_like,
@@ -36,6 +38,7 @@ from qcviz_mcp.llm.normalizer import (
     build_structure_hypotheses,
     extract_structure_candidate,
     is_condensed_structural_formula,
+    normalize_text_only,
     normalize_user_text,
 )
 from qcviz_mcp.observability import metrics, track_operation
@@ -504,6 +507,8 @@ def _public_plan_dict(plan: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
         "missing_slots": out.get("missing_slots"),
         "needs_clarification": out.get("needs_clarification"),
         "chat_response": out.get("chat_response"),
+        "action_plan": out.get("action_plan"),
+        "workflow_plan": out.get("workflow_plan"),
     }
 
 
@@ -1094,15 +1099,42 @@ def _heuristic_plan(message: str, payload: Optional[Mapping[str, Any]] = None) -
     }
 
 
-@lru_cache(maxsize=1)
-def get_qcviz_agent():
+@lru_cache(maxsize=8)
+def _build_cached_qcviz_agent(
+    provider: str,
+    openai_model: str,
+    gemini_model: str,
+    openai_api_key: str,
+    gemini_api_key: str,
+):
     if QCVizAgent is None:
         return None
     try:
-        return QCVizAgent()
+        return QCVizAgent(
+            provider=provider or None,
+            openai_model=openai_model or None,
+            gemini_model=gemini_model or None,
+            openai_api_key=openai_api_key or None,
+            gemini_api_key=gemini_api_key or None,
+        )
     except Exception as exc:
         logger.warning("QCVizAgent initialization failed: %s", exc)
         return None
+
+
+def get_qcviz_agent():
+    bootstrap_runtime_env()
+    return _build_cached_qcviz_agent(
+        _safe_str(os.getenv("QCVIZ_LLM_PROVIDER", "auto")).lower() or "auto",
+        _safe_str(os.getenv("QCVIZ_OPENAI_MODEL", "gpt-4.1-mini")) or "gpt-4.1-mini",
+        _safe_str(os.getenv("QCVIZ_GEMINI_MODEL", "gemini-2.5-flash")) or "gemini-2.5-flash",
+        _safe_str(os.getenv("OPENAI_API_KEY")),
+        _safe_str(os.getenv("GEMINI_API_KEY")),
+    )
+
+
+get_qcviz_agent.cache_clear = _build_cached_qcviz_agent.cache_clear  # type: ignore[attr-defined]
+get_qcviz_agent.cache_info = _build_cached_qcviz_agent.cache_info  # type: ignore[attr-defined]
 
 
 def _invoke_agent_plan(agent: Any, message: str, payload: Optional[Mapping[str, Any]] = None) -> Any:
@@ -1149,14 +1181,54 @@ def _coerce_plan_to_dict(plan_obj: Any) -> Dict[str, Any]:
         "structures", "method", "basis", "charge",
         "multiplicity", "orbital", "esp_preset", "advisor_focus_tab",
         "missing_slots", "needs_clarification", "pipeline_enabled",
-        "pipeline_fallback_stage", "pipeline_repair_count",
+        "pipeline_fallback_stage", "pipeline_repair_count", "action_plan", "workflow_plan",
     ):
         if hasattr(plan_obj, key):
             out[key] = getattr(plan_obj, key)
     return out
 
 
+def _latest_result_summary_from_state(state: Mapping[str, Any]) -> Dict[str, Any]:
+    state = dict(state or {})
+    artifact = dict(state.get("last_resolved_artifact") or {})
+    return {
+        "structure_query": _safe_str(artifact.get("structure_query") or state.get("last_structure_query")),
+        "structure_name": _safe_str(artifact.get("structure_name") or state.get("last_resolved_name")),
+        "charge": artifact.get("charge", state.get("last_charge")),
+        "multiplicity": artifact.get("multiplicity", state.get("last_multiplicity")),
+        "orbital": artifact.get("orbital", state.get("last_orbital")),
+    }
+
+
+def _attach_action_plan(
+    plan_dict: Mapping[str, Any],
+    *,
+    message: str,
+    payload: Optional[Mapping[str, Any]] = None,
+    normalized_hint: Optional[Mapping[str, Any]] = None,
+) -> Dict[str, Any]:
+    merged = dict(plan_dict or {})
+    payload_dict = dict(payload or {})
+    session_id = _safe_str(payload_dict.get("session_id"))
+    conversation_state = load_conversation_state(session_id) if session_id else {}
+    try:
+        action_plan = coerce_action_plan(
+            merged,
+            raw_text=message,
+            conversation_state=conversation_state,
+            latest_result_summary=_latest_result_summary_from_state(conversation_state),
+            normalized_hint=normalized_hint,
+        )
+    except Exception as exc:
+        logger.debug("ActionPlan coercion failed for %r: %s", message, exc)
+        return merged
+
+    merged = action_plan_to_legacy_plan(action_plan, legacy_plan=merged)
+    return merged
+
+
 def _safe_plan_message(message: str, payload: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    bootstrap_runtime_env()
     payload = payload or {}
     message_normalization = normalize_user_text(message or "")
 
@@ -1344,6 +1416,12 @@ def _safe_plan_message(message: str, payload: Optional[Mapping[str, Any]] = None
             try:
                 if hasattr(agent, "plan") and callable(agent.plan):
                     planned = _enrich_plan(_coerce_plan_to_dict(_invoke_agent_plan(agent, message, payload=payload)))
+                    planned = _attach_action_plan(
+                        planned,
+                        message=message,
+                        payload=payload,
+                        normalized_hint=message_normalization,
+                    )
                     try:
                         planned = PlanResponse.model_validate(planned).to_public_dict()
                     except Exception:
@@ -1360,6 +1438,12 @@ def _safe_plan_message(message: str, payload: Optional[Mapping[str, Any]] = None
                 obs.metrics.update({"fallback_reason": str(exc)})
                 logger.warning("Planner invocation failed; heuristic fallback: %s", exc)
         planned = _enrich_plan(_heuristic_plan(message, payload=payload))
+        planned = _attach_action_plan(
+            planned,
+            message=message,
+            payload=payload,
+            normalized_hint=message_normalization,
+        )
         try:
             planned = PlanResponse.model_validate(planned).to_public_dict()
         except Exception:
@@ -1516,10 +1600,12 @@ def _apply_session_continuation(out: Dict[str, Any], *, source_text: str = "") -
     if not session_id:
         return out
 
+    action_plan = dict(out.get("action_plan") or {})
+    authoritative_action_plan = bool(action_plan)
     message = _safe_str(source_text or _extract_message(out))
-    normalization = normalize_user_text(message or _safe_str(out.get("structure_query")))
+    normalization = {} if authoritative_action_plan else normalize_user_text(message or _safe_str(out.get("structure_query")))
     follow_up_mode = _safe_str(out.get("follow_up_mode") or normalization.get("follow_up_mode"))
-    explicit_from_text = _explicit_structure_from_text(message)
+    explicit_from_text = None if authoritative_action_plan else _explicit_structure_from_text(message)
     has_explicit_structure_input = bool(
         out.get("structure_query") or out.get("xyz") or out.get("atom_spec") or out.get("structures")
     )
@@ -1528,13 +1614,32 @@ def _apply_session_continuation(out: Dict[str, Any], *, source_text: str = "") -
         out["structure_source"] = "user_input"
         has_explicit_structure_input = True
 
-    for key in ("structures", "composition_kind", "charge_hint", "follow_up_mode"):
-        if key not in out and normalization.get(key) not in (None, [], ""):
-            out[key] = normalization.get(key)
-    if out.get("charge") is None and normalization.get("charge_hint") is not None:
-        out["charge"] = normalization.get("charge_hint")
+    if not authoritative_action_plan:
+        for key in ("structures", "composition_kind", "charge_hint", "follow_up_mode"):
+            if key not in out and normalization.get(key) not in (None, [], ""):
+                out[key] = normalization.get(key)
+        if out.get("charge") is None and normalization.get("charge_hint") is not None:
+            out["charge"] = normalization.get("charge_hint")
 
-    if _annotation_hints_grounding_required(normalization) and not follow_up_mode:
+    planner_requests_grounding = bool(
+        out.get("semantic_grounding_needed")
+        or _safe_str(out.get("query_kind")) == "grounding_required"
+        or (
+            bool(out.get("planner_needs_clarification"))
+            and _safe_str(out.get("clarification_kind")) == "semantic_grounding"
+        )
+    )
+    if authoritative_action_plan and planner_requests_grounding and not follow_up_mode:
+        out.pop("follow_up_mode", None)
+        if not has_explicit_structure_input:
+            out["clarification_kind"] = out.get("clarification_kind") or "semantic_grounding"
+            missing_slots = [str(item).strip() for item in list(out.get("missing_slots") or []) if str(item).strip()]
+            if "structure_query" not in missing_slots:
+                missing_slots.append("structure_query")
+            out["missing_slots"] = missing_slots
+            out["needs_clarification"] = True
+            return out
+    elif _annotation_hints_grounding_required(normalization) and not follow_up_mode:
         raw_variants = {
             _safe_str(item).lower()
             for item in (
@@ -1562,11 +1667,18 @@ def _apply_session_continuation(out: Dict[str, Any], *, source_text: str = "") -
     state: Dict[str, Any] = {}
     task_requested = bool(
         _safe_str(out.get("job_type")) not in {"", "resolve_structure"}
-        or _safe_str(normalization.get("follow_up_job_type"))
-        or list(normalization.get("analysis_bundle") or [])
+        or _safe_str(out.get("follow_up_job_type") or normalization.get("follow_up_job_type"))
+        or list(out.get("analysis_bundle") or normalization.get("analysis_bundle") or [])
+        or out.get("maybe_task_hint")
         or normalization.get("maybe_task_hint")
     )
-    if not follow_up_mode:
+    if authoritative_action_plan and not follow_up_mode:
+        follow_up = dict(action_plan.get("follow_up") or {})
+        target = dict(action_plan.get("target") or {})
+        if follow_up.get("enabled") and (_safe_str(follow_up.get("reference_type")) or target.get("from_context")):
+            follow_up_mode = _safe_str(follow_up.get("reference_type")) or "reuse_last_structure"
+            out["follow_up_mode"] = follow_up_mode
+    if not follow_up_mode and not authoritative_action_plan:
         mentioned_molecules = list(normalization.get("mentioned_molecules") or [])
         batch_selected = bool(normalization.get("batch_request")) or len(mentioned_molecules) >= 2
         analysis_bundle = {str(item).upper() for item in (normalization.get("analysis_bundle") or []) if _safe_str(item)}
@@ -1635,10 +1747,10 @@ def _apply_session_continuation(out: Dict[str, Any], *, source_text: str = "") -
             out["job_type"] = state.get("last_job_type")
         if not out.get("orbital") and _safe_str(out.get("job_type")) == "orbital_preview" and state.get("last_orbital"):
             out["orbital"] = state.get("last_orbital")
-        explicit_method = _safe_str(normalization.get("follow_up_method_hint"))
+        explicit_method = "" if authoritative_action_plan else _safe_str(normalization.get("follow_up_method_hint"))
         if explicit_method:
             out["method"] = explicit_method
-        explicit_basis = _safe_str(normalization.get("follow_up_basis_hint"))
+        explicit_basis = "" if authoritative_action_plan else _safe_str(normalization.get("follow_up_basis_hint"))
         if explicit_basis:
             out["basis"] = explicit_basis
         elif state.get("last_basis"):
@@ -1655,16 +1767,21 @@ def _apply_session_continuation(out: Dict[str, Any], *, source_text: str = "") -
         if _safe_str(out.get("job_type")) in {"", "analyze"}:
             out["job_type"] = "geometry_optimization"
 
-    if normalization.get("follow_up_orbital") and not out.get("orbital"):
+    if not authoritative_action_plan and normalization.get("follow_up_orbital") and not out.get("orbital"):
         out["orbital"] = normalization.get("follow_up_orbital")
-    if normalization.get("follow_up_job_type") and _safe_str(out.get("job_type")) in {"", "analyze"}:
+    if not authoritative_action_plan and normalization.get("follow_up_job_type") and _safe_str(out.get("job_type")) in {"", "analyze"}:
         out["job_type"] = normalization.get("follow_up_job_type")
 
     return out
 
 
 def _preserve_structure_decomposition(out: Dict[str, Any], *, source_text: str = "") -> Dict[str, Any]:
-    query = _safe_str(out.get("structure_query")) or _safe_str(source_text)
+    action_plan = dict(out.get("action_plan") or {})
+    authoritative_action_plan = bool(action_plan)
+    query = _safe_str(out.get("structure_query"))
+    if not query and authoritative_action_plan:
+        return out
+    query = query or _safe_str(source_text)
     if not query:
         return out
 
@@ -1693,7 +1810,7 @@ def _preserve_structure_decomposition(out: Dict[str, Any], *, source_text: str =
     out.setdefault("canonical_candidates", list(analysis.get("canonical_candidates") or []))
     out.setdefault("raw_input", analysis.get("raw_input"))
     out.setdefault("mixed_input", bool(analysis.get("mixed_input")))
-    if "composition_kind" not in out:
+    if "composition_kind" not in out and not authoritative_action_plan:
         normalization = normalize_user_text(query)
         if normalization.get("composition_kind"):
             out["composition_kind"] = normalization.get("composition_kind")
@@ -1704,7 +1821,7 @@ def _preserve_structure_decomposition(out: Dict[str, Any], *, source_text: str =
         if normalization.get("follow_up_mode") and not out.get("follow_up_mode"):
             out["follow_up_mode"] = normalization.get("follow_up_mode")
 
-    if analysis.get("mixed_input") and analysis.get("primary_candidate"):
+    if not authoritative_action_plan and analysis.get("mixed_input") and analysis.get("primary_candidate"):
         current = _safe_str(out.get("structure_query"))
         primary = _safe_str(analysis.get("primary_candidate"))
         if current and current != primary:
@@ -1737,6 +1854,46 @@ def _merge_plan_into_payload(
     intent = _safe_str(plan.get("intent"))
     if not out.get("job_type"):
         out["job_type"] = _normalize_job_type(plan.get("job_type"), intent)
+
+    action_plan = dict(plan.get("action_plan") or {})
+    if action_plan:
+        out["action_plan"] = action_plan
+        target = dict(action_plan.get("target") or {})
+        parameters = dict(action_plan.get("parameters") or {})
+        comparison = dict(action_plan.get("comparison") or {})
+        follow_up = dict(action_plan.get("follow_up") or {})
+        workflow = dict(action_plan.get("workflow") or {})
+
+        target_name = _safe_str(target.get("molecule_text"))
+        if target_name and (
+            not out.get("structure_query")
+            or out.get("structure_source") in {"continuation", "fallback"}
+            or _is_follow_up_placeholder_query(_safe_str(out.get("structure_query")))
+        ):
+            out["structure_query"] = target_name
+            out["structure_source"] = "action_plan"
+        if parameters.get("method") and not out.get("method"):
+            out["method"] = parameters.get("method")
+        if parameters.get("basis") and not out.get("basis"):
+            out["basis"] = parameters.get("basis")
+        if parameters.get("charge") is not None and out.get("charge") is None:
+            out["charge"] = parameters.get("charge")
+        if parameters.get("multiplicity") is not None and out.get("multiplicity") is None:
+            out["multiplicity"] = parameters.get("multiplicity")
+        if parameters.get("orbital") and not out.get("orbital"):
+            out["orbital"] = parameters.get("orbital")
+        if comparison.get("enabled") and list(comparison.get("targets") or []):
+            out["selected_molecules"] = list(comparison.get("targets") or [])
+            out["batch_request"] = len(out["selected_molecules"]) > 1
+            out["batch_size"] = len(out["selected_molecules"])
+            out.setdefault("target_scope", "all_mentioned")
+            out.setdefault("selection_mode", "implicit_all")
+        if follow_up.get("enabled") and not out.get("follow_up_mode"):
+            out["follow_up_mode"] = _safe_str(follow_up.get("reference_type")) or "previous_result"
+        if workflow.get("enabled") and list(workflow.get("steps") or []):
+            out["workflow_plan"] = workflow
+        out["planner_mode"] = _safe_str(action_plan.get("mode")) or out.get("planner_mode")
+    authoritative_action_plan = bool(action_plan)
 
     for key in ("method", "basis", "orbital", "advisor_focus_tab"):
         if not out.get(key) and plan.get(key):
@@ -1798,9 +1955,17 @@ def _merge_plan_into_payload(
         if xyz_block:
             out["xyz"] = xyz_block
 
-    message_normalization = normalize_user_text(raw_message or _extract_message(out))
-    if message_normalization.get("condensed_formula"):
-        raw_formula = _safe_str(raw_message or _extract_message(out) or message_normalization.get("raw_input"))
+    message_text = raw_message or _extract_message(out)
+    text_only = normalize_text_only(message_text)
+    message_normalization = {} if authoritative_action_plan else normalize_user_text(message_text)
+    if not out.get("normalized_text") and plan.get("normalized_text"):
+        out["normalized_text"] = plan.get("normalized_text")
+    elif not out.get("normalized_text") and text_only.get("normalized_text"):
+        out["normalized_text"] = text_only.get("normalized_text")
+    if not out.get("translated_text") and text_only.get("translated_text"):
+        out["translated_text"] = text_only.get("translated_text")
+    if not out.get("condensed_formula") and is_condensed_structural_formula(text_only.get("raw_text") or message_text):
+        raw_formula = _safe_str(message_text or text_only.get("raw_text"))
         if raw_formula:
             out.setdefault("structure_query_raw", raw_formula)
             out.setdefault("structure_query", raw_formula)
@@ -1808,7 +1973,12 @@ def _merge_plan_into_payload(
         out["composition_kind"] = None
         out["structures"] = []
         out["charge_hint"] = None
-    if message_normalization.get("semantic_descriptor") and out.get("structure_query") and not out.get("structures"):
+    if (
+        not authoritative_action_plan
+        and message_normalization.get("semantic_descriptor")
+        and out.get("structure_query")
+        and not out.get("structures")
+    ):
         raw_variants = {
             str(item).strip().lower()
             for item in (
@@ -1829,6 +1999,8 @@ def _merge_plan_into_payload(
         or "structure_query" in list(plan.get("missing_slots") or [])
     )
     if (
+        not authoritative_action_plan
+        and not planner_requires_structure_clarification
         not planner_requires_structure_clarification
         and not out.get("structure_query")
         and not out.get("xyz")
@@ -1856,7 +2028,7 @@ def _merge_plan_into_payload(
     out["planner_needs_clarification"] = plan.get("needs_clarification")
     if plan.get("clarification_kind") and not out.get("clarification_kind"):
         out["clarification_kind"] = plan.get("clarification_kind")
-    elif message_normalization.get("semantic_descriptor") and not out.get("clarification_kind"):
+    elif not authoritative_action_plan and message_normalization.get("semantic_descriptor") and not out.get("clarification_kind"):
         out["clarification_kind"] = "semantic_grounding"
     if plan.get("follow_up_mode") and not out.get("follow_up_mode"):
         out["follow_up_mode"] = plan.get("follow_up_mode")
@@ -1977,6 +2149,7 @@ def _prepare_payload(payload: Mapping[str, Any]) -> Dict[str, Any]:
         plan = _safe_plan_message(raw_message, data)
         data = _merge_plan_into_payload(data, plan, raw_message=raw_message)
 
+    authoritative_action_plan = bool(data.get("action_plan"))
     _preserve_structure_decomposition(data, source_text=raw_message)
     if not data.get("_continuation_applied"):
         _apply_session_continuation(data, source_text=raw_message)
@@ -2012,8 +2185,8 @@ def _prepare_payload(payload: Mapping[str, Any]) -> Dict[str, Any]:
         data.get("planner_needs_clarification")
         or "structure_query" in list(data.get("planner_missing_slots") or [])
     )
-    raw_normalization = normalize_user_text(raw_message or "")
-    explicit_candidate = _fallback_extract_structure_query(raw_message) if raw_message else None
+    raw_normalization = {} if authoritative_action_plan else normalize_user_text(raw_message or "")
+    explicit_candidate = None if authoritative_action_plan else (_fallback_extract_structure_query(raw_message) if raw_message else None)
     allow_explicit_structure_fallback = bool(
         explicit_candidate
         and (
@@ -2135,6 +2308,111 @@ _ANALYSIS_RUNNER_MAP = {
 }
 
 
+def _workflow_result_xyz(result: Mapping[str, Any]) -> Optional[str]:
+    if not isinstance(result, Mapping):
+        return None
+    for key in ("optimized_xyz", "xyz"):
+        token = _safe_str(result.get(key))
+        if token:
+            return token
+    vis = dict(result.get("visualization") or {})
+    for key in ("xyz", "molecule_xyz", "xyz_block"):
+        token = _safe_str(vis.get(key))
+        if token:
+            return token
+    return None
+
+
+def _materialize_workflow_step_payload(
+    base_payload: Mapping[str, Any],
+    step: Mapping[str, Any],
+    step_results: Mapping[str, Mapping[str, Any]],
+) -> Dict[str, Any]:
+    prepared = dict(base_payload or {})
+    prepared.pop("workflow_plan", None)
+    prepared["planner_applied"] = True
+    prepared["batch_request"] = False
+    prepared["selected_molecules"] = []
+    prepared["batch_size"] = 0
+
+    step_action = _normalize_job_type(step.get("action"), step.get("action"))
+    if step_action:
+        prepared["job_type"] = step_action
+    step_target = _safe_str(step.get("target"))
+    if step_target:
+        prepared["structure_query"] = step_target
+        prepared["structure_source"] = "workflow_step"
+
+    step_parameters = dict(step.get("parameters") or {})
+    for key in ("method", "basis", "charge", "multiplicity", "orbital", "esp_preset", "advisor_focus_tab"):
+        if step_parameters.get(key) not in (None, ""):
+            prepared[key] = step_parameters.get(key)
+
+    source_step = _safe_str(step.get("input_from"))
+    if source_step and source_step in step_results:
+        source_result = dict(step_results.get(source_step) or {})
+        xyz_text = _workflow_result_xyz(source_result)
+        if xyz_text:
+            prepared["xyz"] = xyz_text
+            prepared.pop("atom_spec", None)
+        structure_name = _safe_str(source_result.get("structure_query") or source_result.get("structure_name"))
+        if structure_name:
+            prepared["structure_query"] = structure_name
+            prepared["structure_source"] = "workflow_result"
+        if prepared.get("charge") is None and source_result.get("charge") is not None:
+            prepared["charge"] = source_result.get("charge")
+        if prepared.get("multiplicity") is None and source_result.get("multiplicity") is not None:
+            prepared["multiplicity"] = source_result.get("multiplicity")
+
+    return prepared
+
+
+async def _run_workflow_compute_async(
+    prepared: Mapping[str, Any],
+    progress_callback: Optional[Callable[..., Any]] = None,
+) -> Dict[str, Any]:
+    workflow = dict((prepared or {}).get("workflow_plan") or {})
+    steps = [dict(item) for item in list(workflow.get("steps") or []) if isinstance(item, Mapping)]
+    if not steps:
+        raise HTTPException(status_code=400, detail="Workflow plan is empty.")
+
+    step_results: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
+    total_steps = max(1, len(steps))
+
+    for index, step in enumerate(steps, start=1):
+        step_id = _safe_str(step.get("id")) or f"s{index}"
+        step_action = _normalize_job_type(step.get("action"), step.get("action"))
+        if step_action not in JOB_TYPE_TO_RUNNER:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported workflow action: {step_action or step.get('action')}",
+            )
+        if callable(progress_callback):
+            progress_callback(
+                {
+                    "progress": min(0.05 + ((index - 1) / total_steps) * 0.7, 0.75),
+                    "step": "workflow_step",
+                    "message": f"Executing workflow step {index}/{total_steps}: {step_action}",
+                    "workflow_step_id": step_id,
+                    "workflow_action": step_action,
+                }
+            )
+        step_payload = _materialize_workflow_step_payload(prepared, step, step_results)
+        step_result = await _run_direct_compute_async(step_payload, progress_callback=progress_callback)
+        step_results[step_id] = dict(step_result or {})
+
+    final_result = dict(next(reversed(step_results.values())) if step_results else {})
+    final_result["workflow"] = {
+        "enabled": True,
+        "steps": steps,
+        "step_ids": list(step_results.keys()),
+    }
+    final_result["workflow_results"] = dict(step_results)
+    final_result["workflow_step_count"] = len(step_results)
+    final_result["workflow_source_job_type"] = _safe_str((prepared or {}).get("job_type"))
+    return final_result
+
+
 async def _run_batch_compute_async(
     prepared: Mapping[str, Any],
     progress_callback: Optional[Callable[..., Any]] = None,
@@ -2240,6 +2518,8 @@ async def _run_direct_compute_async(
     with track_operation("web.compute", parameters={"job_type": payload.get("job_type"), "has_xyz": bool(payload.get("xyz"))}) as obs:
         prepared = _prepare_payload(payload)
         advisor_plan: Optional[Dict[str, Any]] = None
+        if dict(prepared.get("workflow_plan") or {}).get("enabled"):
+            return await _run_workflow_compute_async(prepared, progress_callback=progress_callback)
         batch_selected = bool(prepared.get("batch_request") and len(prepared.get("selected_molecules") or []) > 1)
         if batch_selected:
             return await _run_batch_compute_async(prepared, progress_callback=progress_callback)

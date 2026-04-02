@@ -1906,7 +1906,7 @@ def extract_structure_candidate(text: str) -> Optional[str]:
     return None
 
 
-def normalize_user_text(text: str) -> Dict[str, Any]:
+def normalize_text_only(text: str) -> Dict[str, str]:
     raw_text = _normalize_formula_text(str(text or "").strip())
     normalized = raw_text
     for src, dst in _EXPLICIT_TEXT_REPLACEMENTS.items():
@@ -1915,8 +1915,26 @@ def normalize_user_text(text: str) -> Dict[str, Any]:
     normalized = re.sub(r"\s+", " ", normalized).strip()
 
     translated = _translate_korean_aliases(normalized)
+    translated = re.sub(r"\s+", " ", translated).strip()
+
     expanded = _expand_abbreviations(translated)
     expanded = re.sub(r"\s+", " ", expanded).strip()
+
+    return {
+        "raw_text": raw_text,
+        "normalized_compact_text": normalized,
+        "translated_text": translated or normalized or raw_text,
+        "expanded_text": expanded or translated or normalized or raw_text,
+        "normalized_text": expanded or translated or normalized or raw_text,
+    }
+
+
+def normalize_user_text(text: str) -> Dict[str, Any]:
+    text_only = normalize_text_only(text)
+    raw_text = text_only["raw_text"]
+    normalized = text_only["normalized_compact_text"]
+    translated = text_only["translated_text"]
+    expanded = text_only["expanded_text"]
 
     structure_hint = (
         extract_structure_candidate(raw_text)

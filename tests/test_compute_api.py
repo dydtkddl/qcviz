@@ -84,6 +84,25 @@ def test_compute_wait_for_result_esp(client, patch_fake_runners):
     assert result["esp_auto_range_au"] == pytest.approx(0.055)
     assert result["advisor_focus_tab"] == "esp"
 
+
+def test_compute_wait_for_result_sequential_workflow_optimize_then_esp(client, patch_fake_runners):
+    resp = client.post(
+        "/api/compute/jobs?wait_for_result=true",
+        json={"message": "methanol optimize and then ESP"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    result = data["result"]
+
+    assert data["status"] == "completed"
+    assert result["job_type"] == "esp_map"
+    assert result["workflow"]["enabled"] is True
+    assert result["workflow_step_count"] == 2
+    assert set(result["workflow_results"].keys()) == {"s1", "s2"}
+    assert result["workflow_results"]["s1"]["job_type"] == "geometry_optimization"
+    assert result["workflow_results"]["s2"]["job_type"] == "esp_map"
+    assert result["visualization"]["available"]["esp"] is True
+
 def test_compute_async_submit_then_poll_on_api_alias(client, patch_fake_runners):
     submit = client.post("/api/compute/jobs", json={"message": "물의 Mulliken charge 계산해줘"})
     assert submit.status_code == 200

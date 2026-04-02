@@ -17,7 +17,7 @@ import difflib
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from threading import Lock
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Mapping, Optional
 import re
 
 from qcviz_mcp.llm.normalizer import (
@@ -27,6 +27,7 @@ from qcviz_mcp.llm.normalizer import (
     is_condensed_structural_formula,
     _structure_text_signature,
 )
+from qcviz_mcp.llm.schemas import ResolutionResult, StructureCandidate
 
 from . import ko_aliases
 from .molchat_client import MolChatClient
@@ -677,6 +678,105 @@ class StructureResolver:
             "reasoning_notes": list(hypothesis_bundle.get("reasoning_notes") or []),
         }
 
+    def _rank_query_candidates(
+        self,
+        query_plan: Mapping[str, Any],
+        *,
+        action_plan: Optional[Mapping[str, Any]] = None,
+        state: Optional[Mapping[str, Any]] = None,
+        limit: int = 8,
+    ) -> List[Dict[str, Any]]:
+        raw_query = str(query_plan.get("raw_query") or "").strip()
+        translated_query = str(query_plan.get("translated_query") or "").strip()
+        normalized_query = str(query_plan.get("normalized_query") or "").strip()
+        raw_sig = _structure_text_signature(raw_query)
+        translated_sig = _structure_text_signature(translated_query)
+        normalized_sig = _structure_text_signature(normalized_query)
+        context_target = ""
+        if isinstance(action_plan, Mapping):
+            target = action_plan.get("target")
+            if isinstance(target, Mapping):
+                context_target = str(target.get("molecule_text") or "").strip()
+        if not context_target and isinstance(state, Mapping):
+            context_target = str(state.get("last_structure_query") or state.get("last_resolved_name") or "").strip()
+        context_sig = _structure_text_signature(context_target)
+
+        ranked: List[Dict[str, Any]] = []
+        seen: set[str] = set()
+        for idx, candidate in enumerate(list(query_plan.get("candidate_queries") or [])):
+            token = str(candidate or "").strip()
+            if not token:
+                continue
+            lowered = token.lower()
+            if lowered in seen:
+                continue
+            seen.add(lowered)
+            token_sig = _structure_text_signature(token)
+            score = 0
+            notes: List[str] = []
+            if token_sig and raw_sig and token_sig == raw_sig:
+                score += 120
+                notes.append("exact_raw_match")
+            elif token_sig and translated_sig and token_sig == translated_sig:
+                score += 110
+                notes.append("exact_translated_match")
+            elif token_sig and normalized_sig and token_sig == normalized_sig:
+                score += 100
+                notes.append("exact_normalized_match")
+            else:
+                score += max(50, 90 - idx * 5)
+                notes.append("variant_candidate")
+            if context_sig and token_sig and token_sig == context_sig:
+                score += 25
+                notes.append("context_continuity_bonus")
+            if self._cache_get(lowered):
+                score += 10
+                notes.append("resolver_cache_bonus")
+            similarity = 0
+            if token_sig and raw_sig:
+                similarity = int(difflib.SequenceMatcher(None, token_sig, raw_sig).ratio() * 100)
+            ranked.append(
+                {
+                    "query": token,
+                    "score": score,
+                    "similarity": similarity,
+                    "notes": notes,
+                }
+            )
+        ranked.sort(key=lambda item: (-int(item.get("score") or 0), -int(item.get("similarity") or 0), str(item.get("query") or "").lower()))
+        return ranked[: max(1, int(limit or 8))]
+
+    def preview_resolution_candidates(
+        self,
+        query: str,
+        *,
+        action_plan: Optional[Mapping[str, Any]] = None,
+        state: Optional[Mapping[str, Any]] = None,
+        limit: int = 5,
+    ) -> ResolutionResult:
+        query_plan = self._build_query_plan(query)
+        ranked_queries = self._rank_query_candidates(query_plan, action_plan=action_plan, state=state, limit=limit)
+        alternatives = [
+            StructureCandidate(
+                source="resolver_query_plan",
+                display_name=str(item.get("query") or ""),
+                canonical_name=str(item.get("query") or ""),
+                confidence=min(1.0, max(0.0, float(item.get("score") or 0.0) / 120.0)),
+                metadata={"ranking_notes": list(item.get("notes") or []), "similarity": item.get("similarity")},
+            )
+            for item in ranked_queries
+        ]
+        best = alternatives[0] if alternatives else None
+        return ResolutionResult(
+            resolved=bool(best and best.confidence >= 0.90),
+            best_candidate=best,
+            alternatives=alternatives[1:],
+            confidence=best.confidence if best else 0.0,
+            needs_clarification=not bool(best and best.confidence >= 0.90),
+            reason=None if best else "no_ranked_candidates",
+            ranking_notes=[",".join(item.get("notes") or []) for item in ranked_queries],
+        )
+
     async def _try_molchat_with_search_fallback(self, name: str) -> Optional[StructureResult]:
         """Run the legacy MolChat resolve path, then fall back to search/autocorrect."""
         result = await self._try_molchat(name)
@@ -930,7 +1030,13 @@ class StructureResolver:
             resolved_smiles=validated_smiles,
         )
 
-    async def resolve(self, query: str) -> StructureResult:
+    async def resolve(
+        self,
+        query: str,
+        *,
+        plan: Optional[Mapping[str, Any]] = None,
+        state: Optional[Mapping[str, Any]] = None,
+    ) -> StructureResult:
         """Resolve a molecule query to XYZ coordinates.
 
         Args:
@@ -960,6 +1066,10 @@ class StructureResolver:
             query_plan.get("alias_mentions"),
             query_plan.get("formula_mentions"),
         )
+        ranked_queries = self._rank_query_candidates(query_plan, action_plan=plan, state=state)
+        if ranked_queries:
+            query_plan["ranked_candidate_queries"] = ranked_queries
+            query_plan["candidate_queries"] = [item.get("query") for item in ranked_queries if str(item.get("query") or "").strip()]
 
         for candidate in query_plan["candidate_queries"]:
             cache_key = candidate.lower().strip()

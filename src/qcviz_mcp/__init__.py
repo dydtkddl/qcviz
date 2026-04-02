@@ -5,4 +5,8 @@
 
 from __future__ import annotations
 
+from .env_bootstrap import bootstrap_runtime_env
+
+bootstrap_runtime_env()
+
 __version__ = "0.1.0"

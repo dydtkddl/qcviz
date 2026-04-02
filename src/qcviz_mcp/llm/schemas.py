@@ -10,6 +10,27 @@ ClarificationFieldType = Literal["text", "textarea", "radio", "select", "multise
 PlannerLane = Literal["chat_only", "grounding_required", "compute_ready"]
 ComputationType = Literal["homo", "lumo", "esp", "optimization", "energy", "frequency", "custom"]
 PresetType = Literal["acs", "rsc", "custom"]
+ActionPlanMode = Literal["question", "compute", "workflow", "clarify"]
+ActionPlanIntent = Literal[
+    "general_question",
+    "geometry_optimization",
+    "esp_map",
+    "orbital_preview",
+    "partial_charges",
+    "geometry_analysis",
+    "comparison",
+    "single_point",
+    "analyze",
+    "unknown",
+]
+GroundingDecisionType = Literal[
+    "direct_answer",
+    "ask_structure_only",
+    "ask_parameter_only",
+    "compute_now",
+    "clarification_needed",
+    "reject_invalid",
+]
 GroundingSemanticOutcome = Literal[
     "grounded_direct_answer",
     "single_candidate_confirm",
@@ -81,6 +102,21 @@ def _clamp_confidence(value: Any) -> float:
     if fval > 1.0:
         return 1.0
     return fval
+
+
+def _as_optional_int(value: Any) -> Optional[int]:
+    if value in (None, ""):
+        return None
+    try:
+        return int(value)
+    except Exception:
+        return None
+
+
+def _as_dict(value: Any) -> Dict[str, Any]:
+    if isinstance(value, dict):
+        return dict(value)
+    return {}
 
 
 class ClarificationOption(BaseModel):
@@ -224,6 +260,284 @@ class SemanticExpansionResult(BaseModel):
     @classmethod
     def _ensure_expansion_string_list(cls, value: Any) -> List[str]:
         return _as_string_list(value)
+
+
+class ActionPlanTarget(BaseModel):
+    molecule_text: Optional[str] = None
+    from_context: bool = False
+    resolved_reference: Optional[str] = None
+
+    @field_validator("molecule_text", "resolved_reference", mode="before")
+    @classmethod
+    def _normalize_target_optional_text(cls, value: Any) -> Optional[str]:
+        return _as_optional_text(value)
+
+    @field_validator("from_context", mode="before")
+    @classmethod
+    def _normalize_target_bool(cls, value: Any) -> bool:
+        return _as_bool(value)
+
+
+class ActionPlanParameters(BaseModel):
+    method: Optional[str] = None
+    basis: Optional[str] = None
+    charge: Optional[int] = None
+    multiplicity: Optional[int] = None
+    orbital: Optional[str] = None
+    surface_type: Optional[str] = None
+
+    @field_validator("method", "basis", "orbital", "surface_type", mode="before")
+    @classmethod
+    def _normalize_parameter_text(cls, value: Any) -> Optional[str]:
+        return _as_optional_text(value)
+
+    @field_validator("charge", "multiplicity", mode="before")
+    @classmethod
+    def _normalize_parameter_int(cls, value: Any) -> Optional[int]:
+        return _as_optional_int(value)
+
+
+class ActionPlanComparison(BaseModel):
+    enabled: bool = False
+    targets: List[str] = Field(default_factory=list)
+
+    @field_validator("enabled", mode="before")
+    @classmethod
+    def _normalize_comparison_enabled(cls, value: Any) -> bool:
+        return _as_bool(value)
+
+    @field_validator("targets", mode="before")
+    @classmethod
+    def _normalize_comparison_targets(cls, value: Any) -> List[str]:
+        return _as_string_list(value)
+
+
+class ActionPlanFollowUp(BaseModel):
+    enabled: bool = False
+    reference_type: Optional[str] = None
+    reference_slot: Optional[str] = None
+
+    @field_validator("enabled", mode="before")
+    @classmethod
+    def _normalize_follow_up_enabled(cls, value: Any) -> bool:
+        return _as_bool(value)
+
+    @field_validator("reference_type", "reference_slot", mode="before")
+    @classmethod
+    def _normalize_follow_up_text(cls, value: Any) -> Optional[str]:
+        return _as_optional_text(value)
+
+
+class WorkflowStep(BaseModel):
+    id: str
+    action: str
+    target: Optional[str] = None
+    input_from: Optional[str] = None
+    parameters: Dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("id", "action", mode="before")
+    @classmethod
+    def _normalize_workflow_required_text(cls, value: Any) -> str:
+        return _as_clean_text(value)
+
+    @field_validator("target", "input_from", mode="before")
+    @classmethod
+    def _normalize_workflow_optional_text(cls, value: Any) -> Optional[str]:
+        return _as_optional_text(value)
+
+    @field_validator("parameters", mode="before")
+    @classmethod
+    def _normalize_workflow_parameters(cls, value: Any) -> Dict[str, Any]:
+        return _as_dict(value)
+
+
+class ActionPlanWorkflow(BaseModel):
+    enabled: bool = False
+    steps: List[WorkflowStep] = Field(default_factory=list)
+
+    @field_validator("enabled", mode="before")
+    @classmethod
+    def _normalize_workflow_enabled(cls, value: Any) -> bool:
+        return _as_bool(value)
+
+    @field_validator("steps", mode="before")
+    @classmethod
+    def _normalize_workflow_steps(cls, value: Any) -> List[WorkflowStep]:
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return [WorkflowStep.model_validate(item) for item in value]
+        return []
+
+    @model_validator(mode="after")
+    def _derive_workflow_enabled(self) -> "ActionPlanWorkflow":
+        if self.steps and not self.enabled:
+            self.enabled = True
+        if self.enabled and not self.steps:
+            self.enabled = False
+        return self
+
+
+class StructureCandidate(BaseModel):
+    source: str = "unknown"
+    display_name: str = ""
+    canonical_name: Optional[str] = None
+    smiles: Optional[str] = None
+    xyz: Optional[str] = None
+    confidence: float = 0.0
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("source", "display_name", mode="before")
+    @classmethod
+    def _normalize_candidate_text(cls, value: Any) -> str:
+        return _as_clean_text(value)
+
+    @field_validator("canonical_name", "smiles", "xyz", mode="before")
+    @classmethod
+    def _normalize_candidate_optional_text(cls, value: Any) -> Optional[str]:
+        return _as_optional_text(value)
+
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def _normalize_candidate_score(cls, value: Any) -> float:
+        return _clamp_confidence(value)
+
+    @field_validator("metadata", mode="before")
+    @classmethod
+    def _normalize_candidate_metadata(cls, value: Any) -> Dict[str, Any]:
+        return _as_dict(value)
+
+
+class ResolutionResult(BaseModel):
+    resolved: bool = False
+    best_candidate: Optional[StructureCandidate] = None
+    alternatives: List[StructureCandidate] = Field(default_factory=list)
+    confidence: float = 0.0
+    needs_clarification: bool = False
+    reason: Optional[str] = None
+    ranking_notes: List[str] = Field(default_factory=list)
+
+    @field_validator("best_candidate", mode="before")
+    @classmethod
+    def _normalize_best_candidate(cls, value: Any) -> Optional[StructureCandidate]:
+        if value in (None, ""):
+            return None
+        if isinstance(value, StructureCandidate):
+            return value
+        if isinstance(value, dict):
+            return StructureCandidate.model_validate(value)
+        return None
+
+    @field_validator("alternatives", mode="before")
+    @classmethod
+    def _normalize_alternatives(cls, value: Any) -> List[StructureCandidate]:
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return [StructureCandidate.model_validate(item) for item in value]
+        return []
+
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def _normalize_resolution_confidence(cls, value: Any) -> float:
+        return _clamp_confidence(value)
+
+    @field_validator("needs_clarification", mode="before")
+    @classmethod
+    def _normalize_resolution_bool(cls, value: Any) -> bool:
+        return _as_bool(value)
+
+    @field_validator("reason", mode="before")
+    @classmethod
+    def _normalize_resolution_reason(cls, value: Any) -> Optional[str]:
+        return _as_optional_text(value)
+
+    @field_validator("ranking_notes", mode="before")
+    @classmethod
+    def _normalize_ranking_notes(cls, value: Any) -> List[str]:
+        return _as_string_list(value)
+
+    @model_validator(mode="after")
+    def _derive_resolution_defaults(self) -> "ResolutionResult":
+        if self.best_candidate and not self.resolved:
+            self.resolved = True
+        if self.best_candidate and self.best_candidate.confidence > self.confidence:
+            self.confidence = self.best_candidate.confidence
+        return self
+
+
+class GroundingDecision(BaseModel):
+    decision: GroundingDecisionType = "clarification_needed"
+    score: float = 0.0
+    reasons: List[str] = Field(default_factory=list)
+    requires_clarification: bool = False
+
+    @field_validator("score", mode="before")
+    @classmethod
+    def _normalize_decision_score(cls, value: Any) -> float:
+        return _clamp_confidence(value)
+
+    @field_validator("reasons", mode="before")
+    @classmethod
+    def _normalize_decision_reasons(cls, value: Any) -> List[str]:
+        return _as_string_list(value)
+
+    @field_validator("requires_clarification", mode="before")
+    @classmethod
+    def _normalize_decision_bool(cls, value: Any) -> bool:
+        return _as_bool(value)
+
+    @model_validator(mode="after")
+    def _derive_decision_defaults(self) -> "GroundingDecision":
+        if self.decision in {"ask_structure_only", "ask_parameter_only", "clarification_needed"}:
+            self.requires_clarification = True
+        return self
+
+
+class ActionPlan(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    mode: ActionPlanMode = "clarify"
+    intent: ActionPlanIntent = "unknown"
+    target: ActionPlanTarget = Field(default_factory=ActionPlanTarget)
+    parameters: ActionPlanParameters = Field(default_factory=ActionPlanParameters)
+    comparison: ActionPlanComparison = Field(default_factory=ActionPlanComparison)
+    follow_up: ActionPlanFollowUp = Field(default_factory=ActionPlanFollowUp)
+    workflow: ActionPlanWorkflow = Field(default_factory=ActionPlanWorkflow)
+    explanation_request: bool = False
+    needs_clarification: bool = False
+    clarification_reason: Optional[str] = None
+    confidence: float = 0.0
+    reasoning: Optional[str] = None
+
+    @field_validator("explanation_request", "needs_clarification", mode="before")
+    @classmethod
+    def _normalize_action_plan_bool(cls, value: Any) -> bool:
+        return _as_bool(value)
+
+    @field_validator("clarification_reason", "reasoning", mode="before")
+    @classmethod
+    def _normalize_action_plan_text(cls, value: Any) -> Optional[str]:
+        return _as_optional_text(value)
+
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def _normalize_action_plan_confidence(cls, value: Any) -> float:
+        return _clamp_confidence(value)
+
+    @model_validator(mode="after")
+    def _derive_action_plan_defaults(self) -> "ActionPlan":
+        if self.workflow.enabled and self.mode != "workflow":
+            self.mode = "workflow"
+        if self.mode == "question" and self.intent == "unknown":
+            self.intent = "general_question"
+        if self.mode == "clarify" and not self.needs_clarification:
+            self.needs_clarification = True
+        if self.needs_clarification and not self.clarification_reason:
+            self.clarification_reason = "clarification_needed"
+        if self.target.from_context and not self.follow_up.enabled:
+            self.follow_up.enabled = True
+        return self
 
 
 class PlanResult(BaseModel):
@@ -489,6 +803,7 @@ class PlanResponse(BaseModel):
     reasoning_notes: List[str] = Field(default_factory=list)
     notes: List[str] = Field(default_factory=list)
     chat_response: Optional[str] = None
+    action_plan: Optional[ActionPlan] = None
 
     @field_validator("intent", "job_type", "focus_tab", "provider", "reasoning", mode="before")
     @classmethod
@@ -547,6 +862,17 @@ class PlanResponse(BaseModel):
     @classmethod
     def _ensure_dict_list(cls, value: Any) -> List[Dict[str, Any]]:
         return _as_dict_list(value)
+
+    @field_validator("action_plan", mode="before")
+    @classmethod
+    def _normalize_action_plan(cls, value: Any) -> Optional[ActionPlan]:
+        if value in (None, ""):
+            return None
+        if isinstance(value, ActionPlan):
+            return value
+        if isinstance(value, dict):
+            return ActionPlan.model_validate(value)
+        return None
 
     @field_validator(
         "semantic_grounding_needed",

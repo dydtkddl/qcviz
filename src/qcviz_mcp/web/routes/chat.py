@@ -392,6 +392,9 @@ def _result_summary(result: Optional[Mapping[str, Any]]) -> str:
 def _plan_is_chat_only(plan: Optional[Mapping[str, Any]]) -> bool:
     if not plan:
         return False
+    action_plan = dict((plan or {}).get("action_plan") or {})
+    if _safe_str(action_plan.get("mode")) == "question":
+        return True
     intent = _safe_str(plan.get("intent")).lower()
     query_kind = _safe_str(plan.get("query_kind")).lower()
     explanation_intent = bool(plan.get("explanation_intent"))

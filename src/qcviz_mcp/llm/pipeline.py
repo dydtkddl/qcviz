@@ -12,6 +12,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Type, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
+from qcviz_mcp.env_bootstrap import bootstrap_runtime_env, get_env_bootstrap_status
 from qcviz_mcp.llm.grounding_merge import (
     GroundingConfig,
     SEMANTIC_OUTCOME_CHAT_ONLY,
@@ -25,11 +26,13 @@ from qcviz_mcp.llm.grounding_merge import (
 from qcviz_mcp.llm.lane_lock import LaneLock
 from qcviz_mcp.llm.normalizer import analyze_follow_up_request, normalize_user_text
 from qcviz_mcp.llm.schemas import (
+    ActionPlan,
     GroundingOutcome,
     IngressResult,
     IngressRewriteResult,
     PlanResult,
     PlanResponse,
+    WorkflowStep,
 )
 from qcviz_mcp.llm.trace import PipelineTrace, emit_pipeline_trace
 
@@ -166,6 +169,365 @@ def build_grounding_outcome(
     )
 
 
+_ACTION_PLAN_INTENT_FROM_JOB_TYPE: Dict[str, str] = {
+    "chat": "general_question",
+    "analyze": "analyze",
+    "single_point": "single_point",
+    "geometry_analysis": "geometry_analysis",
+    "partial_charges": "partial_charges",
+    "orbital_preview": "orbital_preview",
+    "esp_map": "esp_map",
+    "geometry_optimization": "geometry_optimization",
+}
+
+_LEGACY_INTENT_FROM_ACTION_PLAN: Dict[str, str] = {
+    "general_question": "chat",
+    "geometry_optimization": "geometry_optimization",
+    "esp_map": "esp_map",
+    "orbital_preview": "orbital_preview",
+    "partial_charges": "partial_charges",
+    "geometry_analysis": "geometry_analysis",
+    "comparison": "analyze",
+    "single_point": "single_point",
+    "analyze": "analyze",
+    "unknown": "analyze",
+}
+
+
+def _extract_name_from_entry(value: Any) -> Optional[str]:
+    if isinstance(value, Mapping):
+        for key in ("name", "canonical_name", "structure_query", "label"):
+            token = _coerce_text(value.get(key))
+            if token:
+                return token
+        return None
+    token = _coerce_text(value)
+    return token or None
+
+
+def _workflow_surface_action(raw_text: str, plan_dict: Mapping[str, Any]) -> Optional[str]:
+    normalized_text = _coerce_text(plan_dict.get("normalized_text")) or _coerce_text(raw_text)
+    lowered = normalized_text.lower()
+    if re.search(r"\besp\b|electrostatic|정전기|전위", lowered, re.IGNORECASE):
+        return "esp_map"
+    if re.search(r"\bhomo\b|highest occupied", lowered, re.IGNORECASE):
+        return "orbital_preview"
+    if re.search(r"\blumo\b|lowest unoccupied", lowered, re.IGNORECASE):
+        return "orbital_preview"
+    if re.search(r"\bcharge|charges|mulliken\b|전하", lowered, re.IGNORECASE):
+        return "partial_charges"
+    if re.search(r"\bgeometry\b|bond|angle|dihedral|구조", lowered, re.IGNORECASE):
+        return "geometry_analysis"
+    return None
+
+
+def _detect_workflow_steps(
+    raw_text: str,
+    normalized_hint: Mapping[str, Any],
+    plan_dict: Mapping[str, Any],
+) -> List[WorkflowStep]:
+    text = _coerce_text(raw_text)
+    normalized_text = _coerce_text(normalized_hint.get("normalized_text")) or text
+    lowered = normalized_text.lower()
+    has_sequence_cue = bool(
+        re.search(
+            r"\b(?:then|after that|followed by)\b|하고\s*(?:그\s*결과로|나서)|후에|다음으로|그리고|각각\s*최적화\s*후",
+            text,
+            re.IGNORECASE,
+        )
+    )
+    if not has_sequence_cue:
+        return []
+
+    first_job_type = _coerce_text(plan_dict.get("job_type") or plan_dict.get("intent"))
+    if first_job_type != "geometry_optimization" and not re.search(
+        r"\bopt(?:imize|imization)?\b|최적화|relax",
+        lowered,
+        re.IGNORECASE,
+    ):
+        return []
+
+    target_name = (
+        _coerce_text(plan_dict.get("structure_query"))
+        or _coerce_text(normalized_hint.get("maybe_structure_hint"))
+        or (_extract_name_from_entry((normalized_hint.get("mentioned_molecules") or [None])[0]) or "")
+    )
+    second_action = _workflow_surface_action(text, plan_dict)
+    if second_action in {"geometry_analysis"} and not re.search(r"그 결과|after|followed by|후", text, re.IGNORECASE):
+        return []
+    if not second_action or second_action == "geometry_optimization":
+        return []
+
+    step_one = WorkflowStep(id="s1", action="geometry_optimization", target=target_name or None)
+    parameters: Dict[str, Any] = {}
+    orbital = _coerce_text(plan_dict.get("orbital")).upper()
+    if second_action == "orbital_preview" and orbital in {"HOMO", "LUMO"}:
+        parameters["orbital"] = orbital
+    surface_type = "esp" if second_action == "esp_map" else None
+    if surface_type:
+        parameters["surface_type"] = surface_type
+    step_two = WorkflowStep(
+        id="s2",
+        action=second_action,
+        input_from="s1",
+        parameters=parameters,
+    )
+    return [step_one, step_two]
+
+
+def resolve_context_references(
+    action_plan: ActionPlan,
+    conversation_state: Optional[Mapping[str, Any]] = None,
+    latest_result_summary: Optional[Mapping[str, Any]] = None,
+) -> ActionPlan:
+    if not isinstance(action_plan, ActionPlan):
+        action_plan = ActionPlan.model_validate(action_plan)
+
+    if action_plan.target.molecule_text:
+        return action_plan
+
+    if not action_plan.follow_up.enabled and not action_plan.target.from_context:
+        return action_plan
+
+    state = dict(conversation_state or {})
+    latest = dict(latest_result_summary or {})
+    candidate = (
+        _coerce_text((((state.get("last_resolved_artifact") or {}) if isinstance(state.get("last_resolved_artifact"), Mapping) else {}).get("structure_query")))
+        or _coerce_text((((state.get("last_resolved_artifact") or {}) if isinstance(state.get("last_resolved_artifact"), Mapping) else {}).get("structure_name")))
+        or _coerce_text(state.get("last_structure_query"))
+        or _coerce_text(state.get("last_resolved_name"))
+        or _coerce_text(latest.get("structure_query"))
+        or _coerce_text(latest.get("structure_name"))
+    )
+    if candidate:
+        action_plan.target.molecule_text = candidate
+        action_plan.target.from_context = True
+        action_plan.target.resolved_reference = action_plan.target.resolved_reference or "previous_result"
+        action_plan.follow_up.enabled = True
+        action_plan.follow_up.reference_type = action_plan.follow_up.reference_type or "previous_result"
+        action_plan.follow_up.reference_slot = action_plan.follow_up.reference_slot or "latest"
+        if action_plan.mode == "clarify" and not action_plan.clarification_reason:
+            action_plan.mode = "compute"
+            action_plan.needs_clarification = False
+        return action_plan
+
+    action_plan.mode = "clarify"
+    action_plan.needs_clarification = True
+    action_plan.clarification_reason = action_plan.clarification_reason or "context_reference_ambiguous"
+    return action_plan
+
+
+def coerce_action_plan(
+    plan: Mapping[str, Any],
+    *,
+    raw_text: str = "",
+    conversation_state: Optional[Mapping[str, Any]] = None,
+    latest_result_summary: Optional[Mapping[str, Any]] = None,
+    normalized_hint: Optional[Mapping[str, Any]] = None,
+) -> ActionPlan:
+    plan_dict = dict(plan or {})
+    normalized_hint = dict(normalized_hint or normalize_user_text(raw_text))
+    workflow_steps = _detect_workflow_steps(raw_text, normalized_hint, plan_dict)
+    selected_targets = [
+        token
+        for token in [_extract_name_from_entry(item) for item in list(plan_dict.get("selected_molecules") or [])]
+        if token
+    ]
+    if not selected_targets:
+        selected_targets = [
+            token
+            for token in [_extract_name_from_entry(item) for item in list(normalized_hint.get("selected_molecules") or [])]
+            if token
+        ]
+    if not selected_targets:
+        selected_targets = [
+            token
+            for token in [_extract_name_from_entry(item) for item in list(plan_dict.get("mentioned_molecules") or normalized_hint.get("mentioned_molecules") or [])]
+            if token
+        ]
+    comparison_enabled = bool(
+        len(selected_targets) > 1
+        or bool(plan_dict.get("batch_request"))
+        or bool(normalized_hint.get("batch_request"))
+        or bool(re.search(r"\bcompare\b|\bvs\b|versus|비교|차이", _coerce_text(raw_text), re.IGNORECASE))
+    )
+    target_text = (
+        _coerce_text(plan_dict.get("structure_query"))
+        or _coerce_text(plan_dict.get("molecule_name"))
+        or _coerce_text(normalized_hint.get("maybe_structure_hint"))
+        or None
+    )
+    follow_up_mode = _coerce_text(plan_dict.get("follow_up_mode") or normalized_hint.get("follow_up_mode")) or None
+    follow_up_enabled = bool(
+        follow_up_mode
+        or bool(plan_dict.get("follow_up_requires_context"))
+        or bool(normalized_hint.get("follow_up_requires_context"))
+        or (not target_text and bool(normalized_hint.get("maybe_structure_hint")))
+    )
+    query_kind = _coerce_text(plan_dict.get("planner_lane") or plan_dict.get("query_kind"))
+    has_compute_signal = bool(
+        plan_dict.get("explicit_compute_action")
+        or normalized_hint.get("explicit_compute_action")
+        or list(plan_dict.get("analysis_bundle") or normalized_hint.get("analysis_bundle") or [])
+        or query_kind in {"grounding_required", "compute_ready"}
+        or follow_up_enabled
+        or _coerce_text(plan_dict.get("job_type")) not in {"", "chat"}
+    )
+    planner_authoritative_chat = bool(
+        plan_dict.get("lane_locked")
+        and query_kind == "chat_only"
+        and not bool(plan_dict.get("semantic_grounding_needed"))
+        and not follow_up_enabled
+        and not bool(plan_dict.get("needs_clarification"))
+    )
+    explanation_request = bool(
+        plan_dict.get("explanation_intent")
+        or re.search(r"설명만|explain only|just explain|계산 말고 설명", _coerce_text(raw_text), re.IGNORECASE)
+    )
+    mode = "compute"
+    if workflow_steps:
+        mode = "workflow"
+    elif planner_authoritative_chat:
+        mode = "question"
+    elif bool(plan_dict.get("needs_clarification")) or (
+        query_kind == "grounding_required"
+        and has_compute_signal
+    ):
+        mode = "clarify"
+    elif (query_kind == "chat_only" or _coerce_text(plan_dict.get("intent")).lower() == "chat") and not has_compute_signal:
+        mode = "question"
+    elif query_kind == "grounding_required":
+        mode = "clarify"
+    intent_key = _coerce_text(plan_dict.get("job_type") or plan_dict.get("intent")).lower()
+    if comparison_enabled and mode != "workflow":
+        action_intent = "comparison"
+    else:
+        action_intent = _ACTION_PLAN_INTENT_FROM_JOB_TYPE.get(intent_key, "unknown")
+    if mode == "question":
+        action_intent = "general_question"
+    surface_type = None
+    if intent_key == "esp_map" or _coerce_text(plan_dict.get("esp_preset")):
+        surface_type = "esp"
+    action_plan = ActionPlan.model_validate(
+        {
+            "mode": mode,
+            "intent": action_intent,
+            "target": {
+                "molecule_text": target_text,
+                "from_context": bool(plan_dict.get("target_from_context")),
+                "resolved_reference": _coerce_text(plan_dict.get("resolved_reference")) or None,
+            },
+            "parameters": {
+                "method": plan_dict.get("method"),
+                "basis": plan_dict.get("basis"),
+                "charge": plan_dict.get("charge"),
+                "multiplicity": plan_dict.get("multiplicity"),
+                "orbital": plan_dict.get("orbital"),
+                "surface_type": surface_type,
+            },
+            "comparison": {
+                "enabled": comparison_enabled,
+                "targets": selected_targets,
+            },
+            "follow_up": {
+                "enabled": follow_up_enabled,
+                "reference_type": follow_up_mode or ("previous_result" if follow_up_enabled else None),
+                "reference_slot": "latest" if follow_up_enabled else None,
+            },
+            "workflow": {
+                "enabled": bool(workflow_steps),
+                "steps": [step.model_dump(exclude_none=True) for step in workflow_steps],
+            },
+            "explanation_request": explanation_request,
+            "needs_clarification": bool(plan_dict.get("needs_clarification")),
+            "clarification_reason": _coerce_text(plan_dict.get("clarification_kind")) or None,
+            "confidence": plan_dict.get("confidence", 0.0),
+            "reasoning": plan_dict.get("reasoning"),
+            "raw_text": raw_text,
+            "normalized_text": _coerce_text(plan_dict.get("normalized_text") or normalized_hint.get("normalized_text") or raw_text),
+            "provider": plan_dict.get("provider"),
+            "query_kind": query_kind or None,
+            "job_type": intent_key or None,
+            "selected_molecules": selected_targets,
+            "analysis_bundle": list(plan_dict.get("analysis_bundle") or normalized_hint.get("analysis_bundle") or []),
+            "mentioned_molecules": list(plan_dict.get("mentioned_molecules") or normalized_hint.get("mentioned_molecules") or []),
+            "canonical_candidates": list(plan_dict.get("canonical_candidates") or normalized_hint.get("canonical_candidates") or []),
+            "unknown_acronyms": list(plan_dict.get("unknown_acronyms") or normalized_hint.get("unknown_acronyms") or []),
+        }
+    )
+    return resolve_context_references(
+        action_plan,
+        conversation_state=conversation_state,
+        latest_result_summary=latest_result_summary,
+    )
+
+
+def action_plan_to_legacy_plan(
+    action_plan: ActionPlan,
+    *,
+    legacy_plan: Optional[Mapping[str, Any]] = None,
+) -> Dict[str, Any]:
+    if not isinstance(action_plan, ActionPlan):
+        action_plan = ActionPlan.model_validate(action_plan)
+    out = dict(legacy_plan or {})
+    mode = action_plan.mode
+    query_kind = "compute_ready"
+    semantic_grounding_needed = bool(out.get("semantic_grounding_needed")) or _coerce_text(action_plan.clarification_reason) in {
+        "semantic_grounding",
+        "grounding_required",
+        "structure_ambiguity",
+    }
+    if mode == "question":
+        query_kind = "chat_only"
+    elif action_plan.needs_clarification or mode == "clarify":
+        query_kind = "grounding_required" if semantic_grounding_needed else "compute_ready"
+
+    job_type = _LEGACY_INTENT_FROM_ACTION_PLAN.get(action_plan.intent, out.get("job_type") or "analyze")
+    if mode == "workflow" and action_plan.workflow.steps:
+        job_type = _coerce_text(action_plan.workflow.steps[0].action) or job_type
+
+    out["query_kind"] = query_kind
+    out["planner_lane"] = query_kind
+    out["chat_only"] = bool(mode == "question")
+    out["intent"] = "chat" if mode == "question" else job_type
+    out["job_type"] = "chat" if mode == "question" else job_type
+    out["structure_query"] = action_plan.target.molecule_text
+    out["semantic_grounding_needed"] = semantic_grounding_needed
+    out["method"] = action_plan.parameters.method
+    out["basis"] = action_plan.parameters.basis
+    out["charge"] = action_plan.parameters.charge
+    out["multiplicity"] = action_plan.parameters.multiplicity
+    out["orbital"] = action_plan.parameters.orbital
+    out["compute_intent"] = bool(mode in {"compute", "workflow"} and query_kind == "compute_ready")
+    out["grounding_intent"] = bool(query_kind == "grounding_required")
+    out["explanation_intent"] = bool(mode == "question" or action_plan.explanation_request)
+    out["follow_up_mode"] = out.get("follow_up_mode") or action_plan.follow_up.reference_type
+    out["clarification_kind"] = action_plan.clarification_reason
+    out["needs_clarification"] = action_plan.needs_clarification
+    out["confidence"] = action_plan.confidence
+    out["reasoning"] = _coerce_text(action_plan.reasoning) or out.get("reasoning") or ""
+    out["action_plan"] = action_plan.model_dump(exclude_none=True)
+    selected = list(action_plan.comparison.targets or out.get("selected_molecules") or [])
+    if selected:
+        out["selected_molecules"] = selected
+        out["batch_request"] = len(selected) > 1
+        out["batch_size"] = len(selected)
+        out["target_scope"] = out.get("target_scope") or "all_mentioned"
+        out["selection_mode"] = out.get("selection_mode") or "implicit_all"
+    if action_plan.workflow.enabled:
+        out["workflow_plan"] = action_plan.workflow.model_dump(exclude_none=True)
+    if action_plan.parameters.surface_type == "esp" and not _coerce_text(out.get("esp_preset")):
+        out["esp_preset"] = out.get("esp_preset")
+    if action_plan.target.from_context:
+        out["target_from_context"] = True
+        out["resolved_reference"] = action_plan.target.resolved_reference
+    missing_slots = [str(item).strip() for item in list(out.get("missing_slots") or []) if str(item).strip()]
+    if action_plan.needs_clarification and not action_plan.target.molecule_text and "structure_query" not in missing_slots:
+        missing_slots.append("structure_query")
+    out["missing_slots"] = missing_slots
+    return out
+
+
 class QCVizPromptPipeline:
     def __init__(
         self,
@@ -186,6 +548,7 @@ class QCVizPromptPipeline:
         canary_percent: Optional[int] = None,
         repair_max: Optional[int] = None,
     ) -> None:
+        bootstrap_runtime_env()
         self.provider = _coerce_text(provider or os.getenv("QCVIZ_LLM_PROVIDER", "auto")).lower() or "auto"
         self.openai_api_key = _coerce_text(openai_api_key or os.getenv("OPENAI_API_KEY"))
         self.openai_model = _coerce_text(openai_model or os.getenv("QCVIZ_OPENAI_MODEL", "gpt-4.1-mini")) or "gpt-4.1-mini"
@@ -253,6 +616,30 @@ class QCVizPromptPipeline:
 
     def is_enabled(self) -> bool:
         return bool(self.enabled and not self.force_heuristic)
+
+    def build_action_plan(
+        self,
+        message: str,
+        conversation_state: Optional[Mapping[str, Any]] = None,
+        latest_result_summary: Optional[Mapping[str, Any]] = None,
+        *,
+        heuristic_planner: Callable[[str, Mapping[str, Any], Dict[str, Any]], Any],
+        llm_planner: Optional[Callable[[str, Dict[str, Any], Mapping[str, Any]], Any]] = None,
+    ) -> ActionPlan:
+        plan_dict = self.execute(
+            message,
+            conversation_state or {},
+            heuristic_planner=heuristic_planner,
+            llm_planner=llm_planner,
+        )
+        normalized_hint = normalize_user_text(message)
+        return coerce_action_plan(
+            plan_dict,
+            raw_text=message,
+            conversation_state=conversation_state,
+            latest_result_summary=latest_result_summary,
+            normalized_hint=normalized_hint,
+        )
 
     def execute(
         self,
@@ -419,13 +806,55 @@ class QCVizPromptPipeline:
         return bool(self.gemini_api_key or self.openai_api_key)
 
     def _detailed_no_provider_reason(self) -> str:
+        status = get_env_bootstrap_status()
         if self.provider == "none":
             return "provider_set_to_none"
         if self.provider == "gemini" and not self.gemini_api_key:
+            if status.get("error"):
+                logger.warning(
+                    "Gemini provider unavailable after env bootstrap failure: path=%s error=%s",
+                    status.get("path"),
+                    status.get("error"),
+                )
+            elif status.get("attempted"):
+                logger.info(
+                    "Gemini provider unavailable: env bootstrap attempted but key is absent (path=%s file_exists=%s loader=%s)",
+                    status.get("path"),
+                    status.get("file_exists"),
+                    status.get("loader"),
+                )
             return "no_gemini_key"
         if self.provider == "openai" and not self.openai_api_key:
+            if status.get("error"):
+                logger.warning(
+                    "OpenAI provider unavailable after env bootstrap failure: path=%s error=%s",
+                    status.get("path"),
+                    status.get("error"),
+                )
+            elif status.get("attempted"):
+                logger.info(
+                    "OpenAI provider unavailable: env bootstrap attempted but key is absent (path=%s file_exists=%s loader=%s)",
+                    status.get("path"),
+                    status.get("file_exists"),
+                    status.get("loader"),
+                )
             return "no_openai_key"
         if not self.gemini_api_key and not self.openai_api_key:
+            if status.get("error"):
+                logger.warning(
+                    "No LLM providers available after env bootstrap failure: path=%s error=%s",
+                    status.get("path"),
+                    status.get("error"),
+                )
+            elif status.get("attempted"):
+                logger.info(
+                    "No LLM providers available: env bootstrap attempted but Gemini/OpenAI keys are absent (path=%s file_exists=%s loader=%s)",
+                    status.get("path"),
+                    status.get("file_exists"),
+                    status.get("loader"),
+                )
+            else:
+                logger.warning("No LLM providers available and env bootstrap was never attempted.")
             return "no_gemini_key_and_no_openai_key"
         return "no_llm_provider_available"
 
@@ -1049,3 +1478,22 @@ class QCVizPromptPipeline:
             "custom": "analyze",
         }
         return mapping.get((computation_type or "").lower(), "analyze")
+
+
+def build_action_plan(
+    user_text: str,
+    conversation_state: Optional[Mapping[str, Any]] = None,
+    latest_result_summary: Optional[Mapping[str, Any]] = None,
+    *,
+    heuristic_planner: Callable[[str, Mapping[str, Any], Dict[str, Any]], Any],
+    llm_planner: Optional[Callable[[str, Dict[str, Any], Mapping[str, Any]], Any]] = None,
+    pipeline: Optional[QCVizPromptPipeline] = None,
+) -> ActionPlan:
+    builder = pipeline or QCVizPromptPipeline()
+    return builder.build_action_plan(
+        user_text,
+        conversation_state=conversation_state,
+        latest_result_summary=latest_result_summary,
+        heuristic_planner=heuristic_planner,
+        llm_planner=llm_planner,
+    )

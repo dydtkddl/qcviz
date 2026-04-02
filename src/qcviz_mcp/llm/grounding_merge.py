@@ -5,7 +5,14 @@ from typing import Any, Iterable, Mapping, Optional
 
 from qcviz_mcp.llm.lane_lock import LaneLock
 from qcviz_mcp.llm.routing_config import GROUNDING_AUTO_ACCEPT_THRESHOLD
-from qcviz_mcp.llm.schemas import GroundingCandidate, GroundingOutcome, PlanResult
+from qcviz_mcp.llm.schemas import (
+    ActionPlan,
+    GroundingCandidate,
+    GroundingDecision,
+    GroundingOutcome,
+    PlanResult,
+    ResolutionResult,
+)
 
 
 SEMANTIC_OUTCOME_GROUNDED_DIRECT_ANSWER = "grounded_direct_answer"
@@ -212,4 +219,76 @@ def grounding_merge(
     return GroundingOutcome(
         semantic_outcome=SEMANTIC_OUTCOME_GROUNDING_CLARIFICATION,
         candidates=candidates,
+    )
+
+
+def grounding_decision(
+    plan: Any,
+    resolution: Optional[Any] = None,
+    context_info: Optional[Mapping[str, Any]] = None,
+) -> GroundingDecision:
+    action_plan = plan if isinstance(plan, ActionPlan) else ActionPlan.model_validate(plan or {})
+    context_info = dict(context_info or {})
+
+    if resolution is None:
+        resolution_result = ResolutionResult()
+    elif isinstance(resolution, ResolutionResult):
+        resolution_result = resolution
+    else:
+        resolution_result = ResolutionResult.model_validate(resolution)
+
+    if action_plan.mode == "question":
+        return GroundingDecision(
+            decision="direct_answer",
+            score=1.0,
+            reasons=["question mode does not require structure grounding"],
+        )
+
+    if not resolution_result.resolved and resolution_result.needs_clarification:
+        return GroundingDecision(
+            decision="ask_structure_only",
+            score=0.0,
+            reasons=["structure resolution is ambiguous or unresolved"],
+        )
+
+    missing_parameters = []
+    if action_plan.intent == "orbital_preview" and not str(action_plan.parameters.orbital or "").strip():
+        missing_parameters.append("orbital")
+    if missing_parameters:
+        return GroundingDecision(
+            decision="ask_parameter_only",
+            score=0.0,
+            reasons=[f"missing required parameters: {', '.join(missing_parameters)}"],
+        )
+
+    score = 0.0
+    score += 0.30 * max(0.0, min(1.0, float(action_plan.confidence or 0.0)))
+    score += 0.30 * max(0.0, min(1.0, float(resolution_result.confidence or 0.0)))
+    score += 0.20 * max(0.0, min(1.0, float(context_info.get("confidence") or 0.0)))
+    completeness = 1.0 if action_plan.target.molecule_text else 0.0
+    if action_plan.intent == "orbital_preview":
+        completeness = min(
+            1.0,
+            completeness + (0.5 if str(action_plan.parameters.orbital or "").strip() else 0.0),
+        )
+    score += 0.10 * completeness
+    feasible = 1.0 if resolution_result.resolved or action_plan.target.molecule_text else 0.0
+    score += 0.10 * feasible
+
+    if score >= 0.82:
+        return GroundingDecision(
+            decision="compute_now",
+            score=score,
+            reasons=["planner, context, and structure resolution jointly satisfy compute threshold"],
+        )
+    if score >= 0.60:
+        return GroundingDecision(
+            decision="clarification_needed",
+            score=score,
+            reasons=["confidence is moderate but not strong enough for deterministic execution"],
+        )
+    return GroundingDecision(
+        decision="reject_invalid",
+        score=score,
+        reasons=["overall grounding confidence is too low"],
     )
